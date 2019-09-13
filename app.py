@@ -37,7 +37,7 @@ margin=go.layout.Margin(
     pad=0)
 
 def make_timeseries_fig(date=None):
-
+    print('make_timeseries_fig')
     data = [go.Bar(
             x=trips_ddf['Date'],
             y=trips_ddf['Trips']
@@ -57,6 +57,7 @@ def make_timeseries_fig(date=None):
     return fig
 
 def make_station_map(date='2018-01-01'):
+    print('make_station_map')
     # https://plot.ly/python/mapbox-layers/
     sdf = mobi.get_stationsdf('../mobi/')
     sdf['lat'] = sdf.coordinates.map(lambda x: x[0])
@@ -74,6 +75,7 @@ def make_station_map(date='2018-01-01'):
 
     mapdata = go.Scattermapbox(lat=sdf["lat"], 
                                lon=sdf["long"],
+                               text=sdf["name"],
                                marker={'size':sdf['trips'],
                                        'sizemode':'area',
                                        'sizeref':2.*max(sdf['trips'])/(40.**2),
@@ -99,37 +101,49 @@ def make_station_map(date='2018-01-01'):
                          )
     mapfig = go.Figure(data=mapdata,layout=maplayout)
     return mapfig    
-    
-def make_trips_map(date='2018-01-01'):
-    # https://plot.ly/python/mapbox-layers/
-    sdf = mobi.get_stationsdf('../mobi/')
-    sdf['lat'] = sdf.coordinates.map(lambda x: x[0])
-    sdf['long'] = sdf.coordinates.map(lambda x: x[1])
-    sdf = sdf[sdf['lat']>1]
-    
-    
+
+def prep_daily_df(date):
     if len(date) == 2:
-        ddf = df.set_index('Departure').loc[date[0]:date[1]]
+        ddf = df.set_index('Departure')[date[0]:date[1]].reset_index()
     else:
-        ddf = df.set_index('Departure').loc[date]
-
-    print(ddf.head())
-    print(ddf.tail())
-    
-
+        ddf = df.set_index('Departure')[date].reset_index()
+    sdf = mobi.get_stationsdf('../mobi/')
     ddf = mobi.system.add_station_coords(ddf,sdf)
+    return ddf
     
     
-    mapdata = [go.Scattermapbox(lat=[ddf.iloc[i].loc["Departure coords"][0],ddf.iloc[i].loc["Return coords"][0]], 
-                               lon=[ddf.iloc[i].loc["Departure coords"][1],ddf.iloc[i].loc["Return coords"][1]],
+def make_trips_map(station,date):
+    print('make_trips_map')
+    print(station,date)
+    # https://plot.ly/python/mapbox-layers/
+
+    ddf = prep_daily_df(date)    
+    ddf = ddf[ddf['Departure station'] == station]
+    cdf = mobi.system.make_con_df(ddf)
+    
+
+ 
+    mapdata = [go.Scattermapbox(lat=[cdf.iloc[i].loc["start coords"][0],cdf.iloc[i].loc["stop coords"][0]], 
+                               lon=[cdf.iloc[i].loc["start coords"][1],cdf.iloc[i].loc["stop coords"][1]],
                                mode='lines',
                                opacity=0.5,
                                line={
-                                'width': 2,
+                                'width': 10*cdf.iloc[i].loc['trips'] / max(cdf['trips']),
                                 }
-                              ) for i in range(len(ddf)) ]
-              
-
+                              ) for i in range(len(cdf)) ]
+    
+    sdf = mobi.get_stationsdf('../mobi/')   
+    sdf['lat'] = sdf.coordinates.map(lambda x: x[0])
+    sdf['long'] = sdf.coordinates.map(lambda x: x[1])
+    mapdata.append(go.Scattermapbox(lat=sdf["lat"], 
+                               lon=sdf["long"],
+                               text=sdf["name"],
+                               marker={'size':2,
+                                       'color':'black'}
+                                   )
+                  )
+        
+        
     maplayout = go.Layout(#title=date,
                           mapbox_style="light",
                           mapbox=go.layout.Mapbox(
@@ -155,15 +169,13 @@ def make_trips_map(date='2018-01-01'):
 
 def make_daily_fig(date='2018-01-01'):
     print(f"make_daily_fig")
-    print(f"date: {date}")
 
     if len(date) == 2:
         trips_df = thdf.loc[date[0]:date[1],:].sum(1).reset_index()
     else:
         trips_df = thdf.loc[date,:].sum(1).reset_index()    
 
-    print(trips_df.head())
-    print(trips_df.tail())
+
     trips_df.columns = ['Time','Trips']
     data = [go.Scatter(
         x=trips_df['Time'],
@@ -225,6 +237,7 @@ app.layout = html.Div(id="mainContainer",children=[
     html.Div(id='row2_container', className="simple_container", children=[
     
         html.Div(id='map_container', className="pretty_container row", children=[
+            html.Button('Reset', id='map-button'),
             dcc.Graph(
                 id='map-graph',
                 figure=make_station_map()  
@@ -239,10 +252,10 @@ app.layout = html.Div(id="mainContainer",children=[
         ]),
         
         html.Div(id='trips_container', className="pretty_container row", children=[
-            dcc.Graph(
-                id='trips-graph',
-                figure=make_trips_map()
-                )
+#             dcc.Graph(
+#                 id='trips-graph',
+#                 figure=make_trips_map()
+#                 )
         ])
     ])
 ])
@@ -255,21 +268,41 @@ app.layout = html.Div(id="mainContainer",children=[
 #
 #######################################################################################
 @app.callback([Output('timeseries-graph','figure'), Output('map-graph','figure'), Output('daily-graph','figure')],
-              [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')],
-              [State('timeseries-graph','figure')])
-def update_timeseries_text(clickData, selectedData, timeseries_graph_figure):
+              [Input('timeseries-graph','clickData'), 
+               Input('timeseries-graph','selectedData'), 
+               Input('map-graph','clickData'),
+               Input('map-button','n_clicks')],
+              [State('timeseries-graph','figure'), State('daily-graph','figure')])
+def choose_date_range(clickData, selectedData, map_clickData, map_button_nclicks, timeseries_graph_figure, daily_graph_figure):
     print(dash.callback_context.triggered)  # last triggered
     print(dash.callback_context.inputs)     # all triggered
-    print(dash.callback_context.states)
+    #print(dash.callback_context.states)
 
+    if dash.callback_context.triggered[0]['value'] == None:
+        raise Exception
+    
     #if dash.callback_context.inputs['timeseries-graph.clickData'] is not None:
     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
         date = clickData['points'][0]['x']
+        return  timeseries_graph_figure, make_station_map(date), make_daily_fig(date)
+    
     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
         date = (selectedData['points'][0]['x'],selectedData['points'][-1]['x'])
+        return  timeseries_graph_figure, make_station_map(date), make_daily_fig(date)
     
-    print(date)
-    return  timeseries_graph_figure, make_station_map(date), make_daily_fig(date)
+    elif dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
+        print('map clicked')
+        date = dash.callback_context.inputs['timeseries-graph.clickData']['points'][0]['x']
+        station = map_clickData['points'][0]['text']
+        return timeseries_graph_figure, make_trips_map(station,date), daily_graph_figure
+    
+    elif dash.callback_context.triggered[0]['prop_id'] == 'map-button.n_clicks':
+        date = dash.callback_context.inputs['timeseries-graph.clickData']['points'][0]['x']
+        return  timeseries_graph_figure, make_station_map(date), daily_graph_figure
+    
+    
+
+
 
 
 
