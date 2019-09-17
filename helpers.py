@@ -38,7 +38,6 @@ def filter_ddf(df, date=None, cats=None, stations=None):
                 idx = idx | idx90
                 
             df = df.iloc[idx]
-        print(df.head())
     sdf = mobi.get_stationsdf('../mobi/')
     df = mobi.system.add_station_coords(df,sdf)
     return df

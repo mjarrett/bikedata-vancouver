@@ -1,6 +1,7 @@
 import plotly.graph_objects as go
 import mobitools as mobi
 import pandas as pd
+from datetime import datetime
 from credentials import *
 
 margin=go.layout.Margin(
@@ -178,7 +179,7 @@ def make_daily_fig(df=None):
 
 
     trips_df.columns = ['Time','Trips']
-    data = [go.Scatter(
+    data = [go.Bar(
         x=trips_df['Time'],
         y=trips_df['Trips']
             )

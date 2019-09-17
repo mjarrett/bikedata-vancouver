@@ -99,12 +99,12 @@ app.layout = html.Div(id="mainContainer",children=[
                 )
         ]),
         
-        html.Div(id='trips_container', className="pretty_container row", children=[
+#        html.Div(id='trips_container', className="pretty_container row", children=[
 #             dcc.Graph(
 #                 id='trips-graph',
 #                 figure=make_trips_map()
 #                 )
-        ])
+#        ])
     ])
 ])
 
@@ -139,7 +139,7 @@ def choose_date_range(clickData, selectedData, map_clickData, map_button_nclicks
     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
         date = (selectedData['points'][0]['x'],selectedData['points'][-1]['x'])
         ddf = filter_ddf(df,date=date, stations=None, cats=filter_dropdown_values)
-        return  make_timeseries_fig(date), make_station_map(ddf,date), make_daily_fig(ddf)
+        return  make_timeseries_fig(df,date), make_station_map(ddf), make_daily_fig(ddf)
     
     elif dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
         print('map clicked')
@@ -153,7 +153,10 @@ def choose_date_range(clickData, selectedData, map_clickData, map_button_nclicks
         return timeseries_graph_figure, make_trips_map(ddf), daily_graph_figure
     
     elif dash.callback_context.triggered[0]['prop_id'] == 'map-button.n_clicks':
-        date = dash.callback_context.inputs['timeseries-graph.clickData']['points'][0]['x']
+        try:
+            date = dash.callback_context.inputs['timeseries-graph.clickData']['points'][0]['x']
+        except:
+            date = (selectedData['points'][0]['x'],selectedData['points'][-1]['x'])
         print("Callback")
         print(date)
         print(df.head())
@@ -163,7 +166,10 @@ def choose_date_range(clickData, selectedData, map_clickData, map_button_nclicks
     
     elif dash.callback_context.triggered[0]['prop_id'] == 'filter-button.n_clicks':
         print(filter_dropdown_values)
-        date = dash.callback_context.inputs['timeseries-graph.clickData']['points'][0]['x']
+        try:
+            date = dash.callback_context.inputs['timeseries-graph.clickData']['points'][0]['x']
+        except:
+            date = (selectedData['points'][0]['x'],selectedData['points'][-1]['x'])
         ddf = filter_ddf(df,date=date, stations=None, cats=filter_dropdown_values)
         return  timeseries_graph_figure, make_station_map(ddf), make_daily_fig(ddf) 
 
