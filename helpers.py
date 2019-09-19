@@ -1,6 +1,14 @@
 import mobitools as mobi
 import numpy as np
+import pandas as pd
 
+def get_prepped_data():
+    df = pd.read_csv('./data/Mobi_System_Data_Prepped.csv')
+    df['Departure'] = pd.to_datetime(df['Departure'])
+    df['Return'] = pd.to_datetime(df['Return'])
+
+    return df
+    
 def filter_ddf(df, date=None, cats=None, stations=None):
     print("filter_ddf")
     if (date is None) and (cats is None) and (stations is None):

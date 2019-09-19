@@ -57,9 +57,11 @@ def make_timeseries_fig(df, date=None):
 def make_station_map(df=None):
     print('make_station_map')
     # https://plot.ly/python/mapbox-layers/
-    sdf = mobi.get_stationsdf('../mobi/')
-    sdf['lat'] = sdf.coordinates.map(lambda x: x[0])
-    sdf['long'] = sdf.coordinates.map(lambda x: x[1])
+    sdf = mobi.get_stationsdf('./data/')
+    sdf = sdf.to_crs({'init': 'epsg:4326'})
+    sdf['long'] = sdf.geometry.map(lambda x: x.x)
+    sdf['lat'] = sdf.geometry.map(lambda x: x.y)
+
     sdf = sdf[sdf['lat']>1]
     
     if df is None:
@@ -78,7 +80,7 @@ def make_station_map(df=None):
         trips_df = tddf.sum().reset_index()
         trips_df.columns = ['station','trips']
 
-        trips_df = pd.merge(trips_df,sdf,left_on='station',right_on='name')
+        trips_df = pd.merge(sdf,trips_df,right_on='station',left_on='name')
 
         text = [ f"{name}<br>{trips} trips" for name,trips in zip(trips_df['name'],trips_df['trips']) ]
         
@@ -132,7 +134,8 @@ def make_trips_map(df):
                                 }
                               ) for i in range(len(cdf)) ]
     
-    sdf = mobi.get_stationsdf('../mobi/')   
+    sdf = mobi.get_stationsdf('./data/')   
+    sdf = mobi.sdf_to_latlong(sdf)
     sdf['lat'] = sdf.coordinates.map(lambda x: x[0])
     sdf['long'] = sdf.coordinates.map(lambda x: x[1])
     mapdata.append(go.Scattermapbox(lat=sdf["lat"], 
@@ -196,3 +199,21 @@ def make_daily_fig(df=None):
               )
     fig = go.Figure(data=data,layout=layout)
     return fig
+
+
+
+def make_map(df=None,state=None,switch=None):
+    print(f'map_state: {state}')
+    if state == 'stations': 
+        if not switch:
+            make_station_map(df)
+        elif switch:
+            make_trips_map(df)
+            
+    elif state == 'trips':
+        if not switch:
+            make_trips_map(df)
+        if switch:
+            make_station_map(df)
+    else:
+        raise ValueError("arg 'state' must be one of ['stations','trips']")
