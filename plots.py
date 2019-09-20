@@ -56,6 +56,7 @@ def make_timeseries_fig(df, date=None):
 
 def make_station_map(df=None):
     print('make_station_map')
+    
     # https://plot.ly/python/mapbox-layers/
     sdf = mobi.get_stationsdf('./data/')
     sdf = sdf.to_crs({'init': 'epsg:4326'})
@@ -120,11 +121,9 @@ def make_trips_map(df):
     print('make_trips_map')
     # https://plot.ly/python/mapbox-layers/
 
-    
- 
+    print(df)
     cdf = mobi.system.make_con_df(df)
-    
- 
+
     mapdata = [go.Scattermapbox(lat=[cdf.iloc[i].loc["start coords"][0],cdf.iloc[i].loc["stop coords"][0]], 
                                lon=[cdf.iloc[i].loc["start coords"][1],cdf.iloc[i].loc["stop coords"][1]],
                                mode='lines',
@@ -206,14 +205,14 @@ def make_map(df=None,state=None,switch=None):
     print(f'map_state: {state}')
     if state == 'stations': 
         if not switch:
-            make_station_map(df)
+            return make_station_map(df)
         elif switch:
-            make_trips_map(df)
+            return make_trips_map(df)
             
     elif state == 'trips':
         if not switch:
-            make_trips_map(df)
+            return make_trips_map(df)
         if switch:
-            make_station_map(df)
+            return make_station_map(df)
     else:
         raise ValueError("arg 'state' must be one of ['stations','trips']")

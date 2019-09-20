@@ -19,7 +19,7 @@ from helpers import *
 #######################################################################################
 
 #load data
-df = mobi.system.prep_sys_df('./data/Mobi_System_Data.csv')
+df = mobi.system.prep_sys_df('./Mobi_System_Data.csv')
 
 
 
@@ -168,7 +168,8 @@ def choose_date_range(clickData, selectedData, map_clickData, map_button_nclicks
             date = dash.callback_context.inputs['timeseries-graph.clickData']['points'][0]['x']
         except:
             date = (selectedData['points'][0]['x'],selectedData['points'][-1]['x'])
-        ddf = filter_ddf(df,date=date, stations=None, cats=filter_dropdown_values)
+        stations = [dash.callback_context.inputs['map-graph.clickData']['points'][0]['text'].split('<')[0].strip()]
+        ddf = filter_ddf(df,date=date, stations=stations, cats=filter_dropdown_values)
         
         return  timeseries_graph_figure, make_map(df=ddf,state=map_state,switch=False), make_daily_fig(ddf), map_state 
   
