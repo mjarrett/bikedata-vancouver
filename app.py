@@ -11,6 +11,7 @@ from credentials import *
 
 from plots import * 
 from helpers import *
+from callbacks import *
 
 #######################################################################################
 #
@@ -66,7 +67,7 @@ app.layout = html.Div(id="mainContainer",children=[
     html.Div(id='row2_container', className="simple_container", children=[
     
         html.Div(id='filter-div', className="pretty_container row", children=[
-            html.Button('Reset', id='map-button'),
+            html.Button('Reset', id='reset-button'),
             
             dcc.Dropdown(id='filter-dropdown',
                 options=[
@@ -122,11 +123,11 @@ app.layout = html.Div(id="mainContainer",children=[
               [Input('timeseries-graph','clickData'), 
                Input('timeseries-graph','selectedData'), 
                Input('map-graph','clickData'),
-               Input('map-button','n_clicks'),
+               Input('reset-button','n_clicks'),
                Input('filter-button','n_clicks')],
               [State('timeseries-graph','figure'), State('daily-graph','figure'), 
                State('filter-dropdown','value'), State('map-state','children')])
-def choose_date_range(clickData, selectedData, map_clickData, map_button_nclicks, filter_button_nclicks,
+def main_callback(clickData, selectedData, map_clickData, map_button_nclicks, filter_button_nclicks,
                       timeseries_graph_figure, daily_graph_figure, filter_dropdown_values, map_state):
     print(dash.callback_context.triggered)  # last triggered
     print(dash.callback_context.inputs)     # all triggered
@@ -154,24 +155,16 @@ def choose_date_range(clickData, selectedData, map_clickData, map_button_nclicks
         ddf = filter_ddf(df,date=date, stations=[station], cats=filter_dropdown_values)
         return timeseries_graph_figure, make_trips_map(ddf), daily_graph_figure, 'trips'
     
-    elif dash.callback_context.triggered[0]['prop_id'] == 'map-button.n_clicks':
+    elif dash.callback_context.triggered[0]['prop_id'] == 'reset-button.n_clicks':
         try:
             date = dash.callback_context.inputs['timeseries-graph.clickData']['points'][0]['x']
         except:
             date = (selectedData['points'][0]['x'],selectedData['points'][-1]['x'])
         ddf = filter_ddf(df,date=date, stations=None, cats=filter_dropdown_values)
-        return  timeseries_graph_figure, make_station_map(ddf), daily_graph_figure, 'stations'
+        return  timeseries_graph_figure, make_station_map(ddf), make_daily_fig(ddf), 'stations'
     
     elif dash.callback_context.triggered[0]['prop_id'] == 'filter-button.n_clicks':
-        print(filter_dropdown_values)
-        try:
-            date = dash.callback_context.inputs['timeseries-graph.clickData']['points'][0]['x']
-        except:
-            date = (selectedData['points'][0]['x'],selectedData['points'][-1]['x'])
-        stations = [dash.callback_context.inputs['map-graph.clickData']['points'][0]['text'].split('<')[0].strip()]
-        ddf = filter_ddf(df,date=date, stations=stations, cats=filter_dropdown_values)
-        
-        return  timeseries_graph_figure, make_map(df=ddf,state=map_state,switch=False), make_daily_fig(ddf), map_state 
+        return filter_button_callback(dash.callback_context,df)
   
         
         

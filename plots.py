@@ -121,9 +121,10 @@ def make_trips_map(df):
     print('make_trips_map')
     # https://plot.ly/python/mapbox-layers/
 
-    print(df)
+    
     cdf = mobi.system.make_con_df(df)
 
+    
     mapdata = [go.Scattermapbox(lat=[cdf.iloc[i].loc["start coords"][0],cdf.iloc[i].loc["stop coords"][0]], 
                                lon=[cdf.iloc[i].loc["start coords"][1],cdf.iloc[i].loc["stop coords"][1]],
                                mode='lines',
