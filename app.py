@@ -3,6 +3,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 
 from datetime import datetime
 import mobitools as mobi
@@ -21,7 +22,7 @@ from callbacks import *
 
 #load data
 df = mobi.system.prep_sys_df('./Mobi_System_Data.csv')
-
+thdf = mobi.system.make_thdf(df)
 
 
 
@@ -59,7 +60,7 @@ app.layout = html.Div(id="mainContainer",children=[
 
             dcc.Graph(
                 id='timeseries-graph',
-                figure=make_timeseries_fig(df) 
+                figure=make_timeseries_fig(thdf) 
             )
         ])
     ]),
@@ -129,42 +130,29 @@ app.layout = html.Div(id="mainContainer",children=[
                State('filter-dropdown','value'), State('map-state','children')])
 def main_callback(clickData, selectedData, map_clickData, map_button_nclicks, filter_button_nclicks,
                       timeseries_graph_figure, daily_graph_figure, filter_dropdown_values, map_state):
-    print(dash.callback_context.triggered)  # last triggered
-    print(dash.callback_context.inputs)     # all triggered
+    print("trigger: ",dash.callback_context.triggered)  # last triggered
+    print("inputs : ",dash.callback_context.inputs)     # all triggered
     #print(dash.callback_context.states)
 
     if dash.callback_context.triggered[0]['value'] == None:
-        raise Exception
+        raise PreventUpdate
     
     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
-        date = clickData['points'][0]['x']
-        ddf = filter_ddf(df,date=date, stations=None, cats=filter_dropdown_values)
-        return  make_timeseries_fig(df,date), make_station_map(ddf), make_daily_fig(ddf), 'stations'
+        return timeseries_clickdata_callback(dash.callback_context, df, thdf)
+        
     
     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
-        date = (selectedData['points'][0]['x'],selectedData['points'][-1]['x'])
-        ddf = filter_ddf(df,date=date, stations=None, cats=filter_dropdown_values)
-        return  make_timeseries_fig(df,date), make_station_map(ddf), make_daily_fig(ddf), 'stations'
+        return timeseries_selectdata_callback(dash.callback_context, df, thdf)
+
     
     elif dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
-        try:
-            date = dash.callback_context.inputs['timeseries-graph.clickData']['points'][0]['x']
-        except:
-            date = (selectedData['points'][0]['x'],selectedData['points'][-1]['x'])
-        station = map_clickData['points'][0]['text'].split('<')[0].strip()
-        ddf = filter_ddf(df,date=date, stations=[station], cats=filter_dropdown_values)
-        return timeseries_graph_figure, make_trips_map(ddf), daily_graph_figure, 'trips'
+        return map_click_callback(dash.callback_context, df, thdf)
     
     elif dash.callback_context.triggered[0]['prop_id'] == 'reset-button.n_clicks':
-        try:
-            date = dash.callback_context.inputs['timeseries-graph.clickData']['points'][0]['x']
-        except:
-            date = (selectedData['points'][0]['x'],selectedData['points'][-1]['x'])
-        ddf = filter_ddf(df,date=date, stations=None, cats=filter_dropdown_values)
-        return  timeseries_graph_figure, make_station_map(ddf), make_daily_fig(ddf), 'stations'
+        return reset_button_callback(dash.callback_context, df, thdf)
     
     elif dash.callback_context.triggered[0]['prop_id'] == 'filter-button.n_clicks':
-        return filter_button_callback(dash.callback_context,df)
+        return filter_button_callback(dash.callback_context,df, thdf)
   
         
         

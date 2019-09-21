@@ -15,10 +15,10 @@ margin=go.layout.Margin(
 
 
 
-def make_timeseries_fig(df, date=None):
+def make_timeseries_fig(thdf, date=None):
     print('make_timeseries_fig')
     
-    thdf = mobi.system.make_thdf(df)
+    #thdf = mobi.system.make_thdf(df)
     trips_hdf = thdf.sum(1).reset_index()
     trips_hdf.columns = ['Hour','Trips']
 
