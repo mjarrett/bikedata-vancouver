@@ -24,7 +24,8 @@ from callbacks import *
 df = mobi.system.prep_sys_df('./Mobi_System_Data.csv')
 thdf = mobi.system.make_thdf(df)
 
-
+startdate = thdf.index[0]
+enddate = thdf.index[-1]
 
     
 
@@ -58,10 +59,21 @@ app.layout = html.Div(id="mainContainer",children=[
     
         html.Div(className="pretty_container", children=[
 
+            
+            dcc.DatePickerRange(
+                id='my-date-picker-range',
+                min_date_allowed=startdate,
+                max_date_allowed=enddate,
+                initial_visible_month=startdate,
+                end_date=enddate
+            ),
+            html.Button('Go', id='date-button'),
+            
             dcc.Graph(
                 id='timeseries-graph',
                 figure=make_timeseries_fig(thdf) 
             )
+            
         ])
     ]),
     
@@ -119,40 +131,44 @@ app.layout = html.Div(id="mainContainer",children=[
 #  CALLBACKS
 #
 #######################################################################################
-@app.callback([Output('timeseries-graph','figure'), Output('map-graph','figure'), 
-               Output('daily-graph','figure'), Output('map-state','children')],
-              [Input('timeseries-graph','clickData'), 
-               Input('timeseries-graph','selectedData'), 
-               Input('map-graph','clickData'),
-               Input('reset-button','n_clicks'),
-               Input('filter-button','n_clicks')],
-              [State('timeseries-graph','figure'), State('daily-graph','figure'), 
-               State('filter-dropdown','value'), State('map-state','children')])
-def main_callback(clickData, selectedData, map_clickData, map_button_nclicks, filter_button_nclicks,
-                      timeseries_graph_figure, daily_graph_figure, filter_dropdown_values, map_state):
-    print("trigger: ",dash.callback_context.triggered)  # last triggered
-    print("inputs : ",dash.callback_context.inputs)     # all triggered
-    #print(dash.callback_context.states)
 
-    if dash.callback_context.triggered[0]['value'] == None:
-        raise PreventUpdate
+
+
+
+# @app.callback([Output('timeseries-graph','figure'), Output('map-graph','figure'), 
+#                Output('daily-graph','figure'), Output('map-state','children')],
+#               [Input('timeseries-graph','clickData'), 
+#                Input('timeseries-graph','selectedData'), 
+#                Input('map-graph','clickData'),
+#                Input('reset-button','n_clicks'),
+#                Input('filter-button','n_clicks')],
+#               [State('timeseries-graph','figure'), State('daily-graph','figure'), 
+#                State('filter-dropdown','value'), State('map-state','children')])
+# def main_callback(clickData, selectedData, map_clickData, map_button_nclicks, filter_button_nclicks,
+#                       timeseries_graph_figure, daily_graph_figure, filter_dropdown_values, map_state):
+#     print("trigger: ",dash.callback_context.triggered)  # last triggered
+#     print("inputs : ",dash.callback_context.inputs)     # all triggered
+#     #print(dash.callback_context.states)
+
+#     if dash.callback_context.triggered[0]['value'] == None:
+#         raise PreventUpdate
     
-    if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
-        return timeseries_clickdata_callback(dash.callback_context, df, thdf)
+#     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
+#         return timeseries_clickdata_callback(dash.callback_context, df, thdf)
         
     
-    elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
-        return timeseries_selectdata_callback(dash.callback_context, df, thdf)
+#     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
+#         return timeseries_selectdata_callback(dash.callback_context, df, thdf)
 
     
-    elif dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
-        return map_click_callback(dash.callback_context, df, thdf)
+#     elif dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
+#         return map_click_callback(dash.callback_context, df, thdf)
     
-    elif dash.callback_context.triggered[0]['prop_id'] == 'reset-button.n_clicks':
-        return reset_button_callback(dash.callback_context, df, thdf)
+#     elif dash.callback_context.triggered[0]['prop_id'] == 'reset-button.n_clicks':
+#         return reset_button_callback(dash.callback_context, df, thdf)
     
-    elif dash.callback_context.triggered[0]['prop_id'] == 'filter-button.n_clicks':
-        return filter_button_callback(dash.callback_context,df, thdf)
+#     elif dash.callback_context.triggered[0]['prop_id'] == 'filter-button.n_clicks':
+#         return filter_button_callback(dash.callback_context,df, thdf)
   
         
         
