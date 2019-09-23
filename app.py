@@ -61,11 +61,11 @@ app.layout = html.Div(id="mainContainer",children=[
 
             
             dcc.DatePickerRange(
-                id='my-date-picker-range',
+                id='datepicker',
                 min_date_allowed=startdate,
                 max_date_allowed=enddate,
-                initial_visible_month=startdate,
-                end_date=enddate
+                start_date=datetime(2019,3,15),
+                end_date=datetime(2019,3,16)
             ),
             html.Button('Go', id='date-button'),
             
@@ -132,9 +132,80 @@ app.layout = html.Div(id="mainContainer",children=[
 #
 #######################################################################################
 
+@app.callback(Output('timeseries-graph','figure'),
+              [Input('date-button','n_clicks')],
+              [State('timeseries-graph','figure'), 
+               State('datepicker','start_date'), 
+               State('datepicker','end_date')
+              ]
+             )
+def timeseries_callback(nclicks,ts_graph, start_date, end_date ):
+    
+    print("trigger: ",dash.callback_context.triggered)  # last triggered
+    print("inputs : ",dash.callback_context.inputs)     # all triggered
+    #print("states : ",dash.callback_context.states)
+    
+#     print(start_date, end_date)
+    
+    if start_date != end_date:
+        date = (start_date[:10], end_date[:10])
+    else:
+        date = start_date[:10]
+        
+    return make_timeseries_fig(thdf,date)
 
 
+@app.callback([Output('datepicker','start_date'), Output('datepicker','end_date')],
+              [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')]
+             )
+def update_dates_from_graph(clickData, selectedData):
+    if clickData is not None:
+        date = clickData['points'][0]['x']
+        return date, date
+    elif selectedData is not None:
+        dates = [x['x'] for x in selectedData['points'] ]
+        print(dates)
+        return (dates[0], dates[-1])
+    
+        
+    
 
+
+@app.callback(Output('map-graph','figure'),
+              [Input('date-button','n_clicks')],
+              [State('datepicker','start_date'), 
+               State('datepicker','end_date'),
+               State('filter-dropdown','value')
+              ]
+             )
+def map_callback(nclicks,start_date, end_date, filter_values):
+    if start_date != end_date:
+        date = (start_date[:10], end_date[:10])
+    else:
+        date = start_date[:10]
+        
+    ddf = filter_ddf(df,date=date, stations=None, cats=filter_values)
+    return  make_station_map(ddf)
+
+
+@app.callback(Output('daily-graph','figure'),
+              [Input('date-button','n_clicks')],
+              [State('datepicker','start_date'), 
+               State('datepicker','end_date'),
+               State('filter-dropdown','value')
+              ]
+             )
+def daily_fig_callback(nclicks,start_date, end_date, filter_values):
+    if start_date != end_date:
+        date = (start_date[:10], end_date[:10])
+    else:
+        date = start_date[:10]
+        
+    ddf = filter_ddf(df,date=date, stations=None, cats=filter_values)
+
+    return make_daily_fig(ddf)
+    
+    
 # @app.callback([Output('timeseries-graph','figure'), Output('map-graph','figure'), 
 #                Output('daily-graph','figure'), Output('map-state','children')],
 #               [Input('timeseries-graph','clickData'), 
