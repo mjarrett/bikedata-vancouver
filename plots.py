@@ -30,8 +30,8 @@ def make_timeseries_fig(thdf, date=None):
     if date == None:
         colors = [ '#1e5359' for x in trips_ddf['Date'] ] 
     elif len(date) == 2:
-        print(date)
-        colors = [ '#1e5359' if (x > datetime.strptime(date[0], '%Y-%m-%d')) and (x < datetime.strptime(date[1], '%Y-%m-%d')) else 'lightslategray' for x in trips_ddf['Date']] 
+        colors = [ '#1e5359' if (x >= datetime.strptime(date[0], '%Y-%m-%d')) and (x <= datetime.strptime(date[1], '%Y-%m-%d')) else 'lightslategray' for x in trips_ddf['Date']] 
+        
     else:
         colors = [ '#1e5359' if x is True else 'lightslategray' for x in trips_ddf['Date'] == date ] 
 

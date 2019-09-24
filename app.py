@@ -12,7 +12,6 @@ from credentials import *
 
 from plots import * 
 from helpers import *
-from callbacks import *
 
 #######################################################################################
 #
@@ -51,9 +50,7 @@ app.layout = html.Div(id="mainContainer",children=[
         Click on a day or select a range of days to see details.
     '''),
 
-    
 
-    
     
     html.Div(id='row1_container', className="simple_container", children=[
     
@@ -67,7 +64,7 @@ app.layout = html.Div(id="mainContainer",children=[
                 start_date=datetime(2019,3,15),
                 end_date=datetime(2019,3,16)
             ),
-            html.Button('Go', id='date-button'),
+            html.Button('Go', id='go-button'),
             
             dcc.Graph(
                 id='timeseries-graph',
@@ -80,7 +77,7 @@ app.layout = html.Div(id="mainContainer",children=[
     html.Div(id='row2_container', className="simple_container", children=[
     
         html.Div(id='filter-div', className="pretty_container row", children=[
-            html.Button('Reset', id='reset-button'),
+#             html.Button('Reset', id='reset-button'),
             
             dcc.Dropdown(id='filter-dropdown',
                 options=[
@@ -100,7 +97,11 @@ app.layout = html.Div(id="mainContainer",children=[
         
         html.Div(id='map_container', className="pretty_container row", children=[
             
-            html.Div(id='map-state', children="stations"),
+            html.Div(id='map-state', children="stations", style={'display':'none'}),
+            
+            html.Div(children=[
+                html.A(children="<", id='map-return-link', title="Return to station map", style={'display':'none'})
+            ]),
             
             dcc.Graph(
                 id='map-graph',
@@ -115,12 +116,7 @@ app.layout = html.Div(id="mainContainer",children=[
                 )
         ]),
         
-#        html.Div(id='trips_container', className="pretty_container row", children=[
-#             dcc.Graph(
-#                 id='trips-graph',
-#                 figure=make_trips_map()
-#                 )
-#        ])
+
     ])
 ])
 
@@ -133,7 +129,7 @@ app.layout = html.Div(id="mainContainer",children=[
 #######################################################################################
 
 @app.callback(Output('timeseries-graph','figure'),
-              [Input('date-button','n_clicks')],
+              [Input('go-button','n_clicks')],
               [State('timeseries-graph','figure'), 
                State('datepicker','start_date'), 
                State('datepicker','end_date')
@@ -147,6 +143,9 @@ def timeseries_callback(nclicks,ts_graph, start_date, end_date ):
     
 #     print(start_date, end_date)
     
+    if nclicks is None:
+        raise PreventUpdate
+        
     if start_date != end_date:
         date = (start_date[:10], end_date[:10])
     else:
@@ -158,7 +157,7 @@ def timeseries_callback(nclicks,ts_graph, start_date, end_date ):
 @app.callback([Output('datepicker','start_date'), Output('datepicker','end_date')],
               [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')]
              )
-def update_dates_from_graph(clickData, selectedData):
+def update_datepicker_from_graph(clickData, selectedData):
     if clickData is not None:
         date = clickData['points'][0]['x']
         return date, date
@@ -167,35 +166,67 @@ def update_dates_from_graph(clickData, selectedData):
         print(dates)
         return (dates[0], dates[-1])
     
-        
+    else:
+        raise PreventUpdate    
+    
     
 
 
-@app.callback(Output('map-graph','figure'),
-              [Input('date-button','n_clicks')],
+@app.callback([Output('map-graph','figure'), Output('map-state','children'), Output('map-return-link','style')],
+              [Input('go-button','n_clicks'),
+               Input('map-graph','clickData'), 
+               Input('map-return-link','n_clicks'),
+               Input('filter-button','n_clicks')],
               [State('datepicker','start_date'), 
                State('datepicker','end_date'),
                State('filter-dropdown','value')
               ]
              )
-def map_callback(nclicks,start_date, end_date, filter_values):
+def map_callback(go_nclicks, map_clickData, link_nclicks, filter_nclicks, start_date, end_date, filter_values):
+    
+    link_style_show = {'display':'inline'}
+    link_style_hide = {'display':'none'}
+    
+    if go_nclicks is None and map_clickData is None and link_nclicks is None:
+        raise PreventUpdate
+    
     if start_date != end_date:
         date = (start_date[:10], end_date[:10])
     else:
         date = start_date[:10]
         
-    ddf = filter_ddf(df,date=date, stations=None, cats=filter_values)
-    return  make_station_map(ddf)
-
+        
+    
+    if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':    
+        ddf = filter_ddf(df,date=date, stations=None, cats=filter_values)
+        return  make_station_map(ddf), 'stations', link_style_hide
+    elif dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
+        station = map_clickData['points'][0]['text'].split('<')[0].strip()
+        ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values)
+        return  make_trips_map(ddf), 'trips', link_style_show
+    elif dash.callback_context.triggered[0]['prop_id'] == 'map-return-link.n_clicks':
+        ddf = filter_ddf(df,date=date, stations=None, cats=filter_values)
+        return  make_station_map(ddf), 'stations', link_style_hide
+    elif dash.callback_context.triggered[0]['prop_id'] == 'filter-button.n_clicks':
+        ddf = filter_ddf(df,date=date, stations=None, cats=filter_values)
+        return  make_station_map(ddf), 'stations', link_style_hide
+    else:
+        raise PreventUpdate
+        
 
 @app.callback(Output('daily-graph','figure'),
-              [Input('date-button','n_clicks')],
+              [Input('go-button','n_clicks')],
               [State('datepicker','start_date'), 
                State('datepicker','end_date'),
                State('filter-dropdown','value')
               ]
              )
 def daily_fig_callback(nclicks,start_date, end_date, filter_values):
+    
+    if nclicks is None:
+        raise PreventUpdate
+    
+    
     if start_date != end_date:
         date = (start_date[:10], end_date[:10])
     else:
@@ -206,41 +237,9 @@ def daily_fig_callback(nclicks,start_date, end_date, filter_values):
     return make_daily_fig(ddf)
     
     
-# @app.callback([Output('timeseries-graph','figure'), Output('map-graph','figure'), 
-#                Output('daily-graph','figure'), Output('map-state','children')],
-#               [Input('timeseries-graph','clickData'), 
-#                Input('timeseries-graph','selectedData'), 
-#                Input('map-graph','clickData'),
-#                Input('reset-button','n_clicks'),
-#                Input('filter-button','n_clicks')],
-#               [State('timeseries-graph','figure'), State('daily-graph','figure'), 
-#                State('filter-dropdown','value'), State('map-state','children')])
-# def main_callback(clickData, selectedData, map_clickData, map_button_nclicks, filter_button_nclicks,
-#                       timeseries_graph_figure, daily_graph_figure, filter_dropdown_values, map_state):
-#     print("trigger: ",dash.callback_context.triggered)  # last triggered
-#     print("inputs : ",dash.callback_context.inputs)     # all triggered
-#     #print(dash.callback_context.states)
+    
+    
 
-#     if dash.callback_context.triggered[0]['value'] == None:
-#         raise PreventUpdate
-    
-#     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
-#         return timeseries_clickdata_callback(dash.callback_context, df, thdf)
-        
-    
-#     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
-#         return timeseries_selectdata_callback(dash.callback_context, df, thdf)
-
-    
-#     elif dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
-#         return map_click_callback(dash.callback_context, df, thdf)
-    
-#     elif dash.callback_context.triggered[0]['prop_id'] == 'reset-button.n_clicks':
-#         return reset_button_callback(dash.callback_context, df, thdf)
-    
-#     elif dash.callback_context.triggered[0]['prop_id'] == 'filter-button.n_clicks':
-#         return filter_button_callback(dash.callback_context,df, thdf)
-  
         
         
 

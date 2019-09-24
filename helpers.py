@@ -10,7 +10,6 @@ def get_prepped_data():
     return df
     
 def filter_ddf(df, date=None, cats=None, stations=None):
-    print("filter_ddf")
     if (date is None) and (cats is None) and (stations is None):
         return df
     
