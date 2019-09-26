@@ -17,8 +17,8 @@ margin=go.layout.Margin(
 
 def make_timeseries_fig(thdf, date=None):
     print('make_timeseries_fig')
+   
     
-    #thdf = mobi.system.make_thdf(df)
     trips_hdf = thdf.sum(1).reset_index()
     trips_hdf.columns = ['Hour','Trips']
 
@@ -54,8 +54,13 @@ def make_timeseries_fig(thdf, date=None):
     
     return fig
 
-def make_station_map(df=None):
+def make_station_map(df=None, direction='start'):
     print('make_station_map')
+    
+    
+
+    
+    
     
     # https://plot.ly/python/mapbox-layers/
     sdf = mobi.get_stationsdf('./data/')
@@ -74,11 +79,19 @@ def make_station_map(df=None):
                                    )
                   
     else:
+        if direction == 'start':
+            hdf = mobi.system.make_thdf(df)
+        elif direction == 'stop':
+            hdf = mobi.system.make_rhdf(df)
+        elif direction == 'both':
+            hdf = mobi.system.make_ahdf(df)
+        else:
+            raise ValueError("argument 'direction' must be on of start/stop/both")
         
-        thdf = mobi.system.make_thdf(df)
-        tddf = thdf.groupby(pd.Grouper(freq='d')).sum()
+        #thdf = mobi.system.make_thdf(df)
+        ddf = hdf.groupby(pd.Grouper(freq='d')).sum()
         
-        trips_df = tddf.sum().reset_index()
+        trips_df = ddf.sum().reset_index()
         trips_df.columns = ['station','trips']
 
         trips_df = pd.merge(sdf,trips_df,right_on='station',left_on='name')
@@ -117,7 +130,7 @@ def make_station_map(df=None):
 
     
     
-def make_trips_map(df):
+def make_trips_map(df,direction='start'):
     print('make_trips_map')
     # https://plot.ly/python/mapbox-layers/
 

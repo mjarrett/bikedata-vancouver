@@ -43,20 +43,16 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div(id="mainContainer",children=[
     html.H1(children='Vancouver Bikeshare Explorer'),
 
-    
-    
-    
-    html.Div(children='''
-        Click on a day or select a range of days to see details.
-    '''),
+
 
 
     
     html.Div(id='row1_container', className="simple_container", children=[
     
         html.Div(className="pretty_container", children=[
-
-            
+            html.Div(children=[
+                html.Span("Pick a date or select a range of days to see details."),
+                ]),
             dcc.DatePickerRange(
                 id='datepicker',
                 min_date_allowed=startdate,
@@ -66,12 +62,14 @@ app.layout = html.Div(id="mainContainer",children=[
             ),
             html.Button('Go', id='go-button'),
             
+                
+                
             dcc.Graph(
                 id='timeseries-graph',
                 figure=make_timeseries_fig(thdf) 
-            )
+            ),
             
-        ])
+        ]),
     ]),
     
     html.Div(id='row2_container', className="simple_container", children=[
@@ -88,9 +86,20 @@ app.layout = html.Div(id="mainContainer",children=[
                 ],
                 multi=True,
                 value=['365S','365P','24h','90d']
+            ),
+            
+            dcc.RadioItems(
+                id='stations-radio',
+                options=[
+                    {'label': 'Trip Start', 'value': 'start'},
+                    {'label': 'Trip End', 'value': 'stop'},
+                    {'label': 'Both', 'value': 'both'}
+                ],
+                value='start',
+                labelStyle={'display': 'inline-block'}
             ),  
         
-        html.Button('Filter', id='filter-button')
+            html.Button('Filter', id='filter-button')
     ]),
         
         
@@ -98,9 +107,11 @@ app.layout = html.Div(id="mainContainer",children=[
         html.Div(id='map_container', className="pretty_container row", children=[
             
             html.Div(id='map-state', children="stations", style={'display':'none'}),
+                
             
-            html.Div(children=[
-                html.A(children="<", id='map-return-link', title="Return to station map", style={'display':'none'})
+            html.Div(id='map-meta-div',style={'display':'none'}, children=[
+                html.A(children="<", id='map-return-link', title="Return to station map")
+                
             ]),
             
             dcc.Graph(
@@ -171,18 +182,25 @@ def update_datepicker_from_graph(clickData, selectedData):
     
     
 
-
-@app.callback([Output('map-graph','figure'), Output('map-state','children'), Output('map-return-link','style')],
+# Map and daily plot go together
+@app.callback([Output('map-graph','figure'), Output('daily-graph','figure'),
+               Output('map-state','children'), Output('map-meta-div','style')],
               [Input('go-button','n_clicks'),
                Input('map-graph','clickData'), 
                Input('map-return-link','n_clicks'),
                Input('filter-button','n_clicks')],
               [State('datepicker','start_date'), 
                State('datepicker','end_date'),
-               State('filter-dropdown','value')
-              ]
+               State('filter-dropdown','value'),
+               State('stations-radio','value'),
+               State('map-state','children')]
              )
-def map_callback(go_nclicks, map_clickData, link_nclicks, filter_nclicks, start_date, end_date, filter_values):
+def map_daily_callback(go_nclicks, map_clickData, link_nclicks, filter_nclicks, start_date, end_date, filter_values, radio_value, map_state):
+    
+    print("trigger: ",dash.callback_context.triggered)  # last triggered
+    print("inputs : ",dash.callback_context.inputs)     # all triggered
+    print("states : ",dash.callback_context.states)
+
     
     link_style_show = {'display':'inline'}
     link_style_hide = {'display':'none'}
@@ -195,46 +213,36 @@ def map_callback(go_nclicks, map_clickData, link_nclicks, filter_nclicks, start_
     else:
         date = start_date[:10]
         
-        
+    
+    
     
     if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':    
-        ddf = filter_ddf(df,date=date, stations=None, cats=filter_values)
-        return  make_station_map(ddf), 'stations', link_style_hide
+        ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
+        return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf),'stations', link_style_hide
+    
     elif dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
         station = map_clickData['points'][0]['text'].split('<')[0].strip()
-        ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values)
-        return  make_trips_map(ddf), 'trips', link_style_show
+        ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
+        return  make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show
+    
     elif dash.callback_context.triggered[0]['prop_id'] == 'map-return-link.n_clicks':
-        ddf = filter_ddf(df,date=date, stations=None, cats=filter_values)
-        return  make_station_map(ddf), 'stations', link_style_hide
+        ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
+        return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_hide
+    
     elif dash.callback_context.triggered[0]['prop_id'] == 'filter-button.n_clicks':
-        ddf = filter_ddf(df,date=date, stations=None, cats=filter_values)
-        return  make_station_map(ddf), 'stations', link_style_hide
+        if map_state == 'stations':
+            ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
+            return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_hide
+        elif map_state == 'trips':
+            station = dash.callback_context.inputs['map-graph.clickData']['points'][0]['text'].split('<')[0].strip()
+            ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
+            return make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show
+    
     else:
         raise PreventUpdate
         
 
-@app.callback(Output('daily-graph','figure'),
-              [Input('go-button','n_clicks')],
-              [State('datepicker','start_date'), 
-               State('datepicker','end_date'),
-               State('filter-dropdown','value')
-              ]
-             )
-def daily_fig_callback(nclicks,start_date, end_date, filter_values):
-    
-    if nclicks is None:
-        raise PreventUpdate
-    
-    
-    if start_date != end_date:
-        date = (start_date[:10], end_date[:10])
-    else:
-        date = start_date[:10]
-        
-    ddf = filter_ddf(df,date=date, stations=None, cats=filter_values)
 
-    return make_daily_fig(ddf)
     
     
     

@@ -9,12 +9,19 @@ def get_prepped_data():
 
     return df
     
-def filter_ddf(df, date=None, cats=None, stations=None):
+def filter_ddf(df, date=None, cats=None, stations=None, direction='both'):
+
     if (date is None) and (cats is None) and (stations is None):
         return df
     
     if stations is not None:
-        df = df[df['Departure station'].isin(stations)]
+        if direction == 'both':
+            df = df.loc[df['Departure station'].isin(stations) | df['Return station'].isin(stations),:]
+        elif direction == 'start':
+            df = df.loc[df['Departure station'].isin(stations),:]
+        elif direction == 'stop':
+            df = df.loc[df['Return station'].isin(stations),:]
+            
     
     if date is not None:
         if len(date) == 2:
