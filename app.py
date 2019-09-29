@@ -57,8 +57,9 @@ app.layout = html.Div(id="mainContainer",children=[
                 id='datepicker',
                 min_date_allowed=startdate,
                 max_date_allowed=enddate,
-                start_date=datetime(2019,3,15),
-                end_date=datetime(2019,3,16)
+                initial_visible_month = '2018-01-01'
+                #start_date=datetime(2019,3,15),
+                #end_date=datetime(2019,3,16)
             ),
             html.Button('Go', id='go-button'),
             
@@ -165,17 +166,23 @@ def timeseries_callback(nclicks,ts_graph, start_date, end_date ):
     return make_timeseries_fig(thdf,date)
 
 
-@app.callback([Output('datepicker','start_date'), Output('datepicker','end_date')],
+@app.callback([Output('datepicker','start_date'), Output('datepicker','end_date'),
+               Output('datepicker','initial_visible_month'), Output('go-button','style')],
               [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')]
              )
 def update_datepicker_from_graph(clickData, selectedData):
-    if clickData is not None:
+    
+    buttonstyle = {'background-color':maincolor,
+                   'color':'white'
+                  }
+    
+    if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
         date = clickData['points'][0]['x']
-        return date, date
-    elif selectedData is not None:
+        return (date, date, date,buttonstyle)
+    elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
         dates = [x['x'] for x in selectedData['points'] ]
         print(dates)
-        return (dates[0], dates[-1])
+        return (dates[0], dates[-1],dates[0],buttonstyle)
     
     else:
         raise PreventUpdate    

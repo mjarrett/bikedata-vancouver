@@ -12,6 +12,8 @@ margin=go.layout.Margin(
     pad=0)
 
 
+maincolor = '#1e5359'
+          
 
 
 
@@ -28,12 +30,12 @@ def make_timeseries_fig(thdf, date=None):
     trips_ddf.columns = ['Date','Trips']
     
     if date == None:
-        colors = [ '#1e5359' for x in trips_ddf['Date'] ] 
+        colors = [ maincolor for x in trips_ddf['Date'] ] 
     elif len(date) == 2:
-        colors = [ '#1e5359' if (x >= datetime.strptime(date[0], '%Y-%m-%d')) and (x <= datetime.strptime(date[1], '%Y-%m-%d')) else 'lightslategray' for x in trips_ddf['Date']] 
+        colors = [ maincolor if (x >= datetime.strptime(date[0], '%Y-%m-%d')) and (x <= datetime.strptime(date[1], '%Y-%m-%d')) else 'lightslategray' for x in trips_ddf['Date']] 
         
     else:
-        colors = [ '#1e5359' if x is True else 'lightslategray' for x in trips_ddf['Date'] == date ] 
+        colors = [ maincolor if x is True else 'lightslategray' for x in trips_ddf['Date'] == date ] 
 
     data = [go.Bar(
             x=trips_ddf['Date'],
@@ -47,7 +49,8 @@ def make_timeseries_fig(thdf, date=None):
                        yaxis =  {
                          'fixedrange': True
                        },
-                       margin=margin
+                       margin=margin,
+                       dragmode='select'
                   )
 
     fig = go.Figure(data=data,layout=layout)
@@ -56,11 +59,7 @@ def make_timeseries_fig(thdf, date=None):
 
 def make_station_map(df=None, direction='start'):
     print('make_station_map')
-    
-    
-
-    
-    
+      
     
     # https://plot.ly/python/mapbox-layers/
     sdf = mobi.get_stationsdf('./data/')
@@ -72,10 +71,10 @@ def make_station_map(df=None, direction='start'):
     
     if df is None:
         mapdata = go.Scattermapbox(lat=sdf["lat"], 
-                               lon=sdf["long"],
-                               text=sdf["name"],
-                               marker={'size':2,
-                                       'color':'black'}
+                               #lon=sdf["long"],
+                               #text=sdf["name"],
+                               #marker={'size':2,
+                               #        'color':'black'}
                                    )
                   
     else:
@@ -101,7 +100,8 @@ def make_station_map(df=None, direction='start'):
         mapdata = go.Scattermapbox(lat=trips_df['lat'], 
                                    lon=trips_df['long'],
                                    text=text,   # NOTE: text must be in specific format so it can be parsed by callback function
-                                   marker={'size':trips_df['trips'],
+                                   marker={'color':maincolor,
+                                           'size':trips_df['trips'],
                                            'sizemode':'area',
                                            'sizeref':2.*max(trips_df['trips'])/(40.**2),
                                            'sizemin':4})
@@ -154,8 +154,8 @@ def make_trips_map(df,direction='start'):
     mapdata.append(go.Scattermapbox(lat=sdf["lat"], 
                                lon=sdf["long"],
                                text=sdf["name"],
-                               marker={'size':2,
-                                       'color':'black'}
+                               marker={'size':4,
+                                       'color':maincolor}
                                    )
                   )
         
@@ -197,7 +197,8 @@ def make_daily_fig(df=None):
     trips_df.columns = ['Time','Trips']
     data = [go.Bar(
         x=trips_df['Time'],
-        y=trips_df['Trips']
+        y=trips_df['Trips'],
+        marker={'color':maincolor}
             )
        ]
     layout = go.Layout(#title='Hourly Mobi Trips',
@@ -206,11 +207,21 @@ def make_daily_fig(df=None):
                    yaxis =  {
                      'fixedrange': True
                    },
-                   margin=margin
+                   margin=margin,
                    #height=500,
                    #width=500
               )
     fig = go.Figure(data=data,layout=layout)
+    
+    if df is not None:
+        print(trips_df.loc[trips_df.index[-1],'Time'])
+        print(trips_df.iloc[-1]['Time'] - trips_df.loc[0,'Time'])
+    if df is not None and (trips_df.loc[trips_df.index[-1],'Time'] - trips_df.loc[0,'Time']).days > 1:
+        date = trips_df.index[0]
+        t1 = datetime(date.year,date.month,date.day,0)
+        t2 = datetime(date.year,date.month,date.day,23)
+        fig.update_layout(xaxis_range=[t1,t2])
+                               
     return fig
 
 
