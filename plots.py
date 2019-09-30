@@ -70,7 +70,7 @@ def make_station_map(df=None, direction='start'):
     sdf = sdf[sdf['lat']>1]
     
     if df is None:
-        mapdata = go.Scattermapbox(lat=sdf["lat"], 
+        mapdata = go.Scattermapbox(#lat=sdf["lat"], 
                                #lon=sdf["long"],
                                #text=sdf["name"],
                                #marker={'size':2,
@@ -100,6 +100,7 @@ def make_station_map(df=None, direction='start'):
         mapdata = go.Scattermapbox(lat=trips_df['lat'], 
                                    lon=trips_df['long'],
                                    text=text,   # NOTE: text must be in specific format so it can be parsed by callback function
+                                   hoverinfo='text',
                                    marker={'color':maincolor,
                                            'size':trips_df['trips'],
                                            'sizemode':'area',
@@ -147,18 +148,30 @@ def make_trips_map(df,direction='start'):
                                 }
                               ) for i in range(len(cdf)) ]
     
-    sdf = mobi.get_stationsdf('./data/')   
-    sdf = mobi.sdf_to_latlong(sdf)
-    sdf['lat'] = sdf.coordinates.map(lambda x: x[0])
-    sdf['long'] = sdf.coordinates.map(lambda x: x[1])
-    mapdata.append(go.Scattermapbox(lat=sdf["lat"], 
-                               lon=sdf["long"],
-                               text=sdf["name"],
+#     sdf = mobi.get_stationsdf('./data/')   
+#     sdf = mobi.sdf_to_latlong(sdf)
+#     sdf['lat'] = sdf.coordinates.map(lambda x: x[0])
+#     sdf['long'] = sdf.coordinates.map(lambda x: x[1])
+    cdf['start lat'] = cdf['start coords'].map(lambda x: x[0])
+    cdf['start long'] = cdf['start coords'].map(lambda x: x[1])
+    cdf['stop lat'] = cdf['stop coords'].map(lambda x: x[0])
+    cdf['stop long'] = cdf['stop coords'].map(lambda x: x[1])
+    mapdata.append(go.Scattermapbox(lat=cdf["stop lat"], 
+                               lon=cdf["stop long"],
+                               text=cdf["stop station"],
+                               hoverinfo='text',
                                marker={'size':4,
                                        'color':maincolor}
                                    )
                   )
-        
+    mapdata.append(go.Scattermapbox(lat=cdf["start lat"], 
+                               lon=cdf["start long"],
+                               text=cdf["start station"],
+                               hoverinfo='text',
+                               marker={'size':4,
+                                       'color':maincolor}
+                                   )
+                  )
         
     maplayout = go.Layout(#title=date,
                           mapbox_style="light",
@@ -213,11 +226,9 @@ def make_daily_fig(df=None):
               )
     fig = go.Figure(data=data,layout=layout)
     
-    if df is not None:
-        print(trips_df.loc[trips_df.index[-1],'Time'])
-        print(trips_df.iloc[-1]['Time'] - trips_df.loc[0,'Time'])
-    if df is not None and (trips_df.loc[trips_df.index[-1],'Time'] - trips_df.loc[0,'Time']).days > 1:
-        date = trips_df.index[0]
+
+    if df is not None and (trips_df.loc[trips_df.index[-1],'Time'] - trips_df.loc[0,'Time']).days < 1.1:
+        date = trips_df.loc[0,'Time']
         t1 = datetime(date.year,date.month,date.day,0)
         t2 = datetime(date.year,date.month,date.day,23)
         fig.update_layout(xaxis_range=[t1,t2])
@@ -226,18 +237,3 @@ def make_daily_fig(df=None):
 
 
 
-def make_map(df=None,state=None,switch=None):
-    print(f'map_state: {state}')
-    if state == 'stations': 
-        if not switch:
-            return make_station_map(df)
-        elif switch:
-            return make_trips_map(df)
-            
-    elif state == 'trips':
-        if not switch:
-            return make_trips_map(df)
-        if switch:
-            return make_station_map(df)
-    else:
-        raise ValueError("arg 'state' must be one of ['stations','trips']")
