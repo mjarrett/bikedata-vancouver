@@ -1,7 +1,8 @@
 import plotly.graph_objects as go
-import mobitools as mobi
 import pandas as pd
 from datetime import datetime
+import geopandas
+import mobisys as mobi
 from credentials import *
 
 margin=go.layout.Margin(
@@ -62,7 +63,7 @@ def make_station_map(df=None, direction='start'):
       
     
     # https://plot.ly/python/mapbox-layers/
-    sdf = mobi.get_stationsdf('./data/')
+    sdf = geopandas.read_file(f'./data/stations_df.geojson')
     sdf = sdf.to_crs({'init': 'epsg:4326'})
     sdf['long'] = sdf.geometry.map(lambda x: x.x)
     sdf['lat'] = sdf.geometry.map(lambda x: x.y)
@@ -79,15 +80,15 @@ def make_station_map(df=None, direction='start'):
                   
     else:
         if direction == 'start':
-            hdf = mobi.system.make_thdf(df)
+            hdf = mobi.make_thdf(df)
         elif direction == 'stop':
-            hdf = mobi.system.make_rhdf(df)
+            hdf = mobi.make_rhdf(df)
         elif direction == 'both':
-            hdf = mobi.system.make_ahdf(df)
+            hdf = mobi.make_ahdf(df)
         else:
             raise ValueError("argument 'direction' must be on of start/stop/both")
         
-        #thdf = mobi.system.make_thdf(df)
+        #thdf = mobi.make_thdf(df)
         ddf = hdf.groupby(pd.Grouper(freq='d')).sum()
         
         trips_df = ddf.sum().reset_index()
@@ -136,7 +137,7 @@ def make_trips_map(df,direction='start'):
     # https://plot.ly/python/mapbox-layers/
 
     
-    cdf = mobi.system.make_con_df(df)
+    cdf = mobi.make_con_df(df)
 
     
     mapdata = [go.Scattermapbox(lat=[cdf.iloc[i].loc["start coords"][0],cdf.iloc[i].loc["stop coords"][0]], 
@@ -148,8 +149,7 @@ def make_trips_map(df,direction='start'):
                                 }
                               ) for i in range(len(cdf)) ]
     
-#     sdf = mobi.get_stationsdf('./data/')   
-#     sdf = mobi.sdf_to_latlong(sdf)
+
 #     sdf['lat'] = sdf.coordinates.map(lambda x: x[0])
 #     sdf['long'] = sdf.coordinates.map(lambda x: x[1])
     cdf['start lat'] = cdf['start coords'].map(lambda x: x[0])
@@ -203,7 +203,7 @@ def make_daily_fig(df=None):
         trips_df = pd.DataFrame(columns=[0,1])
   
     else:
-        thdf = mobi.system.make_thdf(df)  
+        thdf = mobi.make_thdf(df)  
         trips_df = thdf.sum(1).reset_index()    
 
 

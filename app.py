@@ -6,7 +6,7 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from datetime import datetime
-import mobitools as mobi
+import mobisys as mobi
 import pandas as pd
 from credentials import *
 
@@ -20,12 +20,16 @@ from helpers import *
 #######################################################################################
 
 #load data
-df = mobi.system.prep_sys_df('./Mobi_System_Data.csv')
-thdf = mobi.system.make_thdf(df)
+df = mobi.prep_sys_df('./Mobi_System_Data.csv')
+thdf = mobi.make_thdf(df)
 
 startdate = thdf.index[0]
 enddate = thdf.index[-1]
 
+    
+wdf = pd.read_csv('weather.csv',index_col=0)
+wdf.index = pd.to_datetime(wdf.index)
+ 
     
 
 #######################################################################################
@@ -42,9 +46,6 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 # Let's copy https://github.com/plotly/dash-sample-apps/blob/master/apps/dash-oil-and-gas/
 app.layout = html.Div(id="mainContainer",children=[
     html.H1(children='Vancouver Bikeshare Explorer'),
-
-
-
 
     
     html.Div(id='row1_container', className="simple_container", children=[
@@ -74,35 +75,42 @@ app.layout = html.Div(id="mainContainer",children=[
     ]),
     
     html.Div(id='row2_container', className="simple_container", children=[
-    
-        html.Div(id='filter-div', className="pretty_container row", children=[
-#             html.Button('Reset', id='reset-button'),
-            
-            dcc.Dropdown(id='filter-dropdown',
-                options=[
-                    {'label': 'Annual Standard', 'value': '365S'},
-                    {'label': 'Annual Plus', 'value': '365P'},
-                    {'label': 'Daily', 'value': '24h'},
-                    {'label': 'Monthly', 'value': '90d'}
-                ],
-                multi=True,
-                value=['365S','365P','24h','90d']
-            ),
-            
-            dcc.RadioItems(
-                id='stations-radio',
-                options=[
-                    {'label': 'Trip Start', 'value': 'start'},
-                    {'label': 'Trip End', 'value': 'stop'},
-                    {'label': 'Both', 'value': 'both'}
-                ],
-                value='start',
-                labelStyle={'display': 'inline-block'}
-            ),  
+  
+    html.Div(className="simple_container row", children=[    
         
-            html.Button('Filter', id='filter-button')
+            html.Div(id='filter-div', className="pretty_container", children=[
+    #             html.Button('Reset', id='reset-button'),
+
+                dcc.Dropdown(id='filter-dropdown',
+                    options=[
+                        {'label': 'Annual Standard', 'value': '365S'},
+                        {'label': 'Annual Plus', 'value': '365P'},
+                        {'label': 'Daily', 'value': '24h'},
+                        {'label': 'Monthly', 'value': '90d'}
+                    ],
+                    multi=True,
+                    value=['365S','365P','24h','90d']
+                ),
+
+                dcc.RadioItems(
+                    id='stations-radio',
+                    options=[
+                        {'label': 'Trip Start', 'value': 'start'},
+                        {'label': 'Trip End', 'value': 'stop'},
+                        {'label': 'Both', 'value': 'both'}
+                    ],
+                    value='start',
+                    labelStyle={'display': 'inline-block'}
+                ),  
+
+                html.Button('Filter', id='filter-button')
+        ]),
+        
+        html.Div(id='info-div', className="pretty_container", 
+                 children=get_stats(df,wdf)
+                )
+        
     ]),
-        
         
         
         html.Div(id='map_container', className="pretty_container row", children=[

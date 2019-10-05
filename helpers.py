@@ -1,6 +1,9 @@
-import mobitools as mobi
+import mobisys as mobi
 import numpy as np
 import pandas as pd
+
+import dash_core_components as dcc
+import dash_html_components as html
 
 def get_prepped_data():
     df = pd.read_csv('./data/Mobi_System_Data_Prepped.csv')
@@ -52,6 +55,44 @@ def filter_ddf(df, date=None, cats=None, stations=None, direction='both'):
                 idx = idx | idx90
                 
             df = df.iloc[idx]
-    sdf = mobi.get_stationsdf('./data')
-    df = mobi.system.add_station_coords(df,sdf)
+    sdf = geopandas.read_file(f'./data/stations_df.geojson')
+    df = mobi.add_station_coords(df,sdf)
     return df
+
+
+
+def get_stats(df,wdf):
+    
+    start_date = df['Departure'].iloc[0].strftime('%Y-%m-%d')
+    stop_date  = df['Departure'].iloc[-1].strftime('%Y-%m-%d')
+    
+    n_trips = len(df)
+    busiest_dep = df.groupby('Departure station').size().sort_values(ascending=False).index[0]
+    busiest_dep_n = df.groupby('Departure station').size().sort_values(ascending=False)[0]
+    busiest_ret = df.groupby('Return station').size().sort_values(ascending=False).index[0]
+    busiest_ret_n = df.groupby('Return station').size().sort_values(ascending=False)[0]
+    
+    avg_daily_high = wdf['Max Temp'].mean()
+    avg_daily_pricip = wdf['Total Precipmm'].mean()
+    
+    outstr = f"""{start_date}-{stop_date}<br>
+    {n_trips} trips
+    Busiest starting station: {busiest_dep}
+    Busiest return station: {busiest_ret}
+    Average daily high: {avg_daily_high}
+    Average daily precipitation: {avg_daily_pricip}"""
+    
+    
+    output = [html.Ul(children=[
+                html.Li(f"{start_date} to {stop_date}"),
+                html.Li(f"{n_trips:,} trips"),
+                html.Li(f"Busiest starting station: {busiest_dep}"),
+                html.Li(f"Busiest return station: {busiest_ret}"),
+                html.Li(f"Average daily high: {avg_daily_high:.1f}°"),
+                html.Li(f"Average daily precipitation: {avg_daily_pricip:.1f} mm")
+                ]
+             )]
+                      
+             
+    
+    return output
