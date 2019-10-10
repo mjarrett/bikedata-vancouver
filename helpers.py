@@ -1,6 +1,7 @@
 import mobisys as mobi
 import numpy as np
 import pandas as pd
+import geopandas
 
 import dash_core_components as dcc
 import dash_html_components as html

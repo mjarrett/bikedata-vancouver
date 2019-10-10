@@ -2,6 +2,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
@@ -26,11 +27,16 @@ thdf = mobi.make_thdf(df)
 startdate = thdf.index[0]
 enddate = thdf.index[-1]
 
+startdate_str = startdate.strftime('%b %-d %Y')
+enddate_str = enddate.strftime('%b %-d %Y')
+
     
 wdf = pd.read_csv('weather.csv',index_col=0)
 wdf.index = pd.to_datetime(wdf.index)
  
-    
+n_trips = len(df)
+tot_dist = df['Covered distance (m)'].sum()/1000
+tot_usrs = len(set(df['Account']))
 
 #######################################################################################
 #
@@ -38,109 +44,209 @@ wdf.index = pd.to_datetime(wdf.index)
 #
 #######################################################################################
     
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+external_stylesheets=[dbc.themes.BOOTSTRAP]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 
-# Let's copy https://github.com/plotly/dash-sample-apps/blob/master/apps/dash-oil-and-gas/
-app.layout = html.Div(id="mainContainer",children=[
-    html.H1(children='Vancouver Bikeshare Explorer'),
+header = dbc.NavbarSimple(
+    children=[
+        dbc.NavItem(dbc.NavLink("Link", href="#")),
+        dbc.DropdownMenu(
+            nav=True,
+            in_navbar=True,
+            label="Menu",
+            children=[
+                dbc.DropdownMenuItem("Entry 1"),
+                dbc.DropdownMenuItem("Entry 2"),
+                dbc.DropdownMenuItem(divider=True),
+                dbc.DropdownMenuItem("Entry 3"),
+            ],
+        ),
+    ],
+    brand="Vancouver Bikeshare Explorer",
+    brand_href="#",
+    sticky="top",
+    color='#1e5359',
+    dark=True
+    )
 
-    
-    html.Div(id='row1_container', className="simple_container", children=[
-    
-        html.Div(className="pretty_container", children=[
-            html.Div(children=[
-                html.Span("Pick a date or select a range of days to see details."),
-                ]),
-            dcc.DatePickerRange(
-                id='datepicker',
-                min_date_allowed=startdate,
-                max_date_allowed=enddate,
-                initial_visible_month = '2018-01-01'
-                #start_date=datetime(2019,3,15),
-                #end_date=datetime(2019,3,16)
-            ),
-            html.Button('Go', id='go-button'),
-            
-                
-                
-            dcc.Graph(
-                id='timeseries-graph',
-                figure=make_timeseries_fig(thdf) 
-            ),
-            
-        ]),
-    ]),
-    
-    html.Div(id='row2_container', className="simple_container", children=[
-  
-    html.Div(className="simple_container row", children=[    
+
+summary_cards = dbc.Row(children=[
         
-            html.Div(id='filter-div', className="pretty_container", children=[
-    #             html.Button('Reset', id='reset-button'),
+        dbc.Col([
+            dbc.Row([
+                
+                dbc.CardDeck(style={'width':'100%'},children=[
+        
+                    dbc.Card(className="justify-content-center", children=[
+                        dbc.CardBody(
+                            [
+                            html.P(
+                                "Total Trips",
+                                className="card-text"),
+                            html.H2(f"{n_trips:,}", className="card-title"),
 
-                dcc.Dropdown(id='filter-dropdown',
+                        ]) # Card body
+
+                    ]),  # Card
+
+                    dbc.Card(className="justify-content-center", children=[
+                        dbc.CardBody(
+                            [
+                            html.P(
+                                "Total Distance Travelled",
+                                className="card-text"),
+                            html.H2(f"{int(tot_dist):,} km", className="card-title"),
+
+                        ]) # Card body
+
+                    ]),  # Card
+
+                    dbc.Card(className="justify-content-center", children=[
+                        dbc.CardBody(
+                            [
+                            html.P(
+                                "Total Riders",
+                                className="card-text"),
+                            html.H2(f"{tot_usrs:,}", className="card-title"),
+
+                        ]) # Card body
+
+                    ]),  # Card
+                ]),
+            ]),
+        ]),
+        
+        
+    ]) 
+
+
+main_div = dbc.Row(className="pt-5", children=[
+    
+         dbc.Col(className="border rounded col-2", children=[
+            dbc.FormGroup([
+#                 html.H4("Filter"),
+                html.Strong("Filter"),
+                dcc.DatePickerRange(
+                    id='datepicker',
+                    min_date_allowed=startdate,
+                    max_date_allowed=enddate,
+                    initial_visible_month = '2018-01-01',
+                    minimum_nights = 0,
+                    #start_date=datetime(2019,3,15),
+                    #end_date=datetime(2019,3,16)
+                    ),
+
+                dbc.Tooltip("Pick a date or select a range of days to see details.",
+                            target="go-button"),
+
+
+    #             html.H5("Member type"),
+                html.Strong("Membership Type"),
+                dbc.Checklist(id='filter-dropdown',
                     options=[
                         {'label': 'Annual Standard', 'value': '365S'},
                         {'label': 'Annual Plus', 'value': '365P'},
                         {'label': 'Daily', 'value': '24h'},
                         {'label': 'Monthly', 'value': '90d'}
                     ],
-                    multi=True,
+
                     value=['365S','365P','24h','90d']
                 ),
 
-                dcc.RadioItems(
-                    id='stations-radio',
-                    options=[
-                        {'label': 'Trip Start', 'value': 'start'},
-                        {'label': 'Trip End', 'value': 'stop'},
-                        {'label': 'Both', 'value': 'both'}
-                    ],
-                    value='start',
-                    labelStyle={'display': 'inline-block'}
-                ),  
 
-                html.Button('Filter', id='filter-button')
-        ]),
-        
-        html.Div(id='info-div', className="pretty_container", 
-                 children=get_stats(df,wdf)
-                )
-        
-    ]),
-        
-        
-        html.Div(id='map_container', className="pretty_container row", children=[
-            
-            html.Div(id='map-state', children="stations", style={'display':'none'}),
-                
-            
-            html.Div(id='map-meta-div',style={'display':'none'}, children=[
-                html.A(children="<", id='map-return-link', title="Return to station map")
-                
+
+                dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
             ]),
+        ]),   
+    
+    
+        
+        dbc.Col(children=[
             
+            html.Span(html.Em(f"Data available from {startdate_str} to {enddate_str}")),
             dcc.Graph(
-                id='map-graph',
-                figure=make_station_map()  
-            )
-        ]),
-
-        html.Div(id='daily_container', className="pretty_container row", children=[
-            dcc.Graph(
-                id='daily-graph',
-                figure=make_daily_fig()
-                )
+                id='timeseries-graph',
+                figure=make_timeseries_fig(thdf),
+                style={'height':'100%','width':'100%'}
+            ),        
         ]),
         
 
-    ])
-])
+                
+                
 
+    ]) 
 
+detail_div = dbc.Row( children=[
+        
+        dbc.Col([
+            dbc.Row([
+                dbc.Col([
+                    dbc.Row([
+                        html.H2("Details"),
+                    ]),
+                    dbc.Row([
+                        dcc.Graph(
+                            id='daily-graph',
+                            figure=make_daily_fig()
+                        )
+                    ]),
+                ]),
+            ]),
+        
+        
+            dbc.Row([
+                
+                dbc.Col(id='info-div', 
+                 children=get_stats(df,wdf)
+                ),
+        
+        
+        
+                dbc.Col(id='map_container',  children=[
+            
+                    html.Div(id='map-state', children="stations", style={'display':'none'}),
+                
+                    html.Div([
+                        dbc.RadioItems(
+                            id='stations-radio',
+                            options=[
+                                {'label': 'Trip Start', 'value': 'start'},
+                                {'label': 'Trip End', 'value': 'stop'},
+                                {'label': 'Both', 'value': 'both'}
+                            ],
+                            value='start',
+                            inline=True
+                        ),  
+                    ]),
+                    html.Div(id='map-meta-div',style={'display':'none'}, children=[
+                        html.A(children="<", id='map-return-link', title="Return to station map") 
+                    ]),
+            
+                    dcc.Graph(
+                        id='map-graph',
+                        figure=make_station_map()  
+                    ), 
+                ]), #Col
+            ]), #Row
+
+        ]), # Col
+
+    ])  # Row
+
+body = dbc.Container(id="mainContainer",children=[
+    
+    summary_cards,
+    
+    main_div,
+    
+    detail_div
+    
+])  
+
+app.layout = html.Div([header,body])
 
 #######################################################################################
 #
@@ -165,7 +271,9 @@ def timeseries_callback(nclicks,ts_graph, start_date, end_date ):
     
     if nclicks is None:
         raise PreventUpdate
-        
+    
+    if end_date is None:
+        date = start_date[:10] 
     if start_date != end_date:
         date = (start_date[:10], end_date[:10])
     else:
@@ -175,27 +283,33 @@ def timeseries_callback(nclicks,ts_graph, start_date, end_date ):
 
 
 @app.callback([Output('datepicker','start_date'), Output('datepicker','end_date'),
-               Output('datepicker','initial_visible_month'), Output('go-button','style')],
+               Output('datepicker','initial_visible_month')],
               [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')]
              )
 def update_datepicker_from_graph(clickData, selectedData):
     
-    buttonstyle = {'background-color':maincolor,
-                   'color':'white'
-                  }
+    if clickData is None and selectedData is None:
+        raise PreventUpdate
     
     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
         date = clickData['points'][0]['x']
-        return (date, date, date,buttonstyle)
+        return (date, date, date)
     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
         dates = [x['x'] for x in selectedData['points'] ]
         print(dates)
-        return (dates[0], dates[-1],dates[0],buttonstyle)
+        return (dates[0], dates[-1],dates[0])
     
     else:
         raise PreventUpdate    
     
-    
+
+@app.callback(Output('go-button','outline'),
+              [Input('datepicker','start_date'), Input('datepicker','end_date')]
+             )
+def activate_go_button(a,b):
+    if a is None and b is None:
+        raise PreventUpdate
+    return False
 
 # Map and daily plot go together
 @app.callback([Output('map-graph','figure'), Output('daily-graph','figure'),
@@ -203,7 +317,7 @@ def update_datepicker_from_graph(clickData, selectedData):
               [Input('go-button','n_clicks'),
                Input('map-graph','clickData'), 
                Input('map-return-link','n_clicks'),
-               Input('filter-button','n_clicks')],
+               Input('go-button','n_clicks')],
               [State('datepicker','start_date'), 
                State('datepicker','end_date'),
                State('filter-dropdown','value'),
@@ -244,7 +358,7 @@ def map_daily_callback(go_nclicks, map_clickData, link_nclicks, filter_nclicks, 
         ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
         return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_hide
     
-    elif dash.callback_context.triggered[0]['prop_id'] == 'filter-button.n_clicks':
+    elif dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
         if map_state == 'stations':
             ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
             return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_hide

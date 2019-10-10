@@ -51,6 +51,7 @@ def make_timeseries_fig(thdf, date=None):
                          'fixedrange': True
                        },
                        margin=margin,
+                       #autosize=True,
                        dragmode='select'
                   )
 
