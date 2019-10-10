@@ -182,11 +182,12 @@ main_div = dbc.Row(className="pt-5", children=[
 detail_div = dbc.Row( children=[
         
         dbc.Col([
+            
+            dbc.Row(id='detail-cards',children=""),
+            
             dbc.Row([
                 dbc.Col([
-                    dbc.Row([
-                        html.H2("Details"),
-                    ]),
+
                     dbc.Row([
                         dcc.Graph(
                             id='daily-graph',
@@ -194,22 +195,15 @@ detail_div = dbc.Row( children=[
                         )
                     ]),
                 ]),
-            ]),
-        
-        
-            dbc.Row([
-                
-                dbc.Col(id='info-div', 
-                 children=get_stats(df,wdf)
-                ),
         
         
         
-                dbc.Col(id='map_container',  children=[
+        
+                dbc.Col(id='map_container', children=[
             
                     html.Div(id='map-state', children="stations", style={'display':'none'}),
                 
-                    html.Div([
+                    html.Div(style={'position':'absolute','zIndex':'100','top':'50','left':'-50'}, children=[
                         dbc.RadioItems(
                             id='stations-radio',
                             options=[
@@ -227,7 +221,8 @@ detail_div = dbc.Row( children=[
             
                     dcc.Graph(
                         id='map-graph',
-                        figure=make_station_map()  
+                        figure=make_station_map()
+                        
                     ), 
                 ]), #Col
             ]), #Row
@@ -235,6 +230,7 @@ detail_div = dbc.Row( children=[
         ]), # Col
 
     ])  # Row
+
 
 body = dbc.Container(id="mainContainer",children=[
     
@@ -311,20 +307,25 @@ def activate_go_button(a,b):
         raise PreventUpdate
     return False
 
+
+
+
+
 # Map and daily plot go together
 @app.callback([Output('map-graph','figure'), Output('daily-graph','figure'),
-               Output('map-state','children'), Output('map-meta-div','style')],
+               Output('map-state','children'), Output('map-meta-div','style'),
+               Output('detail-cards','children')],
               [Input('go-button','n_clicks'),
                Input('map-graph','clickData'), 
                Input('map-return-link','n_clicks'),
-               Input('go-button','n_clicks')],
+               Input('go-button','n_clicks'),
+               Input('stations-radio','value')],
               [State('datepicker','start_date'), 
                State('datepicker','end_date'),
                State('filter-dropdown','value'),
-               State('stations-radio','value'),
                State('map-state','children')]
              )
-def map_daily_callback(go_nclicks, map_clickData, link_nclicks, filter_nclicks, start_date, end_date, filter_values, radio_value, map_state):
+def map_daily_callback(go_nclicks, map_clickData, link_nclicks, filter_nclicks, radio_value, start_date, end_date, filter_values, map_state):
     
     print("trigger: ",dash.callback_context.triggered)  # last triggered
     print("inputs : ",dash.callback_context.inputs)     # all triggered
@@ -347,25 +348,34 @@ def map_daily_callback(go_nclicks, map_clickData, link_nclicks, filter_nclicks, 
     
     if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':    
         ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
-        return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf),'stations', link_style_hide
+        return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf),'stations', link_style_hide, make_detail_cards(ddf,wdf)
+    
+    elif dash.callback_context.triggered[0]['prop_id'] == 'stations-radio.value':   
+        if map_state == 'stations':
+            ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
+            return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_show, make_detail_cards(ddf,wdf)
+        elif map_state == 'trips':
+            station = map_clickData['points'][0]['text'].split('<')[0].strip()
+            ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
+            return  make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show, make_detail_cards(ddf,wdf)
     
     elif dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
         station = map_clickData['points'][0]['text'].split('<')[0].strip()
         ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
-        return  make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show
+        return  make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show, make_detail_cards(ddf,wdf)
     
     elif dash.callback_context.triggered[0]['prop_id'] == 'map-return-link.n_clicks':
         ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
-        return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_hide
+        return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_hide, make_detail_cards(ddf,wdf)
     
     elif dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
         if map_state == 'stations':
             ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
-            return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_hide
+            return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_hide, make_detail_cards(ddf,wdf)
         elif map_state == 'trips':
             station = dash.callback_context.inputs['map-graph.clickData']['points'][0]['text'].split('<')[0].strip()
             ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
-            return make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show
+            return make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show, make_detail_cards(ddf,wdf)
     
     else:
         raise PreventUpdate
