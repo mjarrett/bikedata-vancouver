@@ -133,9 +133,9 @@ def make_detail_cards(df,wdf):
                     dbc.CardBody(
                         [
                         html.P(
-                            "Daily Hight Temp",
+                            "Daily High Temp",
                             className="card-text"),
-                        html.H2(f"{avg_daily_high}", className="card-title"),
+                        html.H2(f"{avg_daily_high:.1f}", className="card-title"),
 
                     ]) # Card body
 
@@ -147,7 +147,7 @@ def make_detail_cards(df,wdf):
                         html.P(
                             "Daily Precipitation",
                             className="card-text"),
-                        html.H2(f"{avg_daily_pricip}", className="card-title"),
+                        html.H2(f"{avg_daily_pricip:.1f}", className="card-title"),
 
                     ]) # Card body
 
