@@ -207,7 +207,6 @@ def make_daily_fig(df=None):
         thdf = mobi.make_thdf(df)  
         trips_df = thdf.sum(1).reset_index()    
 
-
     trips_df.columns = ['Time','Trips']
     data = [go.Bar(
         x=trips_df['Time'],
@@ -228,7 +227,7 @@ def make_daily_fig(df=None):
     fig = go.Figure(data=data,layout=layout)
     
 
-    if df is not None and (trips_df.loc[trips_df.index[-1],'Time'] - trips_df.loc[0,'Time']).days < 1.1:
+    if df is not None and (trips_df.loc[trips_df.index[-1],'Time'] - trips_df.loc[0,'Time']).days < 1:
         date = trips_df.loc[0,'Time']
         t1 = datetime(date.year,date.month,date.day,0)
         t2 = datetime(date.year,date.month,date.day,23)

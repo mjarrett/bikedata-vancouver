@@ -71,7 +71,7 @@ def make_detail_cards(df,wdf):
     wdf = wdf[start_date:stop_date]
     
     n_days = (df['Departure'].iloc[-1] - df['Departure'].iloc[0]).days + 1
-    
+    n_days = n_days if (n_days > 1) else 1
     
     
     n_trips = len(df)

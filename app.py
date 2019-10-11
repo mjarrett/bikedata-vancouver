@@ -122,7 +122,7 @@ summary_cards = dbc.Row(children=[
     ]) 
 
 
-main_div = dbc.Row(className="pt-5", children=[
+main_div = dbc.Row(className="py-5", children=[
     
          dbc.Col(className="border rounded col-2", children=[
             dbc.FormGroup([
@@ -179,11 +179,11 @@ main_div = dbc.Row(className="pt-5", children=[
 
     ]) 
 
-detail_div = dbc.Row( children=[
+detail_div = dbc.Row(className="border", children=[
         
         dbc.Col([
             
-            dbc.Row(id='detail-cards',children=""),
+            dbc.Row(id='detail-cards',children=make_detail_cards(df,wdf)),
             
             dbc.Row([
                 dbc.Col([
@@ -203,7 +203,8 @@ detail_div = dbc.Row( children=[
             
                     html.Div(id='map-state', children="stations", style={'display':'none'}),
                 
-                    html.Div(style={'position':'absolute','zIndex':'100','top':'50','left':'-50'}, children=[
+#                     html.Div(style={'position':'absolute','zIndex':'100','top':'50','left':'-50'}, children=[
+                      html.Div(children=[
                         dbc.RadioItems(
                             id='stations-radio',
                             options=[
@@ -243,7 +244,7 @@ body = dbc.Container(id="mainContainer",children=[
 ])  
 
 app.layout = html.Div([header,body])
-
+                                             
 #######################################################################################
 #
 #  CALLBACKS
@@ -310,7 +311,7 @@ def activate_go_button(a,b):
 
 
 
-
+        
 # Map and daily plot go together
 @app.callback([Output('map-graph','figure'), Output('daily-graph','figure'),
                Output('map-state','children'), Output('map-meta-div','style'),
