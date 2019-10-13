@@ -204,8 +204,12 @@ def make_daily_fig(df=None):
         trips_df = pd.DataFrame(columns=[0,1])
   
     else:
+        
         thdf = mobi.make_thdf(df)  
-        trips_df = thdf.sum(1).reset_index()    
+        if len(thdf) < 24*32:
+            trips_df = thdf.sum(1).reset_index() 
+        else:
+            trips_df = thdf.groupby(pd.Grouper(freq='d')).sum().sum(1).reset_index()
 
     trips_df.columns = ['Time','Trips']
     data = [go.Bar(

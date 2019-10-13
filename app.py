@@ -148,58 +148,8 @@ main_div = dbc.Row(className="py-5", children=[
 
     ]) 
 
-detail_div = dbc.Row(className="border", children=[
-        
-        dbc.Col([
-            
-            dbc.Row(id='detail-cards',children=make_detail_cards(df,wdf)),
-            
-            dbc.Row([
-                dbc.Col([
+detail_div = dbc.Row(id='detail_div', className="border", children=make_detail_div(df,wdf,df) ) 
 
-                    dbc.Row([
-                        dcc.Graph(
-                            id='daily-graph',
-                            figure=make_daily_fig()
-                        )
-                    ]),
-                ]),
-        
-        
-        
-        
-                dbc.Col(id='map_container', children=[
-            
-                    html.Div(id='map-state', children="stations", style={'display':'none'}),
-                
-#                     html.Div(style={'position':'absolute','zIndex':'100','top':'50','left':'-50'}, children=[
-                      html.Div(children=[
-                        dbc.RadioItems(
-                            id='stations-radio',
-                            options=[
-                                {'label': 'Trip Start', 'value': 'start'},
-                                {'label': 'Trip End', 'value': 'stop'},
-                                {'label': 'Both', 'value': 'both'}
-                            ],
-                            value='start',
-                            inline=True
-                        ),  
-                    ]),
-                    html.Div(id='map-meta-div',style={'display':'none'}, children=[
-                        html.A(children="<", id='map-return-link', title="Return to station map") 
-                    ]),
-            
-                    dcc.Graph(
-                        id='map-graph',
-                        figure=make_station_map()
-                        
-                    ), 
-                ]), #Col
-            ]), #Row
-
-        ]), # Col
-
-    ])  # Row
 
 
 body = dbc.Container(id="mainContainer",children=[
@@ -220,135 +170,135 @@ app.layout = html.Div([header,body])
 #
 #######################################################################################
 
-@app.callback(Output('timeseries-graph','figure'),
-              [Input('go-button','n_clicks')],
-              [State('timeseries-graph','figure'), 
-               State('datepicker','start_date'), 
-               State('datepicker','end_date')
-              ]
-             )
-def timeseries_callback(nclicks,ts_graph, start_date, end_date ):
+# @app.callback(Output('timeseries-graph','figure'),
+#               [Input('go-button','n_clicks')],
+#               [State('timeseries-graph','figure'), 
+#                State('datepicker','start_date'), 
+#                State('datepicker','end_date')
+#               ]
+#              )
+# def timeseries_callback(nclicks,ts_graph, start_date, end_date ):
     
-    print("trigger: ",dash.callback_context.triggered)  # last triggered
-    print("inputs : ",dash.callback_context.inputs)     # all triggered
-    #print("states : ",dash.callback_context.states)
+#     print("trigger: ",dash.callback_context.triggered)  # last triggered
+#     print("inputs : ",dash.callback_context.inputs)     # all triggered
+#     #print("states : ",dash.callback_context.states)
     
-#     print(start_date, end_date)
+# #     print(start_date, end_date)
     
-    if nclicks is None:
-        raise PreventUpdate
+#     if nclicks is None:
+#         raise PreventUpdate
     
-    if end_date is None:
-        date = start_date[:10] 
-    if start_date != end_date:
-        date = (start_date[:10], end_date[:10])
-    else:
-        date = start_date[:10]
+#     if end_date is None:
+#         date = start_date[:10] 
+#     if start_date != end_date:
+#         date = (start_date[:10], end_date[:10])
+#     else:
+#         date = start_date[:10]
         
-    return make_timeseries_fig(thdf,date)
+#     return make_timeseries_fig(thdf,date)
 
 
-@app.callback([Output('datepicker','start_date'), Output('datepicker','end_date'),
-               Output('datepicker','initial_visible_month')],
-              [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')]
-             )
-def update_datepicker_from_graph(clickData, selectedData):
+# @app.callback([Output('datepicker','start_date'), Output('datepicker','end_date'),
+#                Output('datepicker','initial_visible_month')],
+#               [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')]
+#              )
+# def update_datepicker_from_graph(clickData, selectedData):
     
-    if clickData is None and selectedData is None:
-        raise PreventUpdate
+#     if clickData is None and selectedData is None:
+#         raise PreventUpdate
     
-    if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
-        date = clickData['points'][0]['x']
-        return (date, date, date)
-    elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
-        dates = [x['x'] for x in selectedData['points'] ]
-        print(dates)
-        return (dates[0], dates[-1],dates[0])
+#     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
+#         date = clickData['points'][0]['x']
+#         return (date, date, date)
+#     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
+#         dates = [x['x'] for x in selectedData['points'] ]
+#         print(dates)
+#         return (dates[0], dates[-1],dates[0])
     
-    else:
-        raise PreventUpdate    
+#     else:
+#         raise PreventUpdate    
     
 
-@app.callback(Output('go-button','outline'),
-              [Input('datepicker','start_date'), Input('datepicker','end_date')]
-             )
-def activate_go_button(a,b):
-    if a is None and b is None:
-        raise PreventUpdate
-    return False
+# @app.callback(Output('go-button','outline'),
+#               [Input('datepicker','start_date'), Input('datepicker','end_date')]
+#              )
+# def activate_go_button(a,b):
+#     if a is None and b is None:
+#         raise PreventUpdate
+#     return False
 
 
 
 
         
-# Map and daily plot go together
-@app.callback([Output('map-graph','figure'), Output('daily-graph','figure'),
-               Output('map-state','children'), Output('map-meta-div','style'),
-               Output('detail-cards','children')],
-              [Input('go-button','n_clicks'),
-               Input('map-graph','clickData'), 
-               Input('map-return-link','n_clicks'),
-               Input('go-button','n_clicks'),
-               Input('stations-radio','value')],
-              [State('datepicker','start_date'), 
-               State('datepicker','end_date'),
-               State('filter-dropdown','value'),
-               State('map-state','children')]
-             )
-def map_daily_callback(go_nclicks, map_clickData, link_nclicks, filter_nclicks, radio_value, start_date, end_date, filter_values, map_state):
+# # Map and daily plot go together
+# @app.callback([Output('map-graph','figure'), Output('daily-graph','figure'),
+#                Output('map-state','children'), Output('map-meta-div','style'),
+#                Output('detail-cards','children')],
+#               [Input('go-button','n_clicks'),
+#                Input('map-graph','clickData'), 
+#                Input('map-return-link','n_clicks'),
+#                Input('go-button','n_clicks'),
+#                Input('stations-radio','value')],
+#               [State('datepicker','start_date'), 
+#                State('datepicker','end_date'),
+#                State('filter-dropdown','value'),
+#                State('map-state','children')]
+#              )
+# def map_daily_callback(go_nclicks, map_clickData, link_nclicks, filter_nclicks, radio_value, start_date, end_date, filter_values, map_state):
     
-    print("trigger: ",dash.callback_context.triggered)  # last triggered
-    print("inputs : ",dash.callback_context.inputs)     # all triggered
-    print("states : ",dash.callback_context.states)
+#     print("trigger: ",dash.callback_context.triggered)  # last triggered
+#     print("inputs : ",dash.callback_context.inputs)     # all triggered
+#     print("states : ",dash.callback_context.states)
 
     
-    link_style_show = {'display':'inline'}
-    link_style_hide = {'display':'none'}
+#     link_style_show = {'display':'inline'}
+#     link_style_hide = {'display':'none'}
     
-    if go_nclicks is None and map_clickData is None and link_nclicks is None:
-        raise PreventUpdate
+#     if go_nclicks is None and map_clickData is None and link_nclicks is None:
+#         raise PreventUpdate
     
-    if start_date != end_date:
-        date = (start_date[:10], end_date[:10])
-    else:
-        date = start_date[:10]
+#     if start_date != end_date:
+#         date = (start_date[:10], end_date[:10])
+#     else:
+#         date = start_date[:10]
         
     
     
     
-    if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':    
-        ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
-        return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf),'stations', link_style_hide, make_detail_cards(ddf,wdf)
+#     if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':    
+#         ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
+#         return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf),'stations', link_style_hide, make_detail_cards(ddf,wdf)
     
-    elif dash.callback_context.triggered[0]['prop_id'] == 'stations-radio.value':   
-        if map_state == 'stations':
-            ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
-            return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_show, make_detail_cards(ddf,wdf)
-        elif map_state == 'trips':
-            station = map_clickData['points'][0]['text'].split('<')[0].strip()
-            ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
-            return  make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show, make_detail_cards(ddf,wdf)
+#     elif dash.callback_context.triggered[0]['prop_id'] == 'stations-radio.value':   
+#         if map_state == 'stations':
+#             ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
+#             return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_show, make_detail_cards(ddf,wdf)
+#         elif map_state == 'trips':
+#             station = map_clickData['points'][0]['text'].split('<')[0].strip()
+#             ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
+#             return  make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show, make_detail_cards(ddf,wdf)
     
-    elif dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
-        station = map_clickData['points'][0]['text'].split('<')[0].strip()
-        ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
-        return  make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show, make_detail_cards(ddf,wdf)
+#     elif dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
+#         station = map_clickData['points'][0]['text'].split('<')[0].strip()
+#         ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
+#         return  make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show, make_detail_cards(ddf,wdf)
     
-    elif dash.callback_context.triggered[0]['prop_id'] == 'map-return-link.n_clicks':
-        ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
-        return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_hide, make_detail_cards(ddf,wdf)
+#     elif dash.callback_context.triggered[0]['prop_id'] == 'map-return-link.n_clicks':
+#         ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
+#         return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_hide, make_detail_cards(ddf,wdf)
     
-    elif dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
-        if map_state == 'stations':
-            ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
-            return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_hide, make_detail_cards(ddf,wdf)
-        elif map_state == 'trips':
-            station = dash.callback_context.inputs['map-graph.clickData']['points'][0]['text'].split('<')[0].strip()
-            ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
-            return make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show, make_detail_cards(ddf,wdf)
+#     elif dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
+#         if map_state == 'stations':
+#             ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
+#             return  make_station_map(ddf,direction=radio_value), make_daily_fig(ddf), 'stations', link_style_hide, make_detail_cards(ddf,wdf)
+#         elif map_state == 'trips':
+#             station = dash.callback_context.inputs['map-graph.clickData']['points'][0]['text'].split('<')[0].strip()
+#             ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
+#             return make_trips_map(ddf,direction=radio_value), make_daily_fig(ddf), 'trips', link_style_show, make_detail_cards(ddf,wdf)
     
-    else:
-        raise PreventUpdate
+#     else:
+#         raise PreventUpdate
         
 
 

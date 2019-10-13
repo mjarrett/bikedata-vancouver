@@ -7,6 +7,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
+from plots import *
+
 def get_prepped_data():
     df = pd.read_csv('./data/Mobi_System_Data_Prepped.csv')
     df['Departure'] = pd.to_datetime(df['Departure'])
@@ -105,7 +107,7 @@ def make_detail_cards(df,wdf):
     if start_date != stop_date:
         output =  dbc.Col(style={'width':'100%'},children=[
                 html.H2(f"{start_date_str} to {stop_date_str}"),
-                dbc.CardDeck([
+                dbc.CardColumns([
 
                     make_card("Total trips", f"{n_trips:,}"),
                     make_card("Average trip distance",f"{int(avg_dist):,} km"),
@@ -116,7 +118,7 @@ def make_detail_cards(df,wdf):
 
                 ]),
 
-                dbc.CardDeck([
+                dbc.CardColumns([
                     make_card("Busiest departure station",f"{busiest_dep}"),
                     make_card("Busiest return station",f"{busiest_ret}")
 
@@ -125,7 +127,7 @@ def make_detail_cards(df,wdf):
     else:
         output =  dbc.Col(style={'width':'100%'},children=[
             html.H2(f"{start_date_str}"),
-            dbc.CardDeck([
+            dbc.CardColumns([
                 make_card("Total trips", f"{n_trips:,}"),
                 make_card("Average trip distance",f"{int(avg_dist):,} km"),
                 make_card("Daily high temp",f"{avg_daily_high:.1f} °C"),
@@ -134,7 +136,7 @@ def make_detail_cards(df,wdf):
 
             ]),
 
-            dbc.CardDeck([
+            dbc.CardColumns([
                 make_card("Busiest departure station",f"{busiest_dep}"),
                 make_card("Busiest return station",f"{busiest_ret}")
 
@@ -143,4 +145,92 @@ def make_detail_cards(df,wdf):
     
     return output
 
+def make_detail_cols(df,df2,wdf):
+    
+    res_row = dbc.Row([
+                    dbc.Col(width=6,children=[
+                        make_detail_cards(df,wdf)
+                    ]),
+                    dbc.Col(width=6,children=[
+                        make_detail_cards(df2,wdf)
+                    ])
+                ])
+        
+    daily_row = dbc.Row([
+                    dbc.Col(width=6,children=[
+                        dcc.Graph(
+                            id=f'daily-graph',
+                            figure=make_daily_fig(df)
+                            )
+                    ]),
+                    dbc.Col(width=6,children=[
+                       dcc.Graph(
+                            id=f'daily-graph2',
+                            figure=make_daily_fig(df2)
+                           )
+                    ])
+                ])
+    map_row = dbc.Row([
+                dbc.Col([make_map_div(df)]), 
+                dbc.Col([make_map_div(df2,suff='2')])
+              ])
+    
+    return dbc.Col([res_row, daily_row, map_row])
 
+def make_detail_col(df,wdf):
+        
+    return dbc.Col(children=[
+            
+            dbc.Row(id=f'detail-cards',children=make_detail_cards(df,wdf)),
+            
+            dbc.Row([
+                dbc.Col([
+
+                    dbc.Row([
+                        dcc.Graph(
+                            id=f'daily-graph',
+                            figure=make_daily_fig()
+                        )
+                    ]),
+                ]),
+        
+        
+        
+        
+                dbc.Col(id=f'map_container', children=make_map_div(df)), #Col
+            ]), #Row
+
+        ]) # Col
+
+def make_detail_div(df, wdf, df2=None):
+    if df2 is None:
+        return make_detail_col(df,wdf)
+    if df2 is not None:
+        return make_detail_cols(df,df2,wdf)
+        
+def make_map_div(df,suff=""):
+    return html.Div([
+                html.Div(id=f'map-state{suff}', children="stations", style={'display':'none'}),
+                
+                html.Div(children=[
+                    dbc.RadioItems(
+                        id=f'stations-radio{suff}',
+                        options=[
+                            {'label': 'Trip Start', 'value': 'start'},
+                            {'label': 'Trip End', 'value': 'stop'},
+                            {'label': 'Both', 'value': 'both'}
+                        ],
+                        value='start',
+                        inline=True
+                    ),  
+                ]),
+                html.Div(id=f'map-meta-div{suff}',style={'display':'none'}, children=[
+                    html.A(children="<", id=f'map-return-link{suff}', title="Return to station map") 
+                ]),
+
+                dcc.Graph(
+                    id=f'map-graph{suff}',
+                    figure=make_station_map()
+
+                )
+            ])
