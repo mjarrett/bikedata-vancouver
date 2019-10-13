@@ -79,41 +79,10 @@ summary_cards = dbc.Row(children=[
                 
                 dbc.CardDeck(style={'width':'100%'},children=[
         
-                    dbc.Card(className="justify-content-center", children=[
-                        dbc.CardBody(
-                            [
-                            html.P(
-                                "Total Trips",
-                                className="card-text"),
-                            html.H2(f"{n_trips:,}", className="card-title"),
+                    make_card("Total Trips",f"{n_trips:,}"),
+                    make_card("Total Distance Travelled",f"{int(tot_dist):,} km"),
+                    make_card("Total Riders",f"{tot_usrs:,}")
 
-                        ]) # Card body
-
-                    ]),  # Card
-
-                    dbc.Card(className="justify-content-center", children=[
-                        dbc.CardBody(
-                            [
-                            html.P(
-                                "Total Distance Travelled",
-                                className="card-text"),
-                            html.H2(f"{int(tot_dist):,} km", className="card-title"),
-
-                        ]) # Card body
-
-                    ]),  # Card
-
-                    dbc.Card(className="justify-content-center", children=[
-                        dbc.CardBody(
-                            [
-                            html.P(
-                                "Total Riders",
-                                className="card-text"),
-                            html.H2(f"{tot_usrs:,}", className="card-title"),
-
-                        ]) # Card body
-
-                    ]),  # Card
                 ]),
             ]),
         ]),

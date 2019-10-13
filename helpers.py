@@ -61,12 +61,26 @@ def filter_ddf(df, date=None, cats=None, stations=None, direction='both'):
     df = mobi.add_station_coords(df,sdf)
     return df
 
+def make_card(title,content):
+    return dbc.Card(className="justify-content-center", children=[
+            dbc.CardBody(
+                    [
+                    html.P(
+                        title,
+                        className="card-text"),
+                    html.H2(content, className="card-title"),
 
+                ]) # Card body
+
+            ])  # Card
 
 def make_detail_cards(df,wdf):
     
     start_date = df['Departure'].iloc[0].strftime('%Y-%m-%d')
     stop_date  = df['Departure'].iloc[-1].strftime('%Y-%m-%d')
+    
+    start_date_str = df['Departure'].iloc[0].strftime('%b %d, %Y')
+    stop_date_str = df['Departure'].iloc[-1].strftime('%b %d, %Y')
     
     wdf = wdf[start_date:stop_date]
     
@@ -88,100 +102,44 @@ def make_detail_cards(df,wdf):
     avg_daily_pricip = wdf['Total Precipmm'].mean()
     
 
-    
-    output =  dbc.Col(style={'width':'100%'},children=[
-              dbc.CardDeck([
-        
-                dbc.Card(className="justify-content-center", children=[
-                    dbc.CardBody(
-                        [
-                        html.P(
-                            "Total Trips",
-                            className="card-text"),
-                        html.H2(f"{n_trips:,}", className="card-title"),
+    if start_date != stop_date:
+        output =  dbc.Col(style={'width':'100%'},children=[
+                html.H2(f"{start_date_str} to {stop_date_str}"),
+                dbc.CardDeck([
 
-                    ]) # Card body
+                    make_card("Total trips", f"{n_trips:,}"),
+                    make_card("Average trip distance",f"{int(avg_dist):,} km"),
+                    make_card("Average trips per day",f"{int(avg_trips):,}"),
+                    make_card("Daily high temp",f"{avg_daily_high:.1f} °C"),
+                    make_card("Daily precipitation",f"{avg_daily_pricip:.1f} mm"),
 
-                ]),  # Card
 
-                dbc.Card(className="justify-content-center", children=[
-                    dbc.CardBody(
-                        [
-                        html.P(
-                            "Average trip distance",
-                            className="card-text"),
-                        html.H2(f"{int(avg_dist):,} km", className="card-title"),
+                ]),
 
-                    ]) # Card body
+                dbc.CardDeck([
+                    make_card("Busiest departure station",f"{busiest_dep}"),
+                    make_card("Busiest return station",f"{busiest_ret}")
 
-                ]),  # Card
+                ])
+            ])
+    else:
+        output =  dbc.Col(style={'width':'100%'},children=[
+            html.H2(f"{start_date_str}"),
+            dbc.CardDeck([
+                make_card("Total trips", f"{n_trips:,}"),
+                make_card("Average trip distance",f"{int(avg_dist):,} km"),
+                make_card("Daily high temp",f"{avg_daily_high:.1f} °C"),
+                make_card("Daily precipitation",f"{avg_daily_pricip:.1f} mm"),
 
-                dbc.Card(className="justify-content-center", children=[
-                    dbc.CardBody(
-                        [
-                        html.P(
-                            "Trips per day",
-                            className="card-text"),
-                        html.H2(f"{int(avg_trips):,}", className="card-title"),
 
-                    ]) # Card body
-
-                ]),  # Card
-        
-
-                dbc.Card(className="justify-content-center", children=[
-                    dbc.CardBody(
-                        [
-                        html.P(
-                            "Daily High Temp",
-                            className="card-text"),
-                        html.H2(f"{avg_daily_high:.1f}", className="card-title"),
-
-                    ]) # Card body
-
-                ]),  # Card
-        
-                dbc.Card(className="justify-content-center", children=[
-                    dbc.CardBody(
-                        [
-                        html.P(
-                            "Daily Precipitation",
-                            className="card-text"),
-                        html.H2(f"{avg_daily_pricip:.1f}", className="card-title"),
-
-                    ]) # Card body
-
-                ]),  # Card
             ]),
-        
-        dbc.CardDeck([
-                    
-            dbc.Card(className="justify-content-center", children=[
-                dbc.CardBody(
-                    [
-                    html.P(
-                        "Busiest starting station",
-                        className="card-text"),
-                    html.H2(f"{busiest_dep}", className="card-title"),
 
-                ]) # Card body
+            dbc.CardDeck([
+                make_card("Busiest departure station",f"{busiest_dep}"),
+                make_card("Busiest return station",f"{busiest_ret}")
 
-            ]),  # Card
-
-            dbc.Card(className="justify-content-center", children=[
-                dbc.CardBody(
-                    [
-                    html.P(
-                        "Busiest return station",
-                        className="card-text"),
-                    html.H2(f"{busiest_ret}", className="card-title"),
-
-                ]) # Card body
-
-            ]),  # Card
+            ])
         ])
-    ])
-             
     
     return output
 
