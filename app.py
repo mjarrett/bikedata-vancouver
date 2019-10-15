@@ -71,6 +71,17 @@ header = dbc.NavbarSimple(
     dark=True
     )
 
+footer = dbc.NavbarSimple(
+    children=[
+        dbc.NavItem(dbc.NavLink("Link", href="#")),
+        
+    ],
+    brand="Vancouver Bikeshare Explorer",
+    brand_href="#",
+    sticky="bottom",
+    color='#1e5359',
+    dark=False
+    )
 
 summary_cards = dbc.Row(children=[
         
@@ -130,7 +141,7 @@ main_div = dbc.Row(className="py-5", children=[
                  dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
                  dbc.Button("Compare", id='compare-button', color="secondary", outline=False, block=True),
                  ]),
-                 
+             
               dbc.Col(id="date2-div", className="d-none", children=[
                 dbc.FormGroup([
     #                 html.H4("Filter"),
@@ -187,6 +198,7 @@ main_div = dbc.Row(className="py-5", children=[
     ]) 
 
 detail_div = dbc.Row(id='detail-div', className="border", children=make_detail_div(df,wdf) ) 
+# detail_div = dbc.Row(id='detail-div', className="border", children="" )
 
 
 
@@ -200,7 +212,7 @@ body = dbc.Container(id="mainContainer",children=[
     
 ])  
 
-app.layout = html.Div([header,body])
+app.layout = html.Div([header,body,footer])
                                              
 #######################################################################################
 #
@@ -304,7 +316,8 @@ def daily_div_callback(go_nclicks, map_clickData, link_nclicks,
     print("inputs : ",dash.callback_context.inputs)     # all triggered    
     if go_nclicks is None and map_clickData is None and link_nclicks is None:
         raise PreventUpdate
-        
+    
+    
     if start_date2 is not None:
         if end_date2 is not None and (start_date2 != end_date2):
             date2 = (start_date2[:10], end_date2[:10])
