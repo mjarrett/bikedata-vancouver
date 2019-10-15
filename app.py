@@ -93,46 +93,84 @@ summary_cards = dbc.Row(children=[
 
 main_div = dbc.Row(className="py-5", children=[
     
-         dbc.Col(className="border rounded col-2", children=[
-            dbc.FormGroup([
-#                 html.H4("Filter"),
-                html.Strong("Filter"),
-                dcc.DatePickerRange(
-                    id='datepicker',
-                    min_date_allowed=startdate,
-                    max_date_allowed=enddate,
-                    initial_visible_month = '2018-01-01',
-                    minimum_nights = 0,
-                    #start_date=datetime(2019,3,15),
-                    #end_date=datetime(2019,3,16)
+         dbc.Col(id='date-div', className="border rounded", children=[
+             dbc.Row(className="", children=[
+                 dbc.Col(width=6, className="", children=[
+                    dbc.FormGroup([
+        #                 html.H4("Filter"),
+                        html.Strong("Pick a date"),
+                        dcc.DatePickerRange(
+                            id='datepicker',
+                            min_date_allowed=startdate,
+                            max_date_allowed=enddate,
+                            initial_visible_month = '2018-01-01',
+                            minimum_nights = 0,
+                            #start_date=datetime(2019,3,15),
+                            #end_date=datetime(2019,3,16)
+                            ),
+
+                        dbc.Tooltip("Pick a date or select a range of days to see details.",
+                                    target="go-button"),
+
+
+            #             fdhtml.H5("Member type"),
+                        html.Strong("Membership Type"),
+                        dbc.Checklist(id='filter-dropdown',
+                            options=[
+                                {'label': 'Annual Standard', 'value': '365S'},
+                                {'label': 'Annual Plus', 'value': '365P'},
+                                {'label': 'Daily', 'value': '24h'},
+                                {'label': 'Monthly', 'value': '90d'}
+                            ],
+
+                            value=['365S','365P','24h','90d']
+                        ),
+
+                    ]),
+                 dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
+                 dbc.Button("Compare", id='compare-button', color="secondary", outline=False, block=True),
+                 ]),
+                 
+              dbc.Col(id="date2-div", className="d-none", children=[
+                dbc.FormGroup([
+    #                 html.H4("Filter"),
+                    html.Strong("Compare"),
+                    dcc.DatePickerRange(
+                        id='datepicker2',
+                        min_date_allowed=startdate,
+                        max_date_allowed=enddate,
+                        initial_visible_month = '2018-01-01',
+                        minimum_nights = 0,
+                        #start_date=datetime(2019,3,15),
+                        #end_date=datetime(2019,3,16)
+                        ),
+
+                    dbc.Tooltip("Pick a date or select a range of days to see details.",
+                                target="go-button"),
+
+
+        #             html.H5("Member type"),
+                    html.Strong("Membership Type"),
+                    dbc.Checklist(id='filter-dropdown2',
+                        options=[
+                            {'label': 'Annual Standard', 'value': '365S'},
+                            {'label': 'Annual Plus', 'value': '365P'},
+                            {'label': 'Daily', 'value': '24h'},
+                            {'label': 'Monthly', 'value': '90d'}
+                        ],
+
+                        value=['365S','365P','24h','90d']
                     ),
 
-                dbc.Tooltip("Pick a date or select a range of days to see details.",
-                            target="go-button"),
+                ]),
+              ]),
+              
 
-
-    #             html.H5("Member type"),
-                html.Strong("Membership Type"),
-                dbc.Checklist(id='filter-dropdown',
-                    options=[
-                        {'label': 'Annual Standard', 'value': '365S'},
-                        {'label': 'Annual Plus', 'value': '365P'},
-                        {'label': 'Daily', 'value': '24h'},
-                        {'label': 'Monthly', 'value': '90d'}
-                    ],
-
-                    value=['365S','365P','24h','90d']
-                ),
-
-
-
-                dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
-            ]),
-        ]),   
+            ]),   
     
-    
+         ]),
         
-        dbc.Col(children=[
+        dbc.Col(width=8, children=[
             
             html.Span(html.Em(f"Data available from {startdate_str} to {enddate_str}")),
             dcc.Graph(
@@ -148,7 +186,7 @@ main_div = dbc.Row(className="py-5", children=[
 
     ]) 
 
-detail_div = dbc.Row(id='detail_div', className="border", children=make_detail_div(df,wdf,df) ) 
+detail_div = dbc.Row(id='detail-div', className="border", children=make_detail_div(df,wdf) ) 
 
 
 
@@ -170,66 +208,118 @@ app.layout = html.Div([header,body])
 #
 #######################################################################################
 
-# @app.callback(Output('timeseries-graph','figure'),
-#               [Input('go-button','n_clicks')],
-#               [State('timeseries-graph','figure'), 
-#                State('datepicker','start_date'), 
-#                State('datepicker','end_date')
-#               ]
-#              )
-# def timeseries_callback(nclicks,ts_graph, start_date, end_date ):
+@app.callback(Output('timeseries-graph','figure'),
+              [Input('go-button','n_clicks')],
+              [State('timeseries-graph','figure'), 
+               State('datepicker','start_date'), 
+               State('datepicker','end_date')
+              ]
+             )
+def timeseries_callback(nclicks,ts_graph, start_date, end_date ):
     
-#     print("trigger: ",dash.callback_context.triggered)  # last triggered
-#     print("inputs : ",dash.callback_context.inputs)     # all triggered
-#     #print("states : ",dash.callback_context.states)
+    print("trigger: ",dash.callback_context.triggered)  # last triggered
+    print("inputs : ",dash.callback_context.inputs)     # all triggered
+    #print("states : ",dash.callback_context.states)
     
-# #     print(start_date, end_date)
+#     print(start_date, end_date)
     
-#     if nclicks is None:
-#         raise PreventUpdate
+    if end_date is None:
+        raise PreventUpdate
     
-#     if end_date is None:
-#         date = start_date[:10] 
-#     if start_date != end_date:
-#         date = (start_date[:10], end_date[:10])
-#     else:
-#         date = start_date[:10]
+    if nclicks is None:
+        raise PreventUpdate
+    
+    if end_date is None:
+        date = start_date[:10] 
+    if start_date != end_date:
+        date = (start_date[:10], end_date[:10])
+    else:
+        date = start_date[:10]
         
-#     return make_timeseries_fig(thdf,date)
+    return make_timeseries_fig(thdf,date)
 
 
-# @app.callback([Output('datepicker','start_date'), Output('datepicker','end_date'),
-#                Output('datepicker','initial_visible_month')],
-#               [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')]
-#              )
-# def update_datepicker_from_graph(clickData, selectedData):
+@app.callback([Output('datepicker','start_date'), Output('datepicker','end_date'),
+               Output('datepicker','initial_visible_month')],
+              [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')]
+             )
+def update_datepicker_from_graph(clickData, selectedData):
     
-#     if clickData is None and selectedData is None:
-#         raise PreventUpdate
+    if clickData is None and selectedData is None:
+        raise PreventUpdate
     
-#     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
-#         date = clickData['points'][0]['x']
-#         return (date, date, date)
-#     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
-#         dates = [x['x'] for x in selectedData['points'] ]
-#         print(dates)
-#         return (dates[0], dates[-1],dates[0])
+    if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
+        date = clickData['points'][0]['x']
+        return (date, date, date)
+    elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
+        dates = [x['x'] for x in selectedData['points'] ]
+        print(dates)
+        return (dates[0], dates[-1],dates[0])
     
-#     else:
-#         raise PreventUpdate    
+    else:
+        raise PreventUpdate    
     
 
-# @app.callback(Output('go-button','outline'),
-#               [Input('datepicker','start_date'), Input('datepicker','end_date')]
-#              )
-# def activate_go_button(a,b):
-#     if a is None and b is None:
-#         raise PreventUpdate
-#     return False
+@app.callback(Output('go-button','outline'),
+              [Input('datepicker','start_date'), Input('datepicker','end_date')]
+             )
+def activate_go_button(a,b):
+    if a is None and b is None:
+        raise PreventUpdate
+    return False
 
+@app.callback(Output('date2-div','className'),
+              [Input('compare-button','n_clicks')],
+              [State('date2-div','className')]
+             )
+def toggle_datepicker2_div(n_clicks, className):
+#     print("trigger: ",dash.callback_context.triggered)  # last triggered
+#     print(f"toggle open {is_open}")
+    if n_clicks is not None:
+        if className == 'd-inline':
+            return 'd-none'
+        else:
+            return "d-inline"
+    else:
+        raise PreventUpdate
 
-
-
+# Update details div
+@app.callback([Output('detail-div','children')],
+              [Input('go-button','n_clicks'),
+               Input('map-graph','clickData'), 
+               Input('map-return-link','n_clicks')],
+              [State('datepicker','start_date'), 
+               State('datepicker','end_date'),
+               State('datepicker2','start_date'), 
+               State('datepicker2','end_date'),
+               State('filter-dropdown','value'),
+               State('filter-dropdown','value'),
+               State('map-state','children')]
+             )
+def daily_div_callback(go_nclicks, map_clickData, link_nclicks, 
+                       start_date, end_date, start_date2, end_date2, 
+                       filter_values,filter_values2, map_state):
+    
+    print("trigger: ",dash.callback_context.triggered)  # last triggered
+    print("inputs : ",dash.callback_context.inputs)     # all triggered    
+    if go_nclicks is None and map_clickData is None and link_nclicks is None:
+        raise PreventUpdate
+        
+    if start_date2 is not None:
+        if end_date2 is not None and (start_date2 != end_date2):
+            date2 = (start_date2[:10], end_date2[:10])
+        else:
+            date2 = start_date2[:10] 
+        ddf2 = filter_ddf(df,date=date2, stations=None, cats=filter_values, direction='start')
+    else:
+        ddf2 = None
+                
+    if start_date != end_date:
+        date = (start_date[:10], end_date[:10])
+    else:
+        date = start_date[:10]
+    ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction='start')
+    return [make_detail_div(ddf,wdf,ddf2)]
         
 # # Map and daily plot go together
 # @app.callback([Output('map-graph','figure'), Output('daily-graph','figure'),

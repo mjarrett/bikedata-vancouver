@@ -189,7 +189,7 @@ def make_detail_col(df,wdf):
                     dbc.Row([
                         dcc.Graph(
                             id=f'daily-graph',
-                            figure=make_daily_fig()
+                            figure=make_daily_fig(df)
                         )
                     ]),
                 ]),
@@ -230,7 +230,7 @@ def make_map_div(df,suff=""):
 
                 dcc.Graph(
                     id=f'map-graph{suff}',
-                    figure=make_station_map()
+                    figure=make_station_map(df)
 
                 )
             ])
