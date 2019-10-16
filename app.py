@@ -79,7 +79,7 @@ footer = dbc.NavbarSimple(
     ],
     brand="Vancouver Bikeshare Explorer",
     brand_href="#",
-    sticky="bottom",
+    fixed="bottom",
     color='#1e5359',
     dark=False
     )
