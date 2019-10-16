@@ -259,19 +259,25 @@ def make_map_div(df,suff=""):
 def make_data_modal(df, suff=""):
     if df is None:
         df = pd.DataFrame()
-            
+        outfields = []
+    else:
+        outfields = ['Departure','Return','Departure station','Return station','Membership Type','Covered distance (m)','Duration (sec.)']
+    
     modal = dbc.Modal([
-                dbc.ModalHeader("Header"),
+                dbc.ModalHeader("Raw Data"),
                 dbc.ModalBody(children=[
                     dash_table.DataTable(
                         id=f'data-table{suff}',
-                        columns=[{"name": i, "id": i} for i in df.columns],
-                        data=df.head().to_dict('records'),
+                        columns=[{"name": i, "id": i} for i in outfields],
+                        data=df[outfields].to_dict('records'),
+                        style_table={'overflowX': 'scroll',
+                                     'maxHeight': '300px'
+                                    },
                     )    
                     
                 ]),
                 dbc.ModalFooter(
-                    html.A(id=f"download-data-button{suff}", className="btn btn-primary", href="#", children="Download")
+                    html.A(id=f"download-data-button{suff}", className="btn btn-primary", href="#", children="Download CSV")
                 ),
             ],
             id=f"data-modal{suff}",
