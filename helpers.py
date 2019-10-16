@@ -78,6 +78,8 @@ def make_card(title,content):
             ])  # Card
 
 def make_detail_cards(df,wdf):
+    if df is None:
+        return None
     
     start_date = df['Departure'].iloc[0].strftime('%Y-%m-%d')
     stop_date  = df['Departure'].iloc[-1].strftime('%Y-%m-%d')
@@ -176,7 +178,18 @@ def make_detail_cols(df,df2,wdf):
                 dbc.Col([make_map_div(df2,suff='2')])
               ])
     
-    return dbc.Col([res_row, daily_row, map_row])
+    button_row = dbc.Row(children=[
+                    dbc.Col(width=6, children=[
+                        dbc.Button("Raw Data", id='data-button'),
+                        make_data_modal(df)
+                    ]),
+                    dbc.Col(width=6, children=[
+                        dbc.Button("Raw Data", id='data-button2'),
+                        make_data_modal(df,suff='2')
+                    ])
+            ])
+    
+    return dbc.Col([res_row, daily_row, map_row, button_row])
 
 def make_detail_col(df,wdf):
         
@@ -203,23 +216,7 @@ def make_detail_col(df,wdf):
         
             dbc.Row(children=[
                 dbc.Button("Explore Data", id='data-button'),
-                dbc.Modal([
-                dbc.ModalHeader("Header"),
-                    dbc.ModalBody(children=[
-                        dash_table.DataTable(
-                            id='data-table',
-                            columns=[{"name": i, "id": i} for i in df.columns],
-                            data=df.head().to_dict('records'),
-                    )    
-                    
-                ]),
-                dbc.ModalFooter(
-                    html.A(id="download-data-button", className="btn btn-primary", href="#", children="Download")
-                ),
-            ],
-            id="data-modal",
-            size="xl",
-        ),
+                make_data_modal(df),
             ])
             
 
@@ -232,6 +229,7 @@ def make_detail_div(df, wdf, df2=None):
         return make_detail_cols(df,df2,wdf)
         
 def make_map_div(df,suff=""):
+    
     return html.Div([
                 html.Div(id=f'map-state{suff}', children="stations", style={'display':'none'}),
                 
@@ -258,23 +256,25 @@ def make_map_div(df,suff=""):
                 )
             ])
 
-def make_data_modal(df):
-        
-    modal = dbc.Modal(
-            [
+def make_data_modal(df, suff=""):
+    if df is None:
+        df = pd.DataFrame()
+            
+    modal = dbc.Modal([
                 dbc.ModalHeader("Header"),
                 dbc.ModalBody(children=[
                     dash_table.DataTable(
-                        id='table',
+                        id=f'data-table{suff}',
                         columns=[{"name": i, "id": i} for i in df.columns],
-                        data=df.to_dict('records'),
+                        data=df.head().to_dict('records'),
                     )    
                     
                 ]),
                 dbc.ModalFooter(
-                    dbc.Button("Close", id="close-xl", className="ml-auto")
+                    html.A(id=f"download-data-button{suff}", className="btn btn-primary", href="#", children="Download")
                 ),
             ],
-            id="data-modal",
+            id=f"data-modal{suff}",
             size="xl",
-        )
+            )
+    return modal

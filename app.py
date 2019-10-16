@@ -198,7 +198,7 @@ main_div = dbc.Row(className="py-5", children=[
 
     ]) 
 
-detail_div = dbc.Row(id='detail-div', className="border", children=make_detail_div(df,wdf) ) 
+detail_div = dbc.Row(id='detail-div', className="border", children=make_detail_div(None,None) ) 
 # detail_div = dbc.Row(id='detail-div', className="border", children="" )
 
 
@@ -296,8 +296,11 @@ def toggle_datepicker2_div(n_clicks, className):
     else:
         raise PreventUpdate
 
+        
+
+        
 # Update details div
-@app.callback([Output('detail-div','children')],
+@app.callback([Output('detail-div','children'), Output('detail-div','className')],
               [Input('go-button','n_clicks'),
                Input('map-graph','clickData'), 
                Input('map-return-link','n_clicks')],
@@ -316,7 +319,8 @@ def daily_div_callback(go_nclicks, map_clickData, link_nclicks,
     print("trigger: ",dash.callback_context.triggered)  # last triggered
     print("inputs : ",dash.callback_context.inputs)     # all triggered    
     if go_nclicks is None and map_clickData is None and link_nclicks is None:
-        raise PreventUpdate
+        return [make_detail_div(None,None), "border d-none"]
+
     
     
     if start_date2 is not None:
@@ -333,7 +337,8 @@ def daily_div_callback(go_nclicks, map_clickData, link_nclicks,
     else:
         date = start_date[:10]
     ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction='start')
-    return [make_detail_div(ddf,wdf,ddf2)]
+    
+    return [make_detail_div(ddf,wdf,ddf2), "border"]
        
     
 @app.callback(Output('data-modal','is_open'),
