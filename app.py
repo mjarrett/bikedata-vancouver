@@ -9,8 +9,9 @@ from dash.exceptions import PreventUpdate
 from datetime import datetime
 import mobisys as mobi
 import pandas as pd
-from credentials import *
+import urllib
 
+from credentials import *
 from plots import * 
 from helpers import *
 
@@ -333,7 +334,25 @@ def daily_div_callback(go_nclicks, map_clickData, link_nclicks,
         date = start_date[:10]
     ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction='start')
     return [make_detail_div(ddf,wdf,ddf2)]
-        
+       
+    
+@app.callback(Output('data-modal','is_open'),
+              [Input('data-button','n_clicks')]
+             )
+def open_data_modal(n_clicks):
+    if n_clicks is not None:
+        return True
+
+
+@app.callback(Output("download-data-button",'href'),
+              [Input("download-data-button",'n_clicks')],
+              [State("data-table","data")]
+             )
+def download_data(n_clicks,data):
+    ddf = pd.DataFrame(data)
+    csv_string = ddf.to_csv(index=False, encoding='utf-8')
+    csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
+    return csv_string
 # # Map and daily plot go together
 # @app.callback([Output('map-graph','figure'), Output('daily-graph','figure'),
 #                Output('map-state','children'), Output('map-meta-div','style'),

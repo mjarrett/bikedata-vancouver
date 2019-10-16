@@ -6,6 +6,7 @@ import geopandas
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+import dash_table
 
 from plots import *
 
@@ -199,6 +200,28 @@ def make_detail_col(df,wdf):
         
                 dbc.Col(id=f'map_container', children=make_map_div(df)), #Col
             ]), #Row
+        
+            dbc.Row(children=[
+                dbc.Button("Explore Data", id='data-button'),
+                dbc.Modal([
+                dbc.ModalHeader("Header"),
+                    dbc.ModalBody(children=[
+                        dash_table.DataTable(
+                            id='data-table',
+                            columns=[{"name": i, "id": i} for i in df.columns],
+                            data=df.head().to_dict('records'),
+                    )    
+                    
+                ]),
+                dbc.ModalFooter(
+                    html.A(id="download-data-button", className="btn btn-primary", href="#", children="Download")
+                ),
+            ],
+            id="data-modal",
+            size="xl",
+        ),
+            ])
+            
 
         ]) # Col
 
@@ -234,3 +257,24 @@ def make_map_div(df,suff=""):
 
                 )
             ])
+
+def make_data_modal(df):
+        
+    modal = dbc.Modal(
+            [
+                dbc.ModalHeader("Header"),
+                dbc.ModalBody(children=[
+                    dash_table.DataTable(
+                        id='table',
+                        columns=[{"name": i, "id": i} for i in df.columns],
+                        data=df.to_dict('records'),
+                    )    
+                    
+                ]),
+                dbc.ModalFooter(
+                    dbc.Button("Close", id="close-xl", className="ml-auto")
+                ),
+            ],
+            id="data-modal",
+            size="xl",
+        )
