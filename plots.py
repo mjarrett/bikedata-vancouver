@@ -242,7 +242,11 @@ def make_daily_fig(df=None):
 
 def make_memb_fig(df):
     if df is None:
-        pass
+        return go.Figure(data=[go.Pie(labels=['1','2'], values=[10,20], hole=.3)])
     
-    return None
+    pdf = df.pivot_table(values='Departure',index='Month',columns='Membership Simple',aggfunc='count')
+    memb_trips = pdf.fillna(0).astype(int).sum()
+    
+    fig = go.Figure(data=[go.Pie(labels=memb_trips.index, values=memb_trips.values, hole=.3)])
+    return fig
         

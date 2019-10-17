@@ -173,6 +173,21 @@ def make_detail_cols(df,df2,wdf):
                 dbc.Col([make_map_div(df2,suff='2')])
               ])
     
+    memb_row = dbc.Row([
+                  dbc.Col(children=[
+                    dcc.Graph(
+                        id=f'memb-graph',
+                        figure=make_memb_fig(df)
+                    )
+                  ]),
+                  dbc.Col(children=[
+                    dcc.Graph(
+                        id=f'memb-graph2',
+                        figure=make_memb_fig(df2)
+                    )
+                  ])
+                ])
+    
     button_row = dbc.Row(children=[
                     dbc.Col(width=6, children=[
                         dbc.Button("Raw Data", id='data-button'),
@@ -184,7 +199,7 @@ def make_detail_cols(df,df2,wdf):
                     ])
             ])
     
-    return dbc.Col([res_row, daily_row, map_row, button_row])
+    return dbc.Col([res_row, daily_row, map_row, memb_row, button_row])
 
 def make_detail_col(df,wdf):
         
@@ -193,22 +208,24 @@ def make_detail_col(df,wdf):
             dbc.Row(id=f'detail-cards',children=make_detail_cards(df,wdf)),
             
             dbc.Row([
-                dbc.Col(children=[
 
-                    dbc.Row(children=[
-                        dcc.Graph(
-                            id=f'daily-graph',
-                            figure=make_daily_fig(df)
-                        ),
-                        
-                    ]),
-                ]),
-        
-        
-        
-        
-                dbc.Col(id=f'map_container', children=make_map_div(df)), #Col
+                dcc.Graph(
+                    id=f'daily-graph',
+                    figure=make_daily_fig(df)
+                ), 
             ]), #Row
+        
+            dbc.Row(children=[
+                
+                dbc.Col(id=f'map_container', children=make_map_div(df)), #Col
+                
+                dbc.Col(children=[
+                    dcc.Graph(
+                        id=f'memb-graph',
+                        figure=make_memb_fig(df)
+                    )
+                ]),
+            ]),
         
             dbc.Row(children=[
                 dbc.Button("Explore Data", id='data-button'),
@@ -282,51 +299,4 @@ def make_data_modal(df, suff=""):
     return modal
 
 
-def prep_sys_df(f): 
-    
-    if f[-4:] == '.csv':
-        df = pd.read_csv(f,low_memory=False)
-    elif f[-5:] == '.xlsx':
-        df = pd.read_excel(f)
-        
-
-
-    stations_exclude = ['station for tests','WareHouse Workshop','Balancer Bike Check In','Temporary Station - Marketing Events']
-    df = df[~df['Departure station'].isin(stations_exclude)]
-    df = df[~df['Return station'].isin(stations_exclude)]
-
-    # Drop duplicate trips:
-    # This removes cases where multiple bikes take the same trip on the same account
-    # Also will remove cases where someone takes the same trip within an hour.
-    df = df.drop_duplicates(subset=['Departure','Return','Account','Departure station','Return station'])
-
-    # Drop trips shorter than 60 seconds
-    df = df[df['Duration (sec.)']>60]
-
-    # Get average speed
-    df['average speed (km/h)'] = (df['Covered distance (m)']/1000) / ((df['Duration (sec.)']-df['Stopover duration (sec.)'])/3600)
-    
-    
-    outfields = ['Departure','Return','Account','Departure station','Return station','Membership Type','Covered distance (m)','Duration (sec.)']
-    
-    df = df[outfields].dropna()
-    
-    
-    
-    
-    df['Departure'] = pd.to_datetime(df['Departure'])
-    df['Return'] = pd.to_datetime(df['Return'])
-    
-    df['Membership Simple'] = ""
-    df.loc[df['Membership Type'] == '24 Hour','Membership Simple'] = 'Daily'
-    df.loc[df['Membership Type'] == 'Archived Day','Membership Simple'] = 'Daily'
-    df.loc[df['Membership Type'].str.contains('(365|Archived Founding).*Standard'),'Membership Simple'] = 'Annual Standard'
-    df.loc[df['Membership Type'].str.contains('(365|Archived Founding).*Plus'),'Membership Simple'] = 'Annual Plus'
-    df.loc[df['Membership Type'].str.contains('90'),'Membership Simple'] = '90 Day'
-    df.loc[df['Membership Type'].str.contains('Monthly'),'Membership Simple'] = 'Monthly'
-    df.loc[df['Membership Type'].str.contains('Single Trip'),'Membership Simple'] = 'Single Trip'
-    df.loc[df['Membership Type'].str.contains('VIP'),'Membership Simple'] = 'VIP'
-    df.loc[df['Membership Type'].str.contains('Vancity'),'Membership Simple'] = 'Vancity'
-    
-    return df
 
