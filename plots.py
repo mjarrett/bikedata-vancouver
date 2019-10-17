@@ -240,4 +240,9 @@ def make_daily_fig(df=None):
     return fig
 
 
-
+def make_memb_fig(df):
+    if df is None:
+        pass
+    
+    return None
+        

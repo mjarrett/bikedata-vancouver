@@ -22,7 +22,13 @@ from helpers import *
 #######################################################################################
 
 #load data
-df = mobi.prep_sys_df('./Mobi_System_Data.csv')
+#df = prep_sys_df('./Mobi_System_Data.csv')
+
+print("Loading data")
+df = pd.read_csv('./data/Mobi_System_Data_Prepped.csv')
+df.Departure = pd.to_datetime(df.Departure)
+df.Return = pd.to_datetime(df.Return)
+  
 thdf = mobi.make_thdf(df)
 
 startdate = thdf.index[0]
@@ -31,7 +37,7 @@ enddate = thdf.index[-1]
 startdate_str = startdate.strftime('%b %-d %Y')
 enddate_str = enddate.strftime('%b %-d %Y')
 
-    
+print("Loading weather")  
 wdf = pd.read_csv('weather.csv',index_col=0)
 wdf.index = pd.to_datetime(wdf.index)
  
@@ -117,6 +123,7 @@ main_div = dbc.Row(className="py-5", children=[
                             max_date_allowed=enddate,
                             initial_visible_month = '2018-01-01',
                             minimum_nights = 0,
+                            clearable = True,
                             #start_date=datetime(2019,3,15),
                             #end_date=datetime(2019,3,16)
                             ),
@@ -153,6 +160,7 @@ main_div = dbc.Row(className="py-5", children=[
                         max_date_allowed=enddate,
                         initial_visible_month = '2018-01-01',
                         minimum_nights = 0,
+                        clearable = True,
                         #start_date=datetime(2019,3,15),
                         #end_date=datetime(2019,3,16)
                         ),
@@ -227,7 +235,7 @@ app.layout = html.Div([header,body,footer])
                State('datepicker','start_date'), 
                State('datepicker','end_date')
               ]
-             )
+             ) 
 def timeseries_callback(nclicks,ts_graph, start_date, end_date ):
     
     print("trigger: ",dash.callback_context.triggered)  # last triggered
@@ -319,8 +327,8 @@ def daily_div_callback(go_nclicks, map_clickData, link_nclicks,
     print("trigger: ",dash.callback_context.triggered)  # last triggered
     print("inputs : ",dash.callback_context.inputs)     # all triggered    
     if go_nclicks is None and map_clickData is None and link_nclicks is None:
-        return [make_detail_div(None,None), "border d-none"]
-
+        #return [make_detail_div(None,None), "border d-none"]
+        raise PreventUpdate
     
     
     if start_date2 is not None:
@@ -331,11 +339,12 @@ def daily_div_callback(go_nclicks, map_clickData, link_nclicks,
         ddf2 = filter_ddf(df,date=date2, stations=None, cats=filter_values, direction='start')
     else:
         ddf2 = None
-                
-    if start_date != end_date:
-        date = (start_date[:10], end_date[:10])
-    else:
+      
+    if (end_date is None) or  (start_date == end_date):
         date = start_date[:10]
+    else:
+        date = (start_date[:10], end_date[:10])
+
     ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction='start')
     
     return [make_detail_div(ddf,wdf,ddf2), "border"]
