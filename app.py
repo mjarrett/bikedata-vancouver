@@ -332,7 +332,7 @@ def toggle_datepicker2_div(n_clicks, className):
                State('datepicker2','start_date'), 
                State('datepicker2','end_date'),
                State('filter-dropdown','value'),
-               State('filter-dropdown','value'),
+               State('filter-dropdown2','value'),
                State('map-state','children')]
              )
 def daily_div_callback(go_nclicks, map_clickData, link_nclicks, 
