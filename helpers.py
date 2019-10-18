@@ -234,11 +234,28 @@ def make_detail_col(df,wdf):
             dbc.Row(children=[
                 dbc.Button("Explore Data", id='data-button'),
                 make_data_modal(df),
-            ])
+            ]),
             
+            # Hidden div to hide dummy comparison objects
+            dbc.Row(className='d-none',children=[
+                
+                dcc.Graph(
+                            id=f'daily-graph2',
+                            figure=make_daily_fig(df)
+                           ),
+                
+                make_map_div(df,suff='2'),
+                
+                dcc.Graph(
+                        id=f'memb-graph2',
+                        figure=make_memb_fig(df)
+                    ),
+                dbc.Button("Raw Data", id='data-button2'),
+                make_data_modal(df,suff='2')
+            ])
 
         ]) # Col
-
+    
 def make_detail_div(df, wdf, df2=None):
     if df2 is None:
         return make_detail_col(df,wdf)

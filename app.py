@@ -217,8 +217,8 @@ body = dbc.Container(id="mainContainer",children=[
     
     main_div,
     
-    detail_div
-    
+    detail_div,
+        
 ])  
 
 app.layout = html.Div([header,body,footer])
@@ -228,6 +228,8 @@ app.layout = html.Div([header,body,footer])
 #  CALLBACKS
 #
 #######################################################################################
+
+
 
 @app.callback(Output('timeseries-graph','figure'),
               [Input('go-button','n_clicks')],
@@ -368,12 +370,28 @@ def open_data_modal(n_clicks):
     if n_clicks is not None:
         return True
 
+@app.callback(Output('data-modal2','is_open'),
+              [Input('data-button2','n_clicks')]
+             )
+def open_data_modal(n_clicks):
+    if n_clicks is not None:
+        return True
 
 @app.callback(Output("download-data-button",'href'),
               [Input("download-data-button",'n_clicks')],
               [State("data-table","data")]
              )
 def download_data(n_clicks,data):
+    ddf = pd.DataFrame(data)
+    csv_string = ddf.to_csv(index=False, encoding='utf-8')
+    csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
+    return csv_string
+
+@app.callback(Output("download-data-button2",'href'),
+              [Input("download-data-button2",'n_clicks')],
+              [State("data-table2","data")]
+             )
+def download_data2(n_clicks,data):
     ddf = pd.DataFrame(data)
     csv_string = ddf.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
