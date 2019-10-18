@@ -32,29 +32,9 @@ def filter_ddf(df, date=None, cats=None, stations=None, direction='both'):
         else:
             df = df.set_index('Departure')[date].reset_index()
    
-            
-    if cats is not None:
-      
-        if 'all' in cats:
-            pass
-        
-        else:
-            idx = np.array([False for x in range(len(df))])
-            
-            if '24h' in cats:
-                idx24 = np.array((df['Membership Type']=='24 Hour'))
-                idx = idx | idx24
-            if '365S' in cats:
-                idx365s = np.array(df['Membership Type'].str.contains('365.+Standard'))
-                idx = idx | idx365s
-            if '365P' in cats:
-                idx365p = np.array(df['Membership Type'].str.contains('365.+Plus'))
-                idx = idx | idx365p                
-            if '90d' in cats:
-                idx90 = np.array(df['Membership Type'].str.contains('90')) 
-                idx = idx | idx90
+    if cats is not None:    
+        df = df[df['Membership Simple'].isin(cats)]
                 
-            df = df.iloc[idx]
     sdf = geopandas.read_file(f'./data/stations_df.geojson')
     df = mobi.add_station_coords(df,sdf)
     df = df.sort_values('Departure')

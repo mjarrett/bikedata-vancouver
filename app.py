@@ -26,6 +26,7 @@ from helpers import *
 
 print("Loading data")
 df = pd.read_csv('./data/Mobi_System_Data_Prepped.csv')
+memtypes = set(df['Membership Simple'])
 df.Departure = pd.to_datetime(df.Departure)
 df.Return = pd.to_datetime(df.Return)
   
@@ -135,14 +136,14 @@ main_div = dbc.Row(className="py-5", children=[
             #             fdhtml.H5("Member type"),
                         html.Strong("Membership Type"),
                         dbc.Checklist(id='filter-dropdown',
-                            options=[
-                                {'label': 'Annual Standard', 'value': '365S'},
-                                {'label': 'Annual Plus', 'value': '365P'},
-                                {'label': 'Daily', 'value': '24h'},
-                                {'label': 'Monthly', 'value': '90d'}
-                            ],
-
-                            value=['365S','365P','24h','90d']
+#                             options=[
+#                                 {'label': 'Annual Standard', 'value': '365S'},
+#                                 {'label': 'Annual Plus', 'value': '365P'},
+#                                 {'label': 'Daily', 'value': '24h'},
+#                                 {'label': 'Monthly', 'value': '90d'}
+#                             ],
+                            options=[{'label':memtype,'value':memtype} for memtype in memtypes],
+                            value=list(memtypes)
                         ),
 
                     ]),
@@ -172,14 +173,16 @@ main_div = dbc.Row(className="py-5", children=[
         #             html.H5("Member type"),
                     html.Strong("Membership Type"),
                     dbc.Checklist(id='filter-dropdown2',
-                        options=[
-                            {'label': 'Annual Standard', 'value': '365S'},
-                            {'label': 'Annual Plus', 'value': '365P'},
-                            {'label': 'Daily', 'value': '24h'},
-                            {'label': 'Monthly', 'value': '90d'}
-                        ],
+#                         options=[
+#                             {'label': 'Annual Standard', 'value': '365S'},
+#                             {'label': 'Annual Plus', 'value': '365P'},
+#                             {'label': 'Daily', 'value': '24h'},
+#                             {'label': 'Monthly', 'value': '90d'}
+#                         ],
 
-                        value=['365S','365P','24h','90d']
+#                         value=['365S','365P','24h','90d']
+                        options=[{'label':memtype,'value':memtype} for memtype in memtypes],
+                        value=list(memtypes)
                     ),
 
                 ]),
@@ -358,7 +361,6 @@ def daily_div_callback(go_nclicks, map_clickData, link_nclicks,
         date = (start_date[:10], end_date[:10])
 
     ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction='start')
-    
     
     return [make_detail_div(ddf,wdf,ddf2), "border"]
        
