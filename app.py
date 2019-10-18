@@ -233,31 +233,41 @@ app.layout = html.Div([header,body,footer])
               [Input('go-button','n_clicks')],
               [State('timeseries-graph','figure'), 
                State('datepicker','start_date'), 
-               State('datepicker','end_date')
+               State('datepicker','end_date'),
+               State('datepicker2','start_date'), 
+               State('datepicker2','end_date')
               ]
              ) 
-def timeseries_callback(nclicks,ts_graph, start_date, end_date ):
-    
-    print("trigger: ",dash.callback_context.triggered)  # last triggered
-    print("inputs : ",dash.callback_context.inputs)     # all triggered
+def timeseries_callback(nclicks,ts_graph, start_date, end_date, start_date2, end_date2):
+    print('timeseries_callback')
+#     print("trigger: ",dash.callback_context.triggered)  # last triggered
+#     print("inputs : ",dash.callback_context.inputs)     # all triggered
     #print("states : ",dash.callback_context.states)
     
 #     print(start_date, end_date)
     
-    if end_date is None:
+    if start_date is None:
         raise PreventUpdate
     
     if nclicks is None:
         raise PreventUpdate
     
-    if end_date is None:
+    if (end_date is None) or (start_date == end_date):
         date = start_date[:10] 
-    if start_date != end_date:
-        date = (start_date[:10], end_date[:10])
     else:
-        date = start_date[:10]
+        date = (start_date[:10], end_date[:10])
+    
+    if start_date2 is not None:
+        if (end_date2 is None) and (start_date2 == end_date2):
+            date2 = start_date2[:10] 
+        elif end_date2 is not None:
+            date2 = (start_date2[:10], end_date2[:10])
+        else:
+            date2 = None
+    else:
+        date2 = None
         
-    return make_timeseries_fig(thdf,date)
+    return make_timeseries_fig(thdf,date,date2)
 
 
 @app.callback([Output('datepicker','start_date'), Output('datepicker','end_date'),
@@ -346,6 +356,7 @@ def daily_div_callback(go_nclicks, map_clickData, link_nclicks,
         date = (start_date[:10], end_date[:10])
 
     ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction='start')
+    
     
     return [make_detail_div(ddf,wdf,ddf2), "border"]
        

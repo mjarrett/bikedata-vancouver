@@ -57,6 +57,7 @@ def filter_ddf(df, date=None, cats=None, stations=None, direction='both'):
             df = df.iloc[idx]
     sdf = geopandas.read_file(f'./data/stations_df.geojson')
     df = mobi.add_station_coords(df,sdf)
+    df = df.sort_values('Departure')
     return df
 
 def make_card(title,content):
@@ -76,8 +77,11 @@ def make_detail_cards(df,wdf):
     if df is None:
         return None
     
+    
     start_date = df['Departure'].iloc[0].strftime('%Y-%m-%d')
     stop_date  = df['Departure'].iloc[-1].strftime('%Y-%m-%d')
+    
+    print(start_date,stop_date)
     
     start_date_str = df['Departure'].iloc[0].strftime('%b %d, %Y')
     stop_date_str = df['Departure'].iloc[-1].strftime('%b %d, %Y')
