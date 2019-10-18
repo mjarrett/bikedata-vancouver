@@ -97,7 +97,7 @@ def make_detail_cards(df,wdf,suff='2'):
     
     return output
 
-def make_detail_cols(df,df2,wdf):
+def make_detail_cols(df,df2,wdf,trips,trips2,direction,direction2):
     
     res_row = dbc.Row([
                     dbc.Col(width=6,children=[
@@ -123,8 +123,8 @@ def make_detail_cols(df,df2,wdf):
                     ])
                 ])
     map_row = dbc.Row([
-                dbc.Col([make_map_div(df)]), 
-                dbc.Col([make_map_div(df2,suff='2')])
+                dbc.Col([make_map_div(df,trips,direction)]), 
+                dbc.Col([make_map_div(df2,trips2,direction2,suff='2')])
               ])
     
     memb_row = dbc.Row([
@@ -155,7 +155,7 @@ def make_detail_cols(df,df2,wdf):
     
     return dbc.Col([res_row, daily_row, map_row, memb_row, button_row])
 
-def make_detail_col(df,wdf):
+def make_detail_col(df,wdf,trips,direction):
         
     return dbc.Col(children=[
             
@@ -171,7 +171,7 @@ def make_detail_col(df,wdf):
         
             dbc.Row(children=[
                 
-                dbc.Col(id=f'map_container', children=make_map_div(df)), #Col
+                dbc.Col(id=f'map_container', children=make_map_div(df,trips,direction)), #Col
                 
                 dbc.Col(children=[
                     dcc.Graph(
@@ -206,16 +206,16 @@ def make_detail_col(df,wdf):
 
         ]) # Col
     
-def make_detail_div(df, wdf, df2=None):
+def make_detail_div(df, wdf, df2=None,trips=False, trips2=False,direction='start',direction2='start'):
     if df2 is None:
-        return make_detail_col(df,wdf)
+        return make_detail_col(df,wdf,trips,direction)
     if df2 is not None:
-        return make_detail_cols(df,df2,wdf)
+        return make_detail_cols(df,df2,wdf,trips,trips2,direction,direction2)
         
-def make_map_div(df,suff=""):
+def make_map_div(df,trips=False,direction='start',suff=""):
     
     return html.Div([
-                html.Div(id=f'map-state{suff}', children="stations", style={'display':'none'}),
+#                 html.Div(id=f'map-state{suff}', children="trips" if trips else "stations", style={'display':'none'}),
                 
                 html.Div(children=[
                     dbc.RadioItems(
@@ -225,7 +225,7 @@ def make_map_div(df,suff=""):
                             {'label': 'Trip End', 'value': 'stop'},
                             {'label': 'Both', 'value': 'both'}
                         ],
-                        value='start',
+                        value=direction,
                         inline=True
                     ),  
                 ]),
@@ -233,9 +233,10 @@ def make_map_div(df,suff=""):
                     html.A(children="<", id=f'map-return-link{suff}', title="Return to station map") 
                 ]),
 
+
                 dcc.Graph(
                     id=f'map-graph{suff}',
-                    figure=make_station_map(df)
+                    figure=make_trips_map(df) if trips else make_station_map(df)
 
                 )
             ])

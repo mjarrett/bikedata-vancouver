@@ -10,6 +10,7 @@ from datetime import datetime
 import mobisys as mobi
 import pandas as pd
 import urllib
+import json
 
 from credentials import *
 from plots import * 
@@ -24,7 +25,7 @@ from layouts import *
 
 #load data
 #df = prep_sys_df('./Mobi_System_Data.csv')
-
+log("==================")
 log("Loading data")
 df = pd.read_csv('./data/Mobi_System_Data_Prepped.csv')
 memtypes = set(df['Membership Simple'])
@@ -110,12 +111,14 @@ summary_cards = dbc.Row(children=[
         
     ]) 
 
-
+filter_data = json.dumps({'date':None, 'cats':None, 'stations':None, 'direction':'start',
+                          'date2':None,'cats2':None,'stations2':None,'direction2':'start'})
 main_div = dbc.Row(className="py-5", children=[
     
          dbc.Col(id='date-div', className="border rounded", children=[
              dbc.Row(className="", children=[
                  dbc.Col(width=6, className="", children=[
+                    html.Div(id="filter-meta-div", children=filter_data, className='d-none'),
                     dbc.FormGroup([
         #                 html.H4("Filter"),
                         html.Strong("Pick a date"),
@@ -321,51 +324,154 @@ def toggle_datepicker2_div(n_clicks, className):
         raise PreventUpdate
 
         
-# # Update figures after map click or radio button click
-# @app.callback([Output('map-graph','figure'), Output('daily-graph','figure'), Output('memb-graph','figure')],
-#               [Input('map-graph','clickData'),Input('stations-radio','value')
+# Keep track of filter
+@app.callback(Output("filter-meta-div",'children'),
+              [Input('go-button','n_clicks'),Input('map-graph','clickData'),Input('map-graph2','clickData'),
+               Input('stations-radio','value'),Input('stations-radio2','value')],
+              [State("filter-meta-div",'children'),
+               State('datepicker','start_date'), 
+               State('datepicker','end_date'),
+               State('filter-dropdown','value'),
+               State('datepicker2','start_date'), 
+               State('datepicker2','end_date'),
+               State('filter-dropdown2','value')]
+             )
+def update_filter_meta_div(n_clicks,clickData,clickData2,radio_value,radio_value2, 
+                           filter_data,
+                           start_date,end_date,filter_values,
+                           start_date2,end_date2,filter_values2):
+    if clickData is None and clickData2 is None and n_clicks is None:
+        raise PreventUpdate
+    
+    log("update_filter_meta_div")
+    log("trigger: ",dash.callback_context.triggered)  # last triggered
+    filter_data = json.loads(filter_data)
+    
+    # IF go button is triggered, update all values
+    if  dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
+        date,date2 = convert_dates(start_date,end_date,start_date2,end_date2)
+        
+        filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start',
+                          'date2':date2,'cats2':filter_values2,'stations2':None,'direction2':'start'}
+        
+    # If map #1 is clicked           
+    if clickData is not None:
+        station = clickData['points'][0]['text'].split('<')[0].strip()
+        filter_data['stations'] = [station]
+        
+    # If map #2 is clicked
+    if clickData2 is not None:
+        station2 = clickData2['points'][0]['text'].split('<')[0].strip()
+        filter_data['stations2'] = [station2]
+        
+    # If radio1 is clicked
+    if  dash.callback_context.triggered[0]['prop_id'] == 'stations-radio.value':
+        if radio_value == filter_data['direction']:
+            raise PreventUpdate
+        else:
+            filter_data['direction'] = radio_value
+            
+    # If radio2 is clicked
+    if  dash.callback_context.triggered[0]['prop_id'] == 'stations-radio2.value':
+        if radio_value2 == filter_data['direction2']:
+            raise PreventUpdate
+        else:
+            filter_data['direction2'] = radio_value2
+        
+    return json.dumps(filter_data)
+    
         
 # Update details div
 @app.callback([Output('detail-div','children'), Output('detail-div','className')],
-              [Input('go-button','n_clicks'),
-               Input('map-graph','clickData'), 
-               Input('map-return-link','n_clicks')],
-              [State('datepicker','start_date'), 
-               State('datepicker','end_date'),
-               State('datepicker2','start_date'), 
-               State('datepicker2','end_date'),
-               State('filter-dropdown','value'),
-               State('filter-dropdown2','value'),
-               State('map-state','children')]
+              [Input("filter-meta-div",'children')],
              )
-def daily_div_callback(go_nclicks, map_clickData, link_nclicks, 
-                       start_date, end_date, start_date2, end_date2, 
-                       filter_values,filter_values2, map_state):
-    log("daily_div_callback")
-#     log("trigger: ",dash.callback_context.triggered)  # last triggered
-#     log("inputs : ",dash.callback_context.inputs)     # all triggered    
-    if go_nclicks is None and map_clickData is None and link_nclicks is None:
-        #return [make_detail_div(None,None), "border d-none"]
+def daily_div_callback(filter_data):
+    filter_data = json.loads(filter_data)
+    
+    if filter_data['date'] is None:
         raise PreventUpdate
+        
+    log("daily_div_callback")
     
     
-    if start_date2 is not None:
-        if end_date2 is not None and (start_date2 != end_date2):
-            date2 = (start_date2[:10], end_date2[:10])
-        else:
-            date2 = start_date2[:10] 
-        ddf2 = filter_ddf(df,date=date2, stations=None, cats=filter_values, direction='start')
+    ddf = filter_ddf(df,date=filter_data['date'], 
+                     stations=filter_data['stations'], 
+                     cats=filter_data['cats'], 
+                     direction=filter_data['direction'])
+    if filter_data['date2'] is not None:
+        ddf2 = filter_ddf(df,date=filter_data['date2'], 
+                         stations=filter_data['stations2'], 
+                         cats=filter_data['cats2'], 
+                         direction=filter_data['direction2'])
     else:
         ddf2 = None
-      
-    if (end_date is None) or  (start_date == end_date):
-        date = start_date[:10]
-    else:
-        date = (start_date[:10], end_date[:10])
-
-    ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction='start')
+        
+    trips = False if filter_data['stations'] is None else True
+    trips2 = False if filter_data['stations2'] is None else True
     
-    return [make_detail_div(ddf,wdf,ddf2), "border"]
+    return [make_detail_div(ddf,wdf=wdf,df2=ddf2,trips=trips,trips2=trips2,
+                            direction=filter_data['direction'],direction2=filter_data['direction2']),
+            "border"]
+    
+        
+# # Update details div
+# @app.callback([Output('detail-div','children'), Output('detail-div','className')],
+#               [Input('go-button','n_clicks'),
+#                Input('map-graph','clickData'),
+#                Input('stations-radio','value'),
+#                Input('map-return-link','n_clicks')],
+#               [State('datepicker','start_date'), 
+#                State('datepicker','end_date'),
+#                State('datepicker2','start_date'), 
+#                State('datepicker2','end_date'),
+#                State('filter-dropdown','value'),
+#                State('filter-dropdown2','value'),
+#                State('map-state','children')]
+#              )
+# def daily_div_callback(go_nclicks, map_clickData, radio_value, link_nclicks, 
+#                        start_date, end_date, start_date2, end_date2, 
+#                        filter_values,filter_values2, map_state):
+#     log("daily_div_callback")
+#     log("trigger: ",dash.callback_context.triggered)  # last triggered
+#     log("inputs : ",dash.callback_context.inputs)     # all triggered    
+#     if go_nclicks is None and map_clickData is None and link_nclicks is None:
+#         #return [make_detail_div(None,None), "border d-none"]
+#         raise PreventUpdate
+    
+    
+#     if start_date2 is not None:
+#         if end_date2 is not None and (start_date2 != end_date2):
+#             date2 = (start_date2[:10], end_date2[:10])
+#         else:
+#             date2 = start_date2[:10] 
+#         ddf2 = filter_ddf(df,date=date2, stations=None, cats=filter_values, direction='start')
+#     else:
+#         ddf2 = None
+      
+#     if (end_date is None) or  (start_date == end_date):
+#         date = start_date[:10]
+#     else:
+#         date = (start_date[:10], end_date[:10])
+
+#     ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction='start')
+    
+    
+#     if dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
+#         station = map_clickData['points'][0]['text'].split('<')[0].strip()
+#         ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
+#         return  [make_detail_div(ddf,wdf,ddf2,trips=True), 'border']    
+    
+                 
+#     elif dash.callback_context.triggered[0]['prop_id'] == 'stations-radio.value':   
+#         if map_state == 'stations':
+#             ddf = filter_ddf(df,date=date, stations=None, cats=filter_values, direction=radio_value)
+#             return [make_detail_div(ddf,wdf,ddf2,trips=False), 'border'] 
+#         elif map_state == 'trips':
+#             station = map_clickData['points'][0]['text'].split('<')[0].strip()
+#             ddf = filter_ddf(df,date=date, stations=[station], cats=filter_values, direction=radio_value)
+#             return  [make_detail_div(ddf,wdf,ddf2,trips=False), 'border'] 
+                 
+#     return [make_detail_div(ddf,wdf,ddf2), "border"]
        
     
 @app.callback(Output('data-modal','is_open'),
