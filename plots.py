@@ -3,7 +3,9 @@ import pandas as pd
 from datetime import datetime
 import geopandas
 import mobisys as mobi
+
 from credentials import *
+from helpers import *
 
 margin=go.layout.Margin(
     l=5,
@@ -43,7 +45,7 @@ c_black=    '#000' #!default;
 colors = [c_blue,c_indigo,c_red,c_green,c_orange,c_teal,c_cyan,c_purple,c_yellow]
 
 def make_timeseries_fig(thdf, date=None, date2=None):
-    print('make_timeseries_fig')
+    log('make_timeseries_fig')
 
     
     trips_hdf = thdf.sum(1).reset_index()
@@ -110,8 +112,8 @@ def make_timeseries_fig(thdf, date=None, date2=None):
     
     return fig
 
-def make_station_map(df=None, direction='start'):
-    print('make_station_map')
+def make_station_map(df=None, direction='start', suff=""):
+    log(f'make_station_map{suff}')
       
     
     # https://plot.ly/python/mapbox-layers/
@@ -184,8 +186,8 @@ def make_station_map(df=None, direction='start'):
 
     
     
-def make_trips_map(df,direction='start'):
-    print('make_trips_map')
+def make_trips_map(df,direction='start',suff=""):
+    log(f'make_trips_map{suff}')
     # https://plot.ly/python/mapbox-layers/
 
     
@@ -248,8 +250,8 @@ def make_trips_map(df,direction='start'):
     return mapfig    
     
 
-def make_daily_fig(df=None):
-    print(f"make_daily_fig")
+def make_daily_fig(df=None, suff=""):
+    log(f"make_daily_fig{suff}")
 
     if df is None:
         trips_df = pd.DataFrame(columns=[0,1])
@@ -291,7 +293,8 @@ def make_daily_fig(df=None):
     return fig
 
 
-def make_memb_fig(df):
+def make_memb_fig(df,suff=""):
+    log(f"make_memb_fig{suff}")
     if df is None:
         return go.Figure(data=[go.Pie(labels=['1','2'], values=[10,20], hole=.3)])
     

@@ -14,6 +14,7 @@ import urllib
 from credentials import *
 from plots import * 
 from helpers import *
+from layouts import *
 
 #######################################################################################
 #
@@ -24,7 +25,7 @@ from helpers import *
 #load data
 #df = prep_sys_df('./Mobi_System_Data.csv')
 
-print("Loading data")
+log("Loading data")
 df = pd.read_csv('./data/Mobi_System_Data_Prepped.csv')
 memtypes = set(df['Membership Simple'])
 df.Departure = pd.to_datetime(df.Departure)
@@ -38,7 +39,7 @@ enddate = thdf.index[-1]
 startdate_str = startdate.strftime('%b %-d %Y')
 enddate_str = enddate.strftime('%b %-d %Y')
 
-print("Loading weather")  
+log("Loading weather")  
 wdf = pd.read_csv('weather.csv',index_col=0)
 wdf.index = pd.to_datetime(wdf.index)
  
@@ -244,12 +245,12 @@ app.layout = html.Div([header,body,footer])
               ]
              ) 
 def timeseries_callback(nclicks,ts_graph, start_date, end_date, start_date2, end_date2):
-    print('timeseries_callback')
-#     print("trigger: ",dash.callback_context.triggered)  # last triggered
-#     print("inputs : ",dash.callback_context.inputs)     # all triggered
-    #print("states : ",dash.callback_context.states)
+    log('timeseries_callback')
+#     log("trigger: ",dash.callback_context.triggered)  # last triggered
+#     log("inputs : ",dash.callback_context.inputs)     # all triggered
+    #log("states : ",dash.callback_context.states)
     
-#     print(start_date, end_date)
+#     log(start_date, end_date)
     
     if start_date is None:
         raise PreventUpdate
@@ -289,7 +290,7 @@ def update_datepicker_from_graph(clickData, selectedData):
         return (date, date, date)
     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
         dates = [x['x'] for x in selectedData['points'] ]
-        print(dates)
+        log(dates)
         return (dates[0], dates[-1],dates[0])
     
     else:
@@ -309,8 +310,8 @@ def activate_go_button(a,b):
               [State('date2-div','className')]
              )
 def toggle_datepicker2_div(n_clicks, className):
-#     print("trigger: ",dash.callback_context.triggered)  # last triggered
-#     print(f"toggle open {is_open}")
+#     log("trigger: ",dash.callback_context.triggered)  # last triggered
+#     log(f"toggle open {is_open}")
     if n_clicks is not None:
         if className == 'd-inline':
             return 'd-none'
@@ -320,7 +321,9 @@ def toggle_datepicker2_div(n_clicks, className):
         raise PreventUpdate
 
         
-
+# # Update figures after map click or radio button click
+# @app.callback([Output('map-graph','figure'), Output('daily-graph','figure'), Output('memb-graph','figure')],
+#               [Input('map-graph','clickData'),Input('stations-radio','value')
         
 # Update details div
 @app.callback([Output('detail-div','children'), Output('detail-div','className')],
@@ -338,9 +341,9 @@ def toggle_datepicker2_div(n_clicks, className):
 def daily_div_callback(go_nclicks, map_clickData, link_nclicks, 
                        start_date, end_date, start_date2, end_date2, 
                        filter_values,filter_values2, map_state):
-    
-    print("trigger: ",dash.callback_context.triggered)  # last triggered
-    print("inputs : ",dash.callback_context.inputs)     # all triggered    
+    log("daily_div_callback")
+#     log("trigger: ",dash.callback_context.triggered)  # last triggered
+#     log("inputs : ",dash.callback_context.inputs)     # all triggered    
     if go_nclicks is None and map_clickData is None and link_nclicks is None:
         #return [make_detail_div(None,None), "border d-none"]
         raise PreventUpdate
@@ -414,9 +417,9 @@ def download_data2(n_clicks,data):
 #              )
 # def map_daily_callback(go_nclicks, map_clickData, link_nclicks, filter_nclicks, radio_value, start_date, end_date, filter_values, map_state):
     
-#     print("trigger: ",dash.callback_context.triggered)  # last triggered
-#     print("inputs : ",dash.callback_context.inputs)     # all triggered
-#     print("states : ",dash.callback_context.states)
+#     log("trigger: ",dash.callback_context.triggered)  # last triggered
+#     log("inputs : ",dash.callback_context.inputs)     # all triggered
+#     log("states : ",dash.callback_context.states)
 
     
 #     link_style_show = {'display':'inline'}
