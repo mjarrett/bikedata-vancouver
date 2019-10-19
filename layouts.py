@@ -10,20 +10,19 @@ import dash_table
 
 from plots import *
 
-def make_card(title,content):
-    return dbc.Card(className="justify-content-center", children=[
-            dbc.CardBody(
-                    [
-                    html.P(
-                        title,
-                        className="card-text"),
-                    html.H2(content, className="card-title"),
+def make_card(title,content,color='primary'):
+    return dbc.Card(style={'border':'none'},className=f"justify-content-center h-100 py-2", children=[
+            #dbc.CardHeader(title,style={'color':color}),
+            dbc.CardBody([
+                
+                dbc.Row(title, className=f"text-xs font-weight-bold text-{color} text-uppercase mb-1"),
+                dbc.Row(content, className=f"h5 mb-0 font-weight-bold text-gray-800"),
+                
+            ])
 
-                ]) # Card body
-
-            ])  # Card
-
-def make_detail_cards(df,wdf,suff='2'):
+        ])  # Card
+        
+def make_detail_cards(df,wdf,suff=''):
     if df is None:
         return None
     
@@ -61,7 +60,7 @@ def make_detail_cards(df,wdf,suff='2'):
                 html.H2(f"{start_date_str} to {stop_date_str}"),
                 dbc.CardColumns([
 
-                    make_card("Total trips", f"{n_trips:,}"),
+                    make_card("Total trips",f"{n_trips:,}"),
                     make_card("Average trip distance",f"{int(avg_dist):,} km"),
                     make_card("Average trips per day",f"{int(avg_trips):,}"),
                     make_card("Daily high temp",f"{avg_daily_high:.1f} °C"),

@@ -93,16 +93,17 @@ footer = dbc.NavbarSimple(
     dark=False
     )
 
-summary_cards = dbc.Row(children=[
+summary_cards = dbc.Row(className='p-3', children=[
         
         dbc.Col([
-            dbc.Row([
+            dbc.Row(children=[
                 
-                dbc.CardDeck(style={'width':'100%'},children=[
-        
-                    make_card("Total Trips",f"{n_trips:,}"),
-                    make_card("Total Distance Travelled",f"{int(tot_dist):,} km"),
-                    make_card("Total Riders",f"{tot_usrs:,}")
+                
+                dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
+                    make_card("Total Trips",f"{n_trips:,}",color='primary'),
+                    make_card("Total Distance Travelled",f"{int(tot_dist):,} km",color='info'),
+                    make_card("Total Riders",f"{tot_usrs:,}",color='success'),
+                    make_card("Total Riders",f"{tot_usrs:,}",color='success')
 
                 ]),
             ]),
@@ -111,107 +112,132 @@ summary_cards = dbc.Row(children=[
         
     ]) 
 
+summary_jumbo = dbc.Jumbotron(
+    [
+        html.H1("Vancouver Bikeshare Explorer", className="display-3"),
+        html.P(
+            "This tool makes Mobi's trip data available for analysis",
+            className="lead",
+        ),
+        html.Hr(className="my-2"),
+        html.P(
+            f"Data available from {startdate_str} to {enddate_str}"
+        ),
+        html.P(dbc.Button("Learn more", color="primary"), className="lead"),
+    ]
+)
+
 filter_data = json.dumps({'date':None, 'cats':None, 'stations':None, 'direction':'start',
                           'date2':None,'cats2':None,'stations2':None,'direction2':'start'})
-main_div = dbc.Row(className="py-5", children=[
-    
-         dbc.Col(id='date-div', className="border rounded", children=[
-             dbc.Row(className="", children=[
-                 dbc.Col(width=6, className="", children=[
-                    html.Div(id="filter-meta-div", children=filter_data, className='d-none'),
-                    dbc.FormGroup([
-        #                 html.H4("Filter"),
-                        html.Strong("Pick a date"),
-                        dcc.DatePickerRange(
-                            id='datepicker',
-                            min_date_allowed=startdate,
-                            max_date_allowed=enddate,
-                            initial_visible_month = '2018-01-01',
-                            minimum_nights = 0,
-                            clearable = True,
-                            #start_date=datetime(2019,3,15),
-                            #end_date=datetime(2019,3,16)
-                            ),
+main_div = dbc.Row(children=[
+    dbc.Col([
+        
+        
+        dbc.Row(className='py-2',children=[
 
-                        dbc.Tooltip("Pick a date or select a range of days to see details.",
-                                    target="go-button"),
+            dbc.Col(children=[
 
-
-            #             fdhtml.H5("Member type"),
-                        html.Strong("Membership Type"),
-                        dbc.Checklist(id='filter-dropdown',
-#                             options=[
-#                                 {'label': 'Annual Standard', 'value': '365S'},
-#                                 {'label': 'Annual Plus', 'value': '365P'},
-#                                 {'label': 'Daily', 'value': '24h'},
-#                                 {'label': 'Monthly', 'value': '90d'}
-#                             ],
-                            options=[{'label':memtype,'value':memtype} for memtype in memtypes],
-                            value=list(memtypes)
-                        ),
-
+                dbc.Card(className="shadow",children=[
+                    dbc.CardHeader(),
+                    dbc.CardBody([
+                        dcc.Graph(
+                            id='timeseries-graph',
+                            figure=make_timeseries_fig(thdf),
+                            style={'height':'100%','width':'100%'}
+                        ),    
                     ]),
-                 dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
-                 dbc.Button("Compare", id='compare-button', color="secondary", outline=False, block=True),
-                 ]),
-             
-              dbc.Col(id="date2-div", className="d-none", children=[
-                dbc.FormGroup([
-    #                 html.H4("Filter"),
-                    html.Strong("Compare"),
-                    dcc.DatePickerRange(
-                        id='datepicker2',
-                        min_date_allowed=startdate,
-                        max_date_allowed=enddate,
-                        initial_visible_month = '2018-01-01',
-                        minimum_nights = 0,
-                        clearable = True,
-                        #start_date=datetime(2019,3,15),
-                        #end_date=datetime(2019,3,16)
-                        ),
-
-                    dbc.Tooltip("Pick a date or select a range of days to see details.",
-                                target="go-button"),
-
-
-        #             html.H5("Member type"),
-                    html.Strong("Membership Type"),
-                    dbc.Checklist(id='filter-dropdown2',
-#                         options=[
-#                             {'label': 'Annual Standard', 'value': '365S'},
-#                             {'label': 'Annual Plus', 'value': '365P'},
-#                             {'label': 'Daily', 'value': '24h'},
-#                             {'label': 'Monthly', 'value': '90d'}
-#                         ],
-
-#                         value=['365S','365P','24h','90d']
-                        options=[{'label':memtype,'value':memtype} for memtype in memtypes],
-                        value=list(memtypes)
-                    ),
-
                 ]),
-              ]),
-              
-
-            ]),   
-    
-         ]),
+            ]),
+        ]),        
         
-        dbc.Col(width=8, children=[
-            
-            html.Span(html.Em(f"Data available from {startdate_str} to {enddate_str}")),
-            dcc.Graph(
-                id='timeseries-graph',
-                figure=make_timeseries_fig(thdf),
-                style={'height':'100%','width':'100%'}
-            ),        
+        
+        dbc.Row(className='py-2',children=[
+            dbc.Col(children=[
+                html.Div(id="filter-meta-div", children=filter_data, className='d-none'),
+                dbc.Card(className="shadow",children=[
+                    dbc.CardHeader("Pick a date"),
+                    dbc.CardBody([
+                        dbc.FormGroup([
+                    #                 html.H4("Filter"),
+                                    html.Strong("Pick a date"),
+                                    dcc.DatePickerRange(
+                                        id='datepicker',
+                                        min_date_allowed=startdate,
+                                        max_date_allowed=enddate,
+                                        initial_visible_month = '2018-01-01',
+                                        minimum_nights = 0,
+                                        clearable = True,
+                                        #start_date=datetime(2019,3,15),
+                                        #end_date=datetime(2019,3,16)
+                                        ),
+
+                                    dbc.Tooltip("Pick a date or select a range of days to see details.",
+                                                target="go-button"),
+
+
+                        #             fdhtml.H5("Member type"),
+                                    html.Strong("Membership Type"),
+                                    dbc.Checklist(id='filter-dropdown',
+                #                             options=[
+                #                                 {'label': 'Annual Standard', 'value': '365S'},
+                #                                 {'label': 'Annual Plus', 'value': '365P'},
+                #                                 {'label': 'Daily', 'value': '24h'},
+                #                                 {'label': 'Monthly', 'value': '90d'}
+                #                             ],
+                                        options=[{'label':memtype,'value':memtype} for memtype in memtypes],
+                                        value=list(memtypes)
+                                    ),
+
+                        ]),
+                        dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
+                        dbc.Button("Compare", id='compare-button', color="secondary", outline=False, block=True),
+                    ]),
+                ]),
+            ]),
+
+            dbc.Col([
+                dbc.Card([
+                    dbc.CardHeader("Pick another date"),
+                    dbc.CardBody([
+                        dbc.FormGroup([
+            #                 html.H4("Filter"),
+                            html.Strong("Compare"),
+                            dcc.DatePickerRange(
+                                id='datepicker2',
+                                min_date_allowed=startdate,
+                                max_date_allowed=enddate,
+                                initial_visible_month = '2018-01-01',
+                                minimum_nights = 0,
+                                clearable = True,
+                                #start_date=datetime(2019,3,15),
+                                #end_date=datetime(2019,3,16)
+                                ),
+
+                            dbc.Tooltip("Pick a date or select a range of days to see details.",
+                                        target="go-button"),
+
+
+                #             html.H5("Member type"),
+                            html.Strong("Membership Type"),
+                            dbc.Checklist(id='filter-dropdown2',
+            #                         options=[
+            #                             {'label': 'Annual Standard', 'value': '365S'},
+            #                             {'label': 'Annual Plus', 'value': '365P'},
+            #                             {'label': 'Daily', 'value': '24h'},
+            #                             {'label': 'Monthly', 'value': '90d'}
+            #                         ],
+
+            #                         value=['365S','365P','24h','90d']
+                                options=[{'label':memtype,'value':memtype} for memtype in memtypes],
+                                value=list(memtypes)
+                            ),
+                        ]),
+                    ]),
+                ]),   
+            ]),
         ]),
-        
-
-                
-                
-
-    ]) 
+    ])
+])
 
 detail_div = dbc.Row(id='detail-div', className="border", children=make_detail_div(None,None) ) 
 # detail_div = dbc.Row(id='detail-div', className="border", children="" )
@@ -219,6 +245,8 @@ detail_div = dbc.Row(id='detail-div', className="border", children=make_detail_d
 
 
 body = dbc.Container(id="mainContainer",children=[
+    
+    summary_jumbo,
     
     summary_cards,
     
@@ -308,20 +336,20 @@ def activate_go_button(a,b):
         raise PreventUpdate
     return False
 
-@app.callback(Output('date2-div','className'),
-              [Input('compare-button','n_clicks')],
-              [State('date2-div','className')]
-             )
-def toggle_datepicker2_div(n_clicks, className):
-#     log("trigger: ",dash.callback_context.triggered)  # last triggered
-#     log(f"toggle open {is_open}")
-    if n_clicks is not None:
-        if className == 'd-inline':
-            return 'd-none'
-        else:
-            return "d-inline"
-    else:
-        raise PreventUpdate
+# @app.callback(Output('date2-div','className'),
+#               [Input('compare-button','n_clicks')],
+#               [State('date2-div','className')]
+#              )
+# def toggle_datepicker2_div(n_clicks, className):
+# #     log("trigger: ",dash.callback_context.triggered)  # last triggered
+# #     log(f"toggle open {is_open}")
+#     if n_clicks is not None:
+#         if className == 'd-inline':
+#             return 'd-none'
+#         else:
+#             return "d-inline"
+#     else:
+#         raise PreventUpdate
 
         
 # Keep track of filter
