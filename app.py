@@ -98,7 +98,7 @@ footer = dbc.NavbarSimple(
     dark=False
     )
 
-summary_cards = dbc.Row(className='p-3', children=[
+summary_cards = dbc.Row(className='p-3 justify-content-center', children=[
         
         dbc.Col([
             dbc.Row(children=[
@@ -134,6 +134,7 @@ summary_jumbo = dbc.Jumbotron(
 
 filter_data = json.dumps({'date':None, 'cats':None, 'stations':None, 'direction':'start',
                           'date2':None,'cats2':None,'stations2':None,'direction2':'start'})
+
 main_div = dbc.Row(children=[
     dbc.Col([
         
@@ -142,105 +143,79 @@ main_div = dbc.Row(children=[
 
             dbc.Col(children=[
 
-                dbc.Card(className="shadow",children=[
+                dbc.Card(className="shadow justify-content-center",children=[
                     dbc.CardHeader(),
                     dbc.CardBody([
                         dcc.Graph(
                             id='timeseries-graph',
                             figure=make_timeseries_fig(thdf),
                             style={'height':'100%','width':'100%'}
-                        ),    
+                        ),   
+                        dbc.Button("Explore Data", id='date-button',size='lg',color="primary", className="mr-1")
                     ]),
                 ]),
             ]),
         ]),        
         
+        #dbc.Row(className="justify-content-center", children=[
+        #    dbc.Button("Explore Data", id='date-button',size='lg',color="primary", className="mr-1")
+        #]),
         
-        dbc.Row(className='py-2',children=[
-            dbc.Col(children=[
+
+        dbc.Modal(size='md', id='date-modal', children=[
+            dbc.ModalHeader("Pick a date or date range"),
+            dbc.ModalBody([
                 html.Div(id="filter-meta-div", children=filter_data, className='d-none'),
-                dbc.Card(className="shadow",children=[
-                    dbc.CardHeader("Pick a date"),
-                    dbc.CardBody([
-                        dbc.FormGroup([
-                    #                 html.H4("Filter"),
-                                    html.Strong("Pick a date"),
-                                    dcc.DatePickerRange(
-                                        id='datepicker',
-                                        min_date_allowed=startdate,
-                                        max_date_allowed=enddate,
-                                        initial_visible_month = '2018-01-01',
-                                        minimum_nights = 0,
-                                        clearable = True,
-                                        #start_date=datetime(2019,3,15),
-                                        #end_date=datetime(2019,3,16)
-                                        ),
 
-                                    dbc.Tooltip("Pick a date or select a range of days to see details.",
-                                                target="go-button"),
-
-
-                        #             fdhtml.H5("Member type"),
-                                    html.Strong("Membership Type"),
-                                    dbc.Checklist(id='filter-dropdown',
-                #                             options=[
-                #                                 {'label': 'Annual Standard', 'value': '365S'},
-                #                                 {'label': 'Annual Plus', 'value': '365P'},
-                #                                 {'label': 'Daily', 'value': '24h'},
-                #                                 {'label': 'Monthly', 'value': '90d'}
-                #                             ],
-                                        options=[{'label':memtype,'value':memtype} for memtype in memtypes],
-                                        value=list(memtypes)
-                                    ),
-
-                        ]),
-                        dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
-                        dbc.Button("Compare", id='compare-button', color="secondary", outline=False, block=True),
-                    ]),
-                ]),
-            ]),
-
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardHeader("Pick another date"),
-                    dbc.CardBody([
-                        dbc.FormGroup([
-            #                 html.H4("Filter"),
-                            html.Strong("Compare"),
-                            dcc.DatePickerRange(
-                                id='datepicker2',
-                                min_date_allowed=startdate,
-                                max_date_allowed=enddate,
-                                initial_visible_month = '2018-01-01',
-                                minimum_nights = 0,
-                                clearable = True,
-                                #start_date=datetime(2019,3,15),
-                                #end_date=datetime(2019,3,16)
+                    dbc.FormGroup([
+                                dcc.DatePickerRange(
+                                    id='datepicker',
+                                    min_date_allowed=startdate,
+                                    max_date_allowed=enddate,
+                                    #initial_visible_month = '2018-01-01',
+                                    minimum_nights = 0,
+                                    clearable = True,
                                 ),
 
-                            dbc.Tooltip("Pick a date or select a range of days to see details.",
-                                        target="go-button"),
 
+                                dbc.Checklist(id='filter-dropdown',
 
-                #             html.H5("Member type"),
-                            html.Strong("Membership Type"),
-                            dbc.Checklist(id='filter-dropdown2',
-            #                         options=[
-            #                             {'label': 'Annual Standard', 'value': '365S'},
-            #                             {'label': 'Annual Plus', 'value': '365P'},
-            #                             {'label': 'Daily', 'value': '24h'},
-            #                             {'label': 'Monthly', 'value': '90d'}
-            #                         ],
+                                    options=[{'label':memtype,'value':memtype} for memtype in memtypes],
+                                    value=list(memtypes)
+                                ),
 
-            #                         value=['365S','365P','24h','90d']
-                                options=[{'label':memtype,'value':memtype} for memtype in memtypes],
-                                value=list(memtypes)
-                            ),
-                        ]),
                     ]),
-                ]),   
-            ]),
+                    dbc.Tooltip("Pick a date or select a range of days to see details.",
+                                            target="go-button"),
+                    dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
+            ])
         ]),
+        
+        
+        dbc.Modal(size='md', id='date-modal2', children=[
+            dbc.ModalHeader("Pick a date or date range"),
+            dbc.ModalBody([
+                    dbc.FormGroup(children=[
+                        dcc.DatePickerRange(
+                            id='datepicker2',
+                            min_date_allowed=startdate,
+                            max_date_allowed=enddate,
+                            initial_visible_month = '2018-01-01',
+                            minimum_nights = 0,
+                            clearable = True,
+                            ),
+
+                        dbc.Checklist(id='filter-dropdown2',
+
+                            options=[{'label':memtype,'value':memtype} for memtype in memtypes],
+                            value=list(memtypes)
+                        ),
+                    ]),
+                    dbc.Tooltip("Pick a date or select a range of days to see details.",
+                                            target="go-button2"),
+                    dbc.Button("Go    ", id='go-button2', color="success", outline=True, block=True),
+                ]) 
+        ])
     ])
 ])
 
@@ -359,7 +334,8 @@ def activate_go_button(a,b):
         
 # Keep track of filter
 @app.callback(Output("filter-meta-div",'children'),
-              [Input('go-button','n_clicks'),Input('map-graph','clickData'),Input('map-graph2','clickData'),
+              [Input('go-button','n_clicks'),Input('go-button2','n_clicks'),
+               Input('map-graph','clickData'),Input('map-graph2','clickData'),
                Input('stations-radio','value'),Input('stations-radio2','value')],
               [State("filter-meta-div",'children'),
                State('datepicker','start_date'), 
@@ -369,7 +345,7 @@ def activate_go_button(a,b):
                State('datepicker2','end_date'),
                State('filter-dropdown2','value')]
              )
-def update_filter_meta_div(n_clicks,clickData,clickData2,radio_value,radio_value2, 
+def update_filter_meta_div(n_clicks,n_clicks2,clickData,clickData2,radio_value,radio_value2, 
                            filter_data,
                            start_date,end_date,filter_values,
                            start_date2,end_date2,filter_values2):
@@ -386,6 +362,14 @@ def update_filter_meta_div(n_clicks,clickData,clickData2,radio_value,radio_value
         
         filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start',
                           'date2':date2,'cats2':filter_values2,'stations2':None,'direction2':'start'}
+
+    # IF go button2 is triggered, update all values
+    if  dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
+        date,date2 = convert_dates(start_date,end_date,start_date2,end_date2)
+        
+        filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start',
+                          'date2':date2,'cats2':filter_values2,'stations2':None,'direction2':'start'}
+
         
     # If map #1 is clicked           
     if clickData is not None:
@@ -505,7 +489,29 @@ def daily_div_callback(filter_data):
 #             return  [make_detail_div(ddf,wdf,ddf2,trips=False), 'border'] 
                  
 #     return [make_detail_div(ddf,wdf,ddf2), "border"]
-       
+  
+@app.callback(Output('date-modal','is_open'),
+               [Input('date-button','n_clicks'),Input('go-button','n_clicks')]
+              )
+def toggle_date_modal(n_clicks,go_n_clicks):
+    if n_clicks is None and go_n_clicks is None:
+        raise PreventUpdate
+    if dash.callback_context.triggered[0]['prop_id'] == 'date-button.n_clicks':
+        return True
+    if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
+        return False
+
+@app.callback(Output('date-modal2','is_open'),
+               [Input('compare-button','n_clicks'),Input('go-button','n_clicks')]
+              )
+def toggle_date_modal(n_clicks,go_n_clicks):
+    if n_clicks is None and go_n_clicks is None:
+        raise PreventUpdate
+    if dash.callback_context.triggered[0]['prop_id'] == 'compare-button.n_clicks':
+        return True
+    if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
+        return False
+    
     
 @app.callback(Output('data-modal','is_open'),
               [Input('data-button','n_clicks')]
@@ -514,6 +520,8 @@ def open_data_modal(n_clicks):
     if n_clicks is not None:
         return True
 
+    
+    
 @app.callback(Output('data-modal2','is_open'),
               [Input('data-button2','n_clicks')]
              )

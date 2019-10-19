@@ -79,6 +79,7 @@ def make_detail_cards(df,wdf,suff=''):
     else:
         output =  dbc.Col(style={'width':'100%'},children=[
             html.H2(f"{start_date_str}"),
+            
             dbc.CardColumns([
                 make_card("Total trips", f"{n_trips:,}"),
                 make_card("Average trip distance",f"{int(avg_dist):,} km"),
@@ -98,6 +99,8 @@ def make_detail_cards(df,wdf,suff=''):
     return output
 
 def make_detail_cols(df,df2,wdf,trips,trips2,direction,direction2):
+    
+
     
     res_row = dbc.Row([
                     dbc.Col(width=6,children=[
@@ -158,6 +161,12 @@ def make_detail_cols(df,df2,wdf,trips,trips2,direction,direction2):
 def make_detail_col(df,wdf,trips,direction):
         
     return dbc.Col(children=[
+        
+            dbc.Row([
+                    dbc.Tooltip("Pick a date or select a range of days to see comparison.",
+                                            target="compare-button"),
+                    dbc.Button("Compare", id='compare-button', color="success"),
+            ]),
             
             dbc.Row(id=f'detail-cards',children=make_detail_cards(df,wdf)),
             
@@ -269,3 +278,8 @@ def make_data_modal(df, suff=""):
             size="xl",
             )
     return modal
+
+
+
+
+          
