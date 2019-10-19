@@ -136,12 +136,12 @@ def make_station_map(df=None, direction='start', suff=""):
         if direction == 'start':
             hdf = mobi.make_thdf(df)
         elif direction == 'stop':
+            log("make_rhdf")
             hdf = mobi.make_rhdf(df)
         elif direction == 'both':
             hdf = mobi.make_ahdf(df)
         else:
             raise ValueError("argument 'direction' must be on of start/stop/both")
-        
         #thdf = mobi.make_thdf(df)
         ddf = hdf.groupby(pd.Grouper(freq='d')).sum()
         
