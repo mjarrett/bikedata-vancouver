@@ -10,13 +10,14 @@ import dash_table
 
 from plots import *
 
-def make_card(title,content,color='primary'):
+def make_card(title,content,subcontent=None,color='primary'):
     return dbc.Card(style={'border':'none'},className=f"justify-content-center h-100 py-2", children=[
             #dbc.CardHeader(title,style={'color':color}),
             dbc.CardBody([
                 
                 dbc.Row(title, className=f"text-xs font-weight-bold text-{color} text-uppercase mb-1"),
-                dbc.Row(content, className=f"h5 mb-0 font-weight-bold text-gray-800"),
+                dbc.Row(content, className=f"h5 mb-0 font-weight-bold"),
+                dbc.Row(subcontent, className=f"h5 mb-0 font-weight-bold text-muted"),
                 
             ])
 

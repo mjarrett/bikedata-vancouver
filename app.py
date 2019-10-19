@@ -44,9 +44,14 @@ log("Loading weather")
 wdf = pd.read_csv('weather.csv',index_col=0)
 wdf.index = pd.to_datetime(wdf.index)
  
+n_days = (enddate-startdate).days
 n_trips = len(df)
+n_trips_per_day = n_trips / n_days
 tot_dist = df['Covered distance (m)'].sum()/1000
+dist_per_trip = tot_dist/n_trips
 tot_usrs = len(set(df['Account']))
+tot_usrs_per_day = tot_usrs / n_days
+tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
 
 #######################################################################################
 #
@@ -102,8 +107,8 @@ summary_cards = dbc.Row(className='p-3', children=[
                 dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
                     make_card("Total Trips",f"{n_trips:,}",color='primary'),
                     make_card("Total Distance Travelled",f"{int(tot_dist):,} km",color='info'),
-                    make_card("Total Riders",f"{tot_usrs:,}",color='success'),
-                    make_card("Total Riders",f"{tot_usrs:,}",color='success')
+                    make_card("Total Members",f"{tot_usrs:,}",color='success'),
+                    make_card("Total Trip Time",f"{int(tot_time/(60*60)):,} hours",color='warning')
 
                 ]),
             ]),
@@ -114,7 +119,7 @@ summary_cards = dbc.Row(className='p-3', children=[
 
 summary_jumbo = dbc.Jumbotron(
     [
-        html.H1("Vancouver Bikeshare Explorer", className="display-3"),
+        html.H1("BikeData BC", className="display-3"),
         html.P(
             "This tool makes Mobi's trip data available for analysis",
             className="lead",
