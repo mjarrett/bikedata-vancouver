@@ -247,44 +247,14 @@ app.layout = html.Div([header,body,footer])
 
 
 @app.callback(Output('timeseries-graph','figure'),
-              [Input('go-button','n_clicks')],
-              [State('timeseries-graph','figure'), 
-               State('datepicker','start_date'), 
-               State('datepicker','end_date'),
-               State('datepicker2','start_date'), 
-               State('datepicker2','end_date')
-              ]
+             [Input('filter-meta-div','children')]
              ) 
-def timeseries_callback(nclicks,ts_graph, start_date, end_date, start_date2, end_date2):
+def timeseries_callback(filter_data):
     log('timeseries_callback')
-#     log("trigger: ",dash.callback_context.triggered)  # last triggered
-#     log("inputs : ",dash.callback_context.inputs)     # all triggered
-    #log("states : ",dash.callback_context.states)
     
-#     log(start_date, end_date)
-    
-    if start_date is None:
-        raise PreventUpdate
-    
-    if nclicks is None:
-        raise PreventUpdate
-    
-    if (end_date is None) or (start_date == end_date):
-        date = start_date[:10] 
-    else:
-        date = (start_date[:10], end_date[:10])
-    
-    if start_date2 is not None:
-        if (end_date2 is None) and (start_date2 == end_date2):
-            date2 = start_date2[:10] 
-        elif end_date2 is not None:
-            date2 = (start_date2[:10], end_date2[:10])
-        else:
-            date2 = None
-    else:
-        date2 = None
-        
-    return make_timeseries_fig(thdf,date,date2)
+    filter_data = json.loads(filter_data)
+ 
+    return make_timeseries_fig(thdf,filter_data['date'],filter_data['date2'])
 
 
 @app.callback([Output('datepicker','start_date'), Output('datepicker','end_date'),
@@ -429,7 +399,7 @@ def daily_div_callback(filter_data):
 def toggle_date_modal(n_clicks,go_n_clicks,clickData,selectedData):
 
     if dash.callback_context.triggered[0]['prop_id'] == 'date-button.n_clicks':
-        return True if nclicks is not None else False
+        return True if n_clicks is not None else False
     if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
         return False
     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
@@ -439,14 +409,15 @@ def toggle_date_modal(n_clicks,go_n_clicks,clickData,selectedData):
         
     
 @app.callback(Output('date-modal2','is_open'),
-               [Input('compare-button','n_clicks'),Input('go-button','n_clicks')]
+               [Input('compare-button','n_clicks'),Input('go-button2','n_clicks')]
               )
 def toggle_date_modal2(n_clicks,go_n_clicks):
+
     if n_clicks is None and go_n_clicks is None:
         raise PreventUpdate
     if dash.callback_context.triggered[0]['prop_id'] == 'compare-button.n_clicks':
         return True
-    if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
+    if dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
         return False
     
     
