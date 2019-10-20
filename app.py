@@ -244,7 +244,12 @@ app.layout = html.Div([header,body,footer])
 #
 #######################################################################################
 
-
+@app.callback(Output('detail-col','className'),
+              [Input('go-button','n_clicks')]
+             )
+def hide_detail_on_load(n_clicks):
+    if n_clicks is None:
+        return "d-none"
 
 @app.callback(Output('timeseries-graph','figure'),
              [Input('filter-meta-div','children')]

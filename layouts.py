@@ -58,7 +58,7 @@ def make_detail_cards(df,wdf,suff=''):
 
     if start_date != stop_date:
         output =  dbc.Col(style={'width':'100%'},children=[
-                html.H2(f"{start_date_str} to {stop_date_str}"),
+                
                 dbc.CardColumns([
 
                     make_card("Total trips",f"{n_trips:,}"),
@@ -78,7 +78,7 @@ def make_detail_cards(df,wdf,suff=''):
             ])
     else:
         output =  dbc.Col(style={'width':'100%'},children=[
-            html.H2(f"{start_date_str}"),
+            
             
             dbc.CardColumns([
                 make_card("Total trips", f"{n_trips:,}"),
@@ -159,23 +159,42 @@ def make_detail_cols(df,df2,wdf,trips,trips2,direction,direction2):
     return dbc.Col([res_row, daily_row, map_row, memb_row, button_row])
 
 def make_detail_col(df,wdf,trips,direction):
-        
-    return dbc.Col(children=[
+    
+    #start_date = df['Departure'].iloc[0].strftime('%Y-%m-%d')
+    #stop_date  = df['Departure'].iloc[-1].strftime('%Y-%m-%d') 
+    if df is None:
+        start_date_str = 'test'
+        stop_date_str = 'test2'
+    else:
+        start_date_str = df['Departure'].iloc[0].strftime('%b %d, %Y')
+        stop_date_str = df['Departure'].iloc[-1].strftime('%b %d, %Y')    
+    
+    header_str = f"{start_date_str} -> {stop_date_str}" if start_date_str != stop_date_str else f"{start_date_str}"
+    
+    
+    return dbc.Col(id='detail-col',children=[
         
             dbc.Row([
+                
+                    html.H2(header_str,className="display-5"),
                     dbc.Tooltip("Pick a date or select a range of days to see comparison.",
                                             target="compare-button"),
                     dbc.Button("Compare", id='compare-button', color="success"),
             ]),
             
-            dbc.Row(id=f'detail-cards',children=make_detail_cards(df,wdf)),
+            #dbc.Row(id=f'detail-cards',children=make_detail_cards(df,wdf)),
             
             dbc.Row([
-
-                dcc.Graph(
-                    id=f'daily-graph',
-                    figure=make_daily_fig(df)
-                ), 
+                
+                dbc.Col(width=6, children=make_detail_cards(df,wdf)),
+                    
+                
+                dbc.Col(width=6, children=[
+                    dcc.Graph(
+                        id=f'daily-graph',
+                        figure=make_daily_fig(df)
+                    ), 
+                ])
             ]), #Row
         
             dbc.Row(children=[
