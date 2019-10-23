@@ -1,8 +1,11 @@
 import plotly.graph_objects as go
-import mobitools as mobi
 import pandas as pd
 from datetime import datetime
+import geopandas
+import mobisys as mobi
+
 from credentials import *
+from helpers import *
 
 margin=go.layout.Margin(
     l=5,
@@ -12,14 +15,38 @@ margin=go.layout.Margin(
     pad=0)
 
 
-maincolor = '#1e5359'
+c_dark_teal = '#1e5359'
           
+c_blue =     '#007bff' #!default; // primary
+c_indigo =   '#6610f2' #!default;
+c_purple =   '#6f42c1' #!default;
+c_pink =     '#e83e8c' #!default;
+c_red =      '#dc3545' #!default; // danger
+c_orange =   '#fd7e14' #!default;
+c_yellow =   '#ffc107' #!default; // warning
+c_green =    '#28a745' #!default; // success
+c_teal =     '#20c997' #!default;
+c_cyan =     '#17a2b8' #!default; // info
 
 
+c_white =   '#fff' #!default;
+c_gray_100= '#f8f9fa' #!default; // light
+c_gray_200= '#e9ecef' #!default;
+c_gray_300= '#dee2e6' #!default;
+c_gray_400= '#ced4da' #!default;
+c_gray_500= '#adb5bd' #!default;
+c_gray_600= '#868e96' #!default; // secondary
+c_gray_700= '#495057' #!default;
+c_gray_800= '#343a40' #!default; // dark
+c_gray_900= '#212529' #!default;
+c_black=    '#000' #!default;
 
-def make_timeseries_fig(thdf, date=None):
-    print('make_timeseries_fig')
-   
+
+colors = [c_blue,c_indigo,c_red,c_green,c_orange,c_teal,c_cyan,c_purple,c_yellow]
+
+def make_timeseries_fig(thdf, date=None, date2=None):
+    log('make_timeseries_fig')
+
     
     trips_hdf = thdf.sum(1).reset_index()
     trips_hdf.columns = ['Hour','Trips']
@@ -28,19 +55,36 @@ def make_timeseries_fig(thdf, date=None):
     trips_ddf = tddf.sum(1)
     trips_ddf = trips_ddf.reset_index()
     trips_ddf.columns = ['Date','Trips']
+    trips_rdf = trips_ddf.set_index('Date')['Trips'].rolling(30,min_periods=1, center=True).mean().reset_index()
+#     if date is None:
+#         colors = [ c_blue for x in trips_ddf['Date'] ] 
+#     elif len(date) == 2:
+#         colors = [ c_blue if (x >= datetime.strptime(date[0], '%Y-%m-%d')) and (x <= datetime.strptime(date[1], '%Y-%m-%d')) else c_gray_200 for x in trips_ddf['Date']] 
+#     else:
+#         colors = [ c_blue if x is True else c_gray_200 for x in trips_ddf['Date'] == date ] 
     
-    if date == None:
-        colors = [ maincolor for x in trips_ddf['Date'] ] 
-    elif len(date) == 2:
-        colors = [ maincolor if (x >= datetime.strptime(date[0], '%Y-%m-%d')) and (x <= datetime.strptime(date[1], '%Y-%m-%d')) else 'lightslategray' for x in trips_ddf['Date']] 
-        
-    else:
-        colors = [ maincolor if x is True else 'lightslategray' for x in trips_ddf['Date'] == date ] 
+    trips_ddf['Color'] = c_blue
+    
+    if date is not None:
+        trips_ddf['Color'] = c_gray_200
+        if len(date) == 2:
+            idx = (trips_ddf['Date'] >= datetime.strptime(date[0], '%Y-%m-%d')) & (trips_ddf['Date'] <= datetime.strptime(date[1], '%Y-%m-%d'))
+            trips_ddf.loc[idx,'Color'] = c_blue
+        else:
+            trips_ddf.loc[date,'Color'] = c_blue
+    
+    if date2 is not None:
+        if len(date2) == 2:
+            idx = (trips_ddf['Date'] >= datetime.strptime(date2[0], '%Y-%m-%d')) & (trips_ddf['Date'] <= datetime.strptime(date2[1], '%Y-%m-%d'))
+            trips_ddf.loc[idx,'Color'] = c_green
+        else:
+            trips_ddf.loc[date2,'Color'] = c_green
 
     data = [go.Bar(
             x=trips_ddf['Date'],
             y=trips_ddf['Trips'],
-            marker_color = colors
+            marker_color = trips_ddf['Color'],
+            name="Daily trips"
                 )
            ]
     layout = go.Layout(#title='Daily Mobi Trips',
@@ -50,19 +94,35 @@ def make_timeseries_fig(thdf, date=None):
                          'fixedrange': True
                        },
                        margin=margin,
-                       dragmode='select'
+                       #autosize=True,
+                       dragmode='select',
+            
                   )
 
     fig = go.Figure(data=data,layout=layout)
     
+    # Add rolling average
+    fig.add_trace(go.Scatter(
+                    x=trips_rdf['Date'],
+                    y=trips_rdf['Trips'],
+                    name="Rolling average",
+                    marker_color = c_cyan,
+                    hoverinfo = 'skip'
+                    )
+                 )
+    
     return fig
 
-def make_station_map(df=None, direction='start'):
-    print('make_station_map')
+def make_station_map(df=None, direction='start', suff=""):
+    log(f'make_station_map{suff}')
       
+    if suff == "":
+        color = c_blue
+    elif suff == "2":
+        color = c_green
     
     # https://plot.ly/python/mapbox-layers/
-    sdf = mobi.get_stationsdf('./data/')
+    sdf = geopandas.read_file(f'./data/stations_df.geojson')
     sdf = sdf.to_crs({'init': 'epsg:4326'})
     sdf['long'] = sdf.geometry.map(lambda x: x.x)
     sdf['lat'] = sdf.geometry.map(lambda x: x.y)
@@ -79,15 +139,15 @@ def make_station_map(df=None, direction='start'):
                   
     else:
         if direction == 'start':
-            hdf = mobi.system.make_thdf(df)
+            hdf = mobi.make_thdf(df)
         elif direction == 'stop':
-            hdf = mobi.system.make_rhdf(df)
+            log("make_rhdf")
+            hdf = mobi.make_rhdf(df)
         elif direction == 'both':
-            hdf = mobi.system.make_ahdf(df)
+            hdf = mobi.make_ahdf(df)
         else:
             raise ValueError("argument 'direction' must be on of start/stop/both")
-        
-        #thdf = mobi.system.make_thdf(df)
+        #thdf = mobi.make_thdf(df)
         ddf = hdf.groupby(pd.Grouper(freq='d')).sum()
         
         trips_df = ddf.sum().reset_index()
@@ -101,7 +161,7 @@ def make_station_map(df=None, direction='start'):
                                    lon=trips_df['long'],
                                    text=text,   # NOTE: text must be in specific format so it can be parsed by callback function
                                    hoverinfo='text',
-                                   marker={'color':maincolor,
+                                   marker={'color':color,
                                            'size':trips_df['trips'],
                                            'sizemode':'area',
                                            'sizeref':2.*max(trips_df['trips'])/(40.**2),
@@ -131,12 +191,16 @@ def make_station_map(df=None, direction='start'):
 
     
     
-def make_trips_map(df,direction='start'):
-    print('make_trips_map')
+def make_trips_map(df,direction='start',suff=""):
+    log(f'make_trips_map{suff}')
     # https://plot.ly/python/mapbox-layers/
 
+    if suff == "":
+        color = c_blue
+    elif suff == "2":
+        color = c_green
     
-    cdf = mobi.system.make_con_df(df)
+    cdf = mobi.make_con_df(df)
 
     
     mapdata = [go.Scattermapbox(lat=[cdf.iloc[i].loc["start coords"][0],cdf.iloc[i].loc["stop coords"][0]], 
@@ -148,8 +212,7 @@ def make_trips_map(df,direction='start'):
                                 }
                               ) for i in range(len(cdf)) ]
     
-#     sdf = mobi.get_stationsdf('./data/')   
-#     sdf = mobi.sdf_to_latlong(sdf)
+
 #     sdf['lat'] = sdf.coordinates.map(lambda x: x[0])
 #     sdf['long'] = sdf.coordinates.map(lambda x: x[1])
     cdf['start lat'] = cdf['start coords'].map(lambda x: x[0])
@@ -160,8 +223,8 @@ def make_trips_map(df,direction='start'):
                                lon=cdf["stop long"],
                                text=cdf["stop station"],
                                hoverinfo='text',
-                               marker={'size':4,
-                                       'color':maincolor}
+                               marker={'size':4
+                                       }
                                    )
                   )
     mapdata.append(go.Scattermapbox(lat=cdf["start lat"], 
@@ -169,7 +232,7 @@ def make_trips_map(df,direction='start'):
                                text=cdf["start station"],
                                hoverinfo='text',
                                marker={'size':4,
-                                       'color':maincolor}
+                                       }
                                    )
                   )
         
@@ -196,22 +259,31 @@ def make_trips_map(df,direction='start'):
     return mapfig    
     
 
-def make_daily_fig(df=None):
-    print(f"make_daily_fig")
+def make_daily_fig(df=None, suff=""):
+    log(f"make_daily_fig{suff}")
 
+    
+    if suff == "":
+        color = c_blue
+    elif suff == "2":
+        color = c_green
+    
     if df is None:
         trips_df = pd.DataFrame(columns=[0,1])
   
     else:
-        thdf = mobi.system.make_thdf(df)  
-        trips_df = thdf.sum(1).reset_index()    
-
+        
+        thdf = mobi.make_thdf(df)  
+        if len(thdf) < 24*32:
+            trips_df = thdf.sum(1).reset_index() 
+        else:
+            trips_df = thdf.groupby(pd.Grouper(freq='d')).sum().sum(1).reset_index()
 
     trips_df.columns = ['Time','Trips']
     data = [go.Bar(
         x=trips_df['Time'],
         y=trips_df['Trips'],
-        marker={'color':maincolor}
+        marker={'color':color}
             )
        ]
     layout = go.Layout(#title='Hourly Mobi Trips',
@@ -227,7 +299,7 @@ def make_daily_fig(df=None):
     fig = go.Figure(data=data,layout=layout)
     
 
-    if df is not None and (trips_df.loc[trips_df.index[-1],'Time'] - trips_df.loc[0,'Time']).days < 1.1:
+    if df is not None and (trips_df.loc[trips_df.index[-1],'Time'] - trips_df.loc[0,'Time']).days < 1:
         date = trips_df.loc[0,'Time']
         t1 = datetime(date.year,date.month,date.day,0)
         t2 = datetime(date.year,date.month,date.day,23)
@@ -236,4 +308,19 @@ def make_daily_fig(df=None):
     return fig
 
 
-
+def make_memb_fig(df=None,suff=""):
+    log(f"make_memb_fig{suff}")
+    
+    
+    if df is None:
+        return go.Figure(data=[go.Pie(labels=['1','2'], values=[10,20], hole=.3)])
+    
+    pdf = df.pivot_table(values='Departure',index='Month',columns='Membership Simple',aggfunc='count')
+    memb_trips = pdf.fillna(0).astype(int).sum()
+    
+    fig = go.Figure(data=[go.Pie(labels=memb_trips.index, 
+                                 values=memb_trips.values, 
+                                 hole=.3,
+                                 marker={'colors':colors})])
+    return fig
+        

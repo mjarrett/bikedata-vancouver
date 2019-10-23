@@ -1,16 +1,28 @@
-import mobitools as mobi
+import mobisys as mobi
 import numpy as np
 import pandas as pd
+import geopandas
+from datetime import datetime
+import sys
 
-def get_prepped_data():
-    df = pd.read_csv('./data/Mobi_System_Data_Prepped.csv')
-    df['Departure'] = pd.to_datetime(df['Departure'])
-    df['Return'] = pd.to_datetime(df['Return'])
+import dash_core_components as dcc
+import dash_html_components as html
+import dash_bootstrap_components as dbc
+import dash_table
 
-    return df
+def log(*args,file=None):
+    args = [datetime.now()] + list(args)
+    if file == None:
+        print(*args,file=sys.stdout,flush=True)
+    else:
+        if type(file) != str:
+            raise TypeError("'file' argument must be a string")
+        with open(file,'a') as f:
+            print(*args,file=f,flush=True)
+
     
 def filter_ddf(df, date=None, cats=None, stations=None, direction='both'):
-
+    log(f"Filter {date} {cats} {stations} {direction}")
     if (date is None) and (cats is None) and (stations is None):
         return df
     
@@ -29,29 +41,51 @@ def filter_ddf(df, date=None, cats=None, stations=None, direction='both'):
         else:
             df = df.set_index('Departure')[date].reset_index()
    
-            
-    if cats is not None:
-      
-        if 'all' in cats:
-            pass
-        
-        else:
-            idx = np.array([False for x in range(len(df))])
-            
-            if '24h' in cats:
-                idx24 = np.array((df['Membership Type']=='24 Hour'))
-                idx = idx | idx24
-            if '365S' in cats:
-                idx365s = np.array(df['Membership Type'].str.contains('365.+Standard'))
-                idx = idx | idx365s
-            if '365P' in cats:
-                idx365p = np.array(df['Membership Type'].str.contains('365.+Plus'))
-                idx = idx | idx365p                
-            if '90d' in cats:
-                idx90 = np.array(df['Membership Type'].str.contains('90')) 
-                idx = idx | idx90
+    if cats is not None:    
+        df = df[df['Membership Simple'].isin(cats)]
                 
-            df = df.iloc[idx]
-    sdf = mobi.get_stationsdf('./data')
-    df = mobi.system.add_station_coords(df,sdf)
+    sdf = geopandas.read_file(f'./data/stations_df.geojson')
+    df = mobi.add_station_coords(df,sdf)
+    df = df.sort_values('Departure')
+    
+    log("Filter finished")
+                                           
     return df
+
+def convert_dates(start_date,end_date):
+#     if start_date2 is not None:
+#         if end_date2 is not None and (start_date2 != end_date2):
+#             date2 = (start_date2[:10], end_date2[:10])
+#         else:
+#             date2 = start_date2[:10] 
+#     else:
+#         date2 = None
+    
+#     if start_date2 is None:
+#         date2 = None
+#     elif (end_date2 is None) or  (start_date2 == end_date2):
+#         date2 = start_date2[:10]
+#     else:
+#         date2 = (start_date2[:10], end_date2[:10])
+        
+    if start_date is None:
+        date = None
+    elif (end_date is None) or  (start_date == end_date):
+        date = start_date[:10]
+    else:
+        date = (start_date[:10], end_date[:10])
+    return date
+
+def date_2_str(date):
+    
+    if date == None:
+        return None
+    
+    if len(date) == 2:
+        d1 = datetime.strptime(date[0],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        d2 = datetime.strptime(date[1],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        return f"{d1} to  {d2}"
+    else:
+        d1 = datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        return f"{d1}"
+

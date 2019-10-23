@@ -3,11 +3,12 @@ Click==7.0
 click-plugins==1.1.1
 cligj==0.5.0
 cycler==0.10.0
-dash==1.3.0
-dash-core-components==1.2.0
+dash==1.4.1
+dash-bootstrap-components==0.7.1
+dash-core-components==1.3.1
 dash-html-components==1.0.1
-dash-renderer==1.1.0
-dash-table==4.3.0
+dash-renderer==1.1.2
+dash-table==4.4.1
 Fiona==1.8.6
 Flask==1.1.1
 Flask-Compress==1.4.0
@@ -19,7 +20,7 @@ kiwisolver==1.1.0
 lxml==4.4.1
 MarkupSafe==1.1.1
 matplotlib==3.1.1
--e git+git@github.com:mjarrett/mobitools.git@6ef6ef66d2d89e322d30778a86594672b11002a5#egg=mobitools
+-e git+git@github.com:mjarrett/mobisys.git@d331aadd09e6a129c7557420606a62bdf97f487c#egg=mobisys
 munch==2.3.2
 numpy==1.17.2
 pandas==0.25.1
