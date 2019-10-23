@@ -92,15 +92,15 @@ def make_detail_div():
             dbc.Row([
                 dbc.Col(width=6, id="header-div", className=startclass, children=[
 
-                        html.H2("",id="date-header", className="display-3"),
+                        html.H3("",id="date-header", className=""),
                         dbc.Tooltip("Pick a date or select a range of days to see comparison.",
-                                                target="compare-button"),
-                        dbc.Button("Compare", id=f'compare-button', color="success"),
+                                                target="date-button2"),
+                        dbc.Button("Compare", id=f'date-button2', color="success"),
                 ]),
 
                 dbc.Col(width=6, id="header-div2", className=startclass, children=[
 
-                        html.H2("",id="date-header2", className="display-3"),
+                        html.H3("",id="date-header2", className=""),
                         #dbc.Tooltip("Pick a date or select a range of days to see comparison.",
                         #                        target="compare-button"),
                         #dbc.Button("Compare", id=f'compare-button2', color="success"),

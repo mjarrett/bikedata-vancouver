@@ -157,9 +157,7 @@ main_div = dbc.Row(children=[
             ]),
         ]),        
         
-        #dbc.Row(className="justify-content-center", children=[
-        #    dbc.Button("Explore Data", id='date-button',size='lg',color="primary", className="mr-1")
-        #]),
+
         
 
         dbc.Modal(size='md', id='date-modal', children=[
@@ -224,14 +222,6 @@ main_div = dbc.Row(children=[
 detail_div = dbc.Row(id='detail-div', className='', children=make_detail_div())
             
 
-#detail_div = dbc.Row(id='detail-div', className='border', children=[
-#                make_detail_col(None,None),
-#            ])
-#detail_div2 = dbc.Row(id='detail-div2', className='border',children=[
-#                make_detail_col(None,None,suff='2')
-#            ])
-#detail_div = dbc.Row(id='detail-div', className="border", children=make_detail_div(None,None) ) 
-# detail_div = dbc.Row(id='detail-div', className="border", children="" )
 
 
 
@@ -444,7 +434,8 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value,
     return json.dumps(filter_data)
         
 # Update details div
-@app.callback([Output('detail-cards-div','children'),Output('daily-graph','figure'),
+@app.callback([Output("date-header", 'children'),
+               Output('detail-cards-div','children'),Output('daily-graph','figure'),
                Output('map-div','children'),Output('memb-graph','figure')],
               [Input("filter-meta-div",'children')],
              )
@@ -465,16 +456,19 @@ def daily_div_callback(filter_data):
         
     trips = False if filter_data['stations'] is None else True
     direction = filter_data['direction']
+    date = date_2_str(filter_data['date'])
     
     detail_cards_div_children=make_detail_cards(ddf,wdf,suff=suff)
     daily_fig = make_daily_fig(ddf,suff=suff)
     map_div = make_map_div(ddf,trips,direction,suff)
     memb_fig = make_memb_fig(ddf,suff=suff)
-    return [detail_cards_div_children,daily_fig,map_div,memb_fig]
+    
+    return [date,detail_cards_div_children,daily_fig,map_div,memb_fig]
 
 
 # Update details div2
-@app.callback([Output('detail-cards-div2','children'),Output('daily-graph2','figure'),
+@app.callback([Output('date-header2','children'),
+               Output('detail-cards-div2','children'),Output('daily-graph2','figure'),
                Output('map-div2','children'),Output('memb-graph2','figure')],
               [Input("filter-meta-div2",'children')],
              )
@@ -495,12 +489,13 @@ def daily_div_callback2(filter_data):
         
     trips = False if filter_data['stations'] is None else True
     direction = filter_data['direction']
+    date = date_2_str(filter_data['date'])
     
     detail_cards_div_children=make_detail_cards(ddf,wdf,suff=suff)
     daily_fig = make_daily_fig(ddf,suff=suff)
     map_div = make_map_div(ddf,trips,direction,suff)
     memb_fig = make_memb_fig(ddf,suff=suff)
-    return [detail_cards_div_children,daily_fig,map_div,memb_fig]
+    return [date,detail_cards_div_children,daily_fig,map_div,memb_fig]
 
 
   
@@ -521,13 +516,13 @@ def toggle_date_modal(n_clicks,go_n_clicks,clickData,selectedData):
         
     
 @app.callback(Output('date-modal2','is_open'),
-               [Input('compare-button','n_clicks'),Input('go-button2','n_clicks')]
+               [Input('date-button2','n_clicks'),Input('go-button2','n_clicks')]
               )
 def toggle_date_modal2(n_clicks,go_n_clicks):
 
     if n_clicks is None and go_n_clicks is None:
         raise PreventUpdate
-    if dash.callback_context.triggered[0]['prop_id'] == 'compare-button.n_clicks':
+    if dash.callback_context.triggered[0]['prop_id'] == 'date-button2.n_clicks':
         return True
     if dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
         return False

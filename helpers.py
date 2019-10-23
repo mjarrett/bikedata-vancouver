@@ -76,3 +76,16 @@ def convert_dates(start_date,end_date):
         date = (start_date[:10], end_date[:10])
     return date
 
+def date_2_str(date):
+    
+    if date == None:
+        return None
+    
+    if len(date) == 2:
+        d1 = datetime.strptime(date[0],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        d2 = datetime.strptime(date[1],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        return f"{d1} to  {d2}"
+    else:
+        d1 = datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        return f"{d1}"
+
