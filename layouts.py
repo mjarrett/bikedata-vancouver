@@ -27,7 +27,11 @@ def make_detail_cards(df=None,wdf=None,suff=''):
     if df is None:
         return None
     
-    
+    if suff == '':
+        color = 'primary'
+    elif suff == '2':
+        color = 'success'
+        
     start_date = df['Departure'].iloc[0].strftime('%Y-%m-%d')
     stop_date  = df['Departure'].iloc[-1].strftime('%Y-%m-%d')
     
@@ -60,17 +64,17 @@ def make_detail_cards(df=None,wdf=None,suff=''):
 
 
         dbc.CardColumns([
-            make_card("Total trips", f"{n_trips:,}"),
-            make_card("Average trip distance",f"{int(avg_dist):,} km"),
-            make_card("Daily high temp",f"{avg_daily_high:.1f} °C"),
-            make_card("Daily precipitation",f"{avg_daily_pricip:.1f} mm"),
+            make_card("Total trips", f"{n_trips:,}",color=color),
+            make_card("Average trip distance",f"{int(avg_dist):,} km",color=color),
+            make_card("Daily high temp",f"{avg_daily_high:.1f} °C",color=color),
+            make_card("Daily precipitation",f"{avg_daily_pricip:.1f} mm",color=color),
 
 
         ]),
 
         dbc.CardColumns([
-            make_card("Busiest departure station",f"{busiest_dep}"),
-            make_card("Busiest return station",f"{busiest_ret}")
+            make_card("Busiest departure station",f"{busiest_dep}",color=color),
+            make_card("Busiest return station",f"{busiest_ret}",color=color)
 
         ])
     ])
@@ -189,7 +193,7 @@ def make_map_div(df=None,trips=False,direction='start',suff=""):
 
                 dcc.Graph(
                     id=f'map-graph{suff}',
-                    figure=make_trips_map(df,direction=direction) if trips else make_station_map(df,direction=direction)
+                    figure=make_trips_map(df,direction=direction) if trips else make_station_map(df,direction=direction,suff=suff)
 
                 )
             ])

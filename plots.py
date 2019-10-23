@@ -115,6 +115,10 @@ def make_timeseries_fig(thdf, date=None, date2=None):
 def make_station_map(df=None, direction='start', suff=""):
     log(f'make_station_map{suff}')
       
+    if suff == "":
+        color = c_blue
+    elif suff == "2":
+        color = c_green
     
     # https://plot.ly/python/mapbox-layers/
     sdf = geopandas.read_file(f'./data/stations_df.geojson')
@@ -156,7 +160,7 @@ def make_station_map(df=None, direction='start', suff=""):
                                    lon=trips_df['long'],
                                    text=text,   # NOTE: text must be in specific format so it can be parsed by callback function
                                    hoverinfo='text',
-                                   marker={'color':c_blue,
+                                   marker={'color':color,
                                            'size':trips_df['trips'],
                                            'sizemode':'area',
                                            'sizeref':2.*max(trips_df['trips'])/(40.**2),
@@ -190,6 +194,10 @@ def make_trips_map(df,direction='start',suff=""):
     log(f'make_trips_map{suff}')
     # https://plot.ly/python/mapbox-layers/
 
+    if suff == "":
+        color = c_blue
+    elif suff == "2":
+        color = c_green
     
     cdf = mobi.make_con_df(df)
 
@@ -214,7 +222,7 @@ def make_trips_map(df,direction='start',suff=""):
                                lon=cdf["stop long"],
                                text=cdf["stop station"],
                                hoverinfo='text',
-                               marker={'size':4,
+                               marker={'size':4
                                        }
                                    )
                   )
@@ -253,6 +261,12 @@ def make_trips_map(df,direction='start',suff=""):
 def make_daily_fig(df=None, suff=""):
     log(f"make_daily_fig{suff}")
 
+    
+    if suff == "":
+        color = c_blue
+    elif suff == "2":
+        color = c_green
+    
     if df is None:
         trips_df = pd.DataFrame(columns=[0,1])
   
@@ -268,7 +282,7 @@ def make_daily_fig(df=None, suff=""):
     data = [go.Bar(
         x=trips_df['Time'],
         y=trips_df['Trips'],
-        marker={'color':c_blue}
+        marker={'color':color}
             )
        ]
     layout = go.Layout(#title='Hourly Mobi Trips',
@@ -295,6 +309,8 @@ def make_daily_fig(df=None, suff=""):
 
 def make_memb_fig(df=None,suff=""):
     log(f"make_memb_fig{suff}")
+    
+    
     if df is None:
         return go.Figure(data=[go.Pie(labels=['1','2'], values=[10,20], hole=.3)])
     
