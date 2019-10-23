@@ -106,7 +106,8 @@ def make_timeseries_fig(thdf, date=None, date2=None):
                     x=trips_rdf['Date'],
                     y=trips_rdf['Trips'],
                     name="Rolling average",
-                    marker_color = c_cyan
+                    marker_color = c_cyan,
+                    hoverinfo = 'skip'
                     )
                  )
     
