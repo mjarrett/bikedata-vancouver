@@ -148,12 +148,12 @@ def make_detail_div():
         
             dbc.Col(width=6, id="explore-div", className=startclass, children=[
                 dbc.Button("Explore Data", id=f'data-button'),
-                make_data_modal(suff=""),
+                html.Div(id="modal-div", children=make_data_modal(suff="")),
             ]),
         
             dbc.Col(width=6, id="explore-div2", className=startclass, children=[
                 dbc.Button("Explore Data", id=f'data-button2'),
-                make_data_modal(suff="2"),
+                html.Div(id="modal-div2", children=make_data_modal(suff="2")),
             ]),
             
 
