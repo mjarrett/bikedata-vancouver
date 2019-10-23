@@ -52,7 +52,7 @@ def filter_ddf(df, date=None, cats=None, stations=None, direction='both'):
                                            
     return df
 
-def convert_dates(start_date,end_date,start_date2,end_date2):
+def convert_dates(start_date,end_date):
 #     if start_date2 is not None:
 #         if end_date2 is not None and (start_date2 != end_date2):
 #             date2 = (start_date2[:10], end_date2[:10])
@@ -61,12 +61,12 @@ def convert_dates(start_date,end_date,start_date2,end_date2):
 #     else:
 #         date2 = None
     
-    if start_date2 is None:
-        date2 = None
-    elif (end_date2 is None) or  (start_date2 == end_date2):
-        date2 = start_date2[:10]
-    else:
-        date2 = (start_date2[:10], end_date2[:10])
+#     if start_date2 is None:
+#         date2 = None
+#     elif (end_date2 is None) or  (start_date2 == end_date2):
+#         date2 = start_date2[:10]
+#     else:
+#         date2 = (start_date2[:10], end_date2[:10])
         
     if start_date is None:
         date = None
@@ -74,5 +74,5 @@ def convert_dates(start_date,end_date,start_date2,end_date2):
         date = start_date[:10]
     else:
         date = (start_date[:10], end_date[:10])
-    return date,date2
+    return date
 

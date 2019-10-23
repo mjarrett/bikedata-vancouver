@@ -128,12 +128,12 @@ summary_jumbo = dbc.Jumbotron(
         html.P(
             f"Data available from {startdate_str} to {enddate_str}"
         ),
-        html.P(dbc.Button("Learn more", color="primary"), className="lead"),
+        html.P(dbc.Button("Learn more", id='jumbo-button', color="primary"), className="lead"),
     ]
 )
 
-filter_data = json.dumps({'date':None, 'cats':None, 'stations':None, 'direction':'start',
-                          'date2':None,'cats2':None,'stations2':None,'direction2':'start'})
+filter_data = json.dumps({'date':None, 'cats':None, 'stations':None, 'direction':'start'})                          
+filter_data2 = json.dumps({'date':None,'cats':None,'stations':None,'direction':'start'})
 
 main_div = dbc.Row(children=[
     dbc.Col([
@@ -167,27 +167,27 @@ main_div = dbc.Row(children=[
             dbc.ModalBody([
                 html.Div(id="filter-meta-div", children=filter_data, className='d-none'),
 
-                    dbc.FormGroup([
-                                dcc.DatePickerRange(
-                                    id='datepicker',
-                                    min_date_allowed=startdate,
-                                    max_date_allowed=enddate,
-                                    #initial_visible_month = '2018-01-01',
-                                    minimum_nights = 0,
-                                    clearable = True,
-                                ),
+                dbc.FormGroup([
+                            dcc.DatePickerRange(
+                                id='datepicker',
+                                min_date_allowed=startdate,
+                                max_date_allowed=enddate,
+                                #initial_visible_month = '2018-01-01',
+                                minimum_nights = 0,
+                                clearable = True,
+                            ),
 
 
-                                dbc.Checklist(id='filter-dropdown',
+                            dbc.Checklist(id='filter-dropdown',
 
-                                    options=[{'label':memtype,'value':memtype} for memtype in memtypes],
-                                    value=list(memtypes)
-                                ),
+                                options=[{'label':memtype,'value':memtype} for memtype in memtypes],
+                                value=list(memtypes)
+                            ),
 
-                    ]),
-                    dbc.Tooltip("Pick a date or select a range of days to see details.",
-                                            target="go-button"),
-                    dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
+                ]),
+                dbc.Tooltip("Pick a date or select a range of days to see details.",
+                                        target="go-button"),
+                dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
             ])
         ]),
         
@@ -195,31 +195,42 @@ main_div = dbc.Row(children=[
         dbc.Modal(size='md', id='date-modal2', children=[
             dbc.ModalHeader("Pick a date or date range"),
             dbc.ModalBody([
-                    dbc.FormGroup(children=[
-                        dcc.DatePickerRange(
-                            id='datepicker2',
-                            min_date_allowed=startdate,
-                            max_date_allowed=enddate,
-                            initial_visible_month = '2018-01-01',
-                            minimum_nights = 0,
-                            clearable = True,
-                            ),
-
-                        dbc.Checklist(id='filter-dropdown2',
-
-                            options=[{'label':memtype,'value':memtype} for memtype in memtypes],
-                            value=list(memtypes)
+                html.Div(id="filter-meta-div2", children=filter_data2, className='d-none'),
+                dbc.FormGroup(children=[
+                    dcc.DatePickerRange(
+                        id='datepicker2',
+                        min_date_allowed=startdate,
+                        max_date_allowed=enddate,
+                        initial_visible_month = '2018-01-01',
+                        minimum_nights = 0,
+                        clearable = True,
                         ),
-                    ]),
-                    dbc.Tooltip("Pick a date or select a range of days to see details.",
-                                            target="go-button2"),
-                    dbc.Button("Go    ", id='go-button2', color="success", outline=True, block=True),
-                ]) 
+
+                    dbc.Checklist(id='filter-dropdown2',
+
+                        options=[{'label':memtype,'value':memtype} for memtype in memtypes],
+                        value=list(memtypes)
+                    ),
+                ]),
+                dbc.Tooltip("Pick a date or select a range of days to see details.",
+                                        target="go-button2"),
+                dbc.Button("Go    ", id='go-button2', color="success", outline=True, block=True),
+            ]) 
         ])
     ])
 ])
 
-detail_div = dbc.Row(id='detail-div', className="border", children=make_detail_div(None,None) ) 
+
+detail_div = dbc.Row(id='detail-div', className='', children=make_detail_div())
+            
+
+#detail_div = dbc.Row(id='detail-div', className='border', children=[
+#                make_detail_col(None,None),
+#            ])
+#detail_div2 = dbc.Row(id='detail-div2', className='border',children=[
+#                make_detail_col(None,None,suff='2')
+#            ])
+#detail_div = dbc.Row(id='detail-div', className="border", children=make_detail_div(None,None) ) 
 # detail_div = dbc.Row(id='detail-div', className="border", children="" )
 
 
@@ -233,6 +244,7 @@ body = dbc.Container(id="mainContainer",children=[
     main_div,
     
     detail_div,
+    
         
 ])  
 
@@ -244,77 +256,120 @@ app.layout = html.Div([header,body,footer])
 #
 #######################################################################################
 
-@app.callback(Output('detail-col','className'),
-              [Input('go-button','n_clicks')]
+
+@app.callback(Output('detail-div-status','children'),
+              [Input('go-button','n_clicks')],
              )
-def hide_detail_on_load(n_clicks):
+def update_detail_status(n_clicks):
+    log("**update_detail_status callback")
+    log(f"n clicks: {n_clicks}")
     if n_clicks is None:
+        log("d-none")
         return "d-none"
+    else:
+        log("")
+        return ""
+
+@app.callback(Output('detail-div-status2','children'),
+              [Input('go-button2','n_clicks')]
+             )
+def update_detail_status2(n_clicks):
+    log("**update_detail_status callback2")
+    log(f"n clicks: {n_clicks}")
+    if n_clicks is None:
+        log("d-none")
+        return "d-none"
+    else:
+        log("")
+        return ""
+    
+@app.callback([Output('header-div','className'), Output('detail-cards-div','className'),
+               Output('daily-div','className'), Output('map-div','className'),
+               Output('memb-div','className'), Output('explore-div','className'),
+               Output('header-div2','className'), Output('detail-cards-div2','className'),
+               Output('daily-div2','className'), Output('map-div2','className'),
+               Output('memb-div2','className'), Output('explore-div2','className')],
+               #[Input('go-button','n_clicks'), Input('filter-meta-div','children'), Input('filter-meta-div2','children')]
+#                [Input('go-button','n_clicks'), Input('go-button2','n_clicks')],
+               [Input('detail-div-status','children'), Input('detail-div-status2','children')]
+             ) 
+# def toggle_div_visibility(n_clicks, filter_data, filter_data2):
+def toggle_div_visibility(status, status2):
+
+    log('**toggle_div_visibility callback')
+    log(status, status2)
+    
+    if status == 'd-none':
+        log("Hidding both")
+        date_1_divs = ["d-none"]*6
+        date_2_divs = ["d-none"]*6       
+        
+    elif status2 == 'd-none':
+        log("show date1")
+        date_1_divs = [""]*6
+        date_2_divs = ["d-none"]*6
+    else:
+        log("show both")
+        date_1_divs = [""]*6
+        date_2_divs = [""]*6
+        
+    return date_1_divs + date_2_divs
+
 
 @app.callback(Output('timeseries-graph','figure'),
-             [Input('filter-meta-div','children')]
+             [Input('filter-meta-div','children'),Input('filter-meta-div2','children')]
              ) 
-def timeseries_callback(filter_data):
+def timeseries_callback(filter_data,filter_data2):
     log('timeseries_callback')
     
     filter_data = json.loads(filter_data)
- 
-    return make_timeseries_fig(thdf,filter_data['date'],filter_data['date2'])
+    filter_data2 = json.loads(filter_data2)
+
+    return make_timeseries_fig(thdf,filter_data['date'],filter_data2['date'])
 
 
 @app.callback([Output('datepicker','start_date'), Output('datepicker','end_date'),
                Output('datepicker','initial_visible_month')],
               [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')],
-              [State("filter-meta-div",'children')]
+              [State("filter-meta-div",'children'),State("filter-meta-div2",'children')]
              )
-def update_datepicker_from_graph(clickData, selectedData, filter_data):
+def update_datepicker_from_graph(clickData, selectedData, filter_data, filter_data2):
     
     if clickData is None and selectedData is None:
         raise PreventUpdate
         
-    filter_data = json.loads(filter_data)
+#     filter_data = json.loads(filter_data)
+#     filter_data2 = json.loads(filter_data2)
     
     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
         date = clickData['points'][0]['x']
         return (date, date, date)
     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
         dates = [x['x'] for x in selectedData['points'] ]
-        log(dates)
         return (dates[0], dates[-1],dates[0])
     
     else:
         raise PreventUpdate    
     
 
-@app.callback(Output('go-button','outline'),
-              [Input('datepicker','start_date'), Input('datepicker','end_date')]
-             )
-def activate_go_button(a,b):
-    if a is None and b is None:
-        raise PreventUpdate
-    return False
 
 
 
         
 # Keep track of filter
 @app.callback(Output("filter-meta-div",'children'),
-              [Input('go-button','n_clicks'),Input('go-button2','n_clicks'),
-               Input('map-graph','clickData'),Input('map-graph2','clickData'),
-               Input('stations-radio','value'),Input('stations-radio2','value')],
+              [Input('go-button','n_clicks'),
+               Input('map-graph','clickData'),
+               Input('stations-radio','value')],
               [State("filter-meta-div",'children'),
                State('datepicker','start_date'), 
                State('datepicker','end_date'),
-               State('filter-dropdown','value'),
-               State('datepicker2','start_date'), 
-               State('datepicker2','end_date'),
-               State('filter-dropdown2','value')]
+               State('filter-dropdown','value')]
              )
-def update_filter_meta_div(n_clicks,n_clicks2,clickData,clickData2,radio_value,radio_value2, 
+def update_filter_meta_div(n_clicks,clickData,radio_value, 
                            filter_data,
-                           start_date,end_date,filter_values,
-                           start_date2,end_date2,filter_values2):
-    if clickData is None and clickData2 is None and n_clicks is None:
+                           start_date,end_date,filter_values):
+    if clickData is None and n_clicks is None:
         raise PreventUpdate
     
     log("update_filter_meta_div")
@@ -323,28 +378,16 @@ def update_filter_meta_div(n_clicks,n_clicks2,clickData,clickData2,radio_value,r
     
     # IF go-button is triggered, update all values
     if  dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
-        date,date2 = convert_dates(start_date,end_date,start_date2,end_date2)
-        
-        filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start',
-                          'date2':None,'cats2':filter_values2,'stations2':None,'direction2':'start'}
+        date = convert_dates(start_date,end_date)
+         
+        filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start'}
 
-    # IF go-button2 is triggered, update all values
-    if  dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
-        date,date2 = convert_dates(start_date,end_date,start_date2,end_date2)
-        
-        filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start',
-                          'date2':date2,'cats2':filter_values2,'stations2':None,'direction2':'start'}
-
-        
+      
     # If map #1 is clicked           
     if clickData is not None:
         station = clickData['points'][0]['text'].split('<')[0].strip()
         filter_data['stations'] = [station]
-        
-    # If map #2 is clicked
-    if clickData2 is not None:
-        station2 = clickData2['points'][0]['text'].split('<')[0].strip()
-        filter_data['stations2'] = [station2]
+       
         
     # If radio1 is clicked
     if  dash.callback_context.triggered[0]['prop_id'] == 'stations-radio.value':
@@ -353,47 +396,111 @@ def update_filter_meta_div(n_clicks,n_clicks2,clickData,clickData2,radio_value,r
         else:
             filter_data['direction'] = radio_value
             
-    # If radio2 is clicked
-    if  dash.callback_context.triggered[0]['prop_id'] == 'stations-radio2.value':
-        if radio_value2 == filter_data['direction2']:
-            raise PreventUpdate
-        else:
-            filter_data['direction2'] = radio_value2
         
     return json.dumps(filter_data)
+
+
+# Keep track of filter2
+@app.callback(Output("filter-meta-div2",'children'),
+              [Input('go-button2','n_clicks'),
+               Input('map-graph2','clickData'),
+               Input('stations-radio2','value')],
+              [State("filter-meta-div2",'children'),
+               State('datepicker2','start_date'), 
+               State('datepicker2','end_date'),
+               State('filter-dropdown2','value')]
+             )
+def update_filter_meta_div2(n_clicks,clickData,radio_value, 
+                           filter_data,
+                           start_date,end_date,filter_values):
+    if clickData is None and n_clicks is None:
+        raise PreventUpdate
     
+    log("update_filter_meta_div2")
+    log("trigger: ",dash.callback_context.triggered)  # last triggered
+    filter_data = json.loads(filter_data)
+    
+    # If go-butto2 is triggered, update all values
+    if  dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
+        date = convert_dates(start_date,end_date)
+        
+        filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start'}
+
+      
+    # If map2 is clicked           
+    if clickData is not None:
+        station = clickData['points'][0]['text'].split('<')[0].strip()
+        filter_data['stations'] = [station]
+       
+        
+    # If radio2 is clicked
+    if  dash.callback_context.triggered[0]['prop_id'] == 'stations-radio2.value':
+        if radio_value == filter_data['direction']:
+            raise PreventUpdate
+        else:
+            filter_data['direction'] = radio_value
+            
+        
+    return json.dumps(filter_data)
         
 # Update details div
-@app.callback([Output('detail-div','children'), Output('detail-div','className')],
+@app.callback([Output('detail-cards-div','children'),Output('daily-graph','figure'),
+               Output('map-div','children'),Output('memb-graph','figure')],
               [Input("filter-meta-div",'children')],
              )
 def daily_div_callback(filter_data):
     filter_data = json.loads(filter_data)
+    suff = ""
     
     if filter_data['date'] is None:
         raise PreventUpdate
         
     log("daily_div_callback")
     
+    ddf = filter_ddf(df,date=filter_data['date'], 
+                     stations=filter_data['stations'], 
+                     cats=filter_data['cats'], 
+                     direction=filter_data['direction'])
+
+        
+    trips = False if filter_data['stations'] is None else True
+    direction = filter_data['direction']
+    
+    detail_cards_div_children=make_detail_cards(ddf,wdf,suff=suff)
+    daily_fig = make_daily_fig(ddf,suff=suff)
+    map_div = make_map_div(ddf,trips,direction,suff)
+    memb_fig = make_memb_fig(ddf,suff=suff)
+    return [detail_cards_div_children,daily_fig,map_div,memb_fig]
+
+
+# Update details div2
+@app.callback([Output('detail-cards-div2','children'),Output('daily-graph2','figure'),
+               Output('map-div2','children'),Output('memb-graph2','figure')],
+              [Input("filter-meta-div2",'children')],
+             )
+def daily_div_callback2(filter_data):
+    filter_data = json.loads(filter_data)
+    suff = "2"
+    
+    if filter_data['date'] is None:
+        raise PreventUpdate
+        
+    log("daily_div_callback2")
     
     ddf = filter_ddf(df,date=filter_data['date'], 
                      stations=filter_data['stations'], 
                      cats=filter_data['cats'], 
                      direction=filter_data['direction'])
-    if filter_data['date2'] is not None:
-        ddf2 = filter_ddf(df,date=filter_data['date2'], 
-                         stations=filter_data['stations2'], 
-                         cats=filter_data['cats2'], 
-                         direction=filter_data['direction2'])
-    else:
-        ddf2 = None
+
         
     trips = False if filter_data['stations'] is None else True
-    trips2 = False if filter_data['stations2'] is None else True
+    direction = filter_data['direction']
     
-    return [make_detail_div(ddf,wdf=wdf,df2=ddf2,trips=trips,trips2=trips2,
-                            direction=filter_data['direction'],direction2=filter_data['direction2']),
-            "border"]
+    detail_cards_div_children=make_detail_cards(ddf,wdf,suff=suff)
+    daily_fig = make_daily_fig(ddf,suff=suff)
+    map_div = make_map_div(ddf,trips,direction,suff)
+    memb_fig = make_memb_fig(ddf,suff=suff)
+    return [detail_cards_div_children,daily_fig,map_div,memb_fig]
 
 
   

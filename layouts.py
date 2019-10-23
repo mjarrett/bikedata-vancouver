@@ -23,7 +23,7 @@ def make_card(title,content,subcontent=None,color='primary'):
 
         ])  # Card
         
-def make_detail_cards(df,wdf,suff=''):
+def make_detail_cards(df=None,wdf=None,suff=''):
     if df is None:
         return None
     
@@ -56,195 +56,120 @@ def make_detail_cards(df,wdf,suff=''):
     avg_daily_pricip = wdf['Total Precipmm'].mean()
     
 
-    if start_date != stop_date:
-        output =  dbc.Col(style={'width':'100%'},children=[
-                
-                dbc.CardColumns([
-
-                    make_card("Total trips",f"{n_trips:,}"),
-                    make_card("Average trip distance",f"{int(avg_dist):,} km"),
-                    make_card("Average trips per day",f"{int(avg_trips):,}"),
-                    make_card("Daily high temp",f"{avg_daily_high:.1f} °C"),
-                    make_card("Daily precipitation",f"{avg_daily_pricip:.1f} mm"),
+    output =  dbc.Col(style={'width':'100%'},children=[
 
 
-                ]),
-
-                dbc.CardColumns([
-                    make_card("Busiest departure station",f"{busiest_dep}"),
-                    make_card("Busiest return station",f"{busiest_ret}")
-
-                ])
-            ])
-    else:
-        output =  dbc.Col(style={'width':'100%'},children=[
-            
-            
-            dbc.CardColumns([
-                make_card("Total trips", f"{n_trips:,}"),
-                make_card("Average trip distance",f"{int(avg_dist):,} km"),
-                make_card("Daily high temp",f"{avg_daily_high:.1f} °C"),
-                make_card("Daily precipitation",f"{avg_daily_pricip:.1f} mm"),
+        dbc.CardColumns([
+            make_card("Total trips", f"{n_trips:,}"),
+            make_card("Average trip distance",f"{int(avg_dist):,} km"),
+            make_card("Daily high temp",f"{avg_daily_high:.1f} °C"),
+            make_card("Daily precipitation",f"{avg_daily_pricip:.1f} mm"),
 
 
-            ]),
+        ]),
 
-            dbc.CardColumns([
-                make_card("Busiest departure station",f"{busiest_dep}"),
-                make_card("Busiest return station",f"{busiest_ret}")
+        dbc.CardColumns([
+            make_card("Busiest departure station",f"{busiest_dep}"),
+            make_card("Busiest return station",f"{busiest_ret}")
 
-            ])
         ])
+    ])
     
     return output
 
-def make_detail_cols(df,df2,wdf,trips,trips2,direction,direction2):
-    
 
-    
-    res_row = dbc.Row([
-                    dbc.Col(width=6,children=[
-                        make_detail_cards(df,wdf)
-                    ]),
-                    dbc.Col(width=6,children=[
-                        make_detail_cards(df2,wdf,suff='2')
-                    ])
-                ])
-        
-    daily_row = dbc.Row([
-                    dbc.Col(width=6,children=[
-                        dcc.Graph(
-                            id=f'daily-graph',
-                            figure=make_daily_fig(df)
-                            )
-                    ]),
-                    dbc.Col(width=6,children=[
-                       dcc.Graph(
-                            id=f'daily-graph2',
-                            figure=make_daily_fig(df2,suff='2')
-                           )
-                    ])
-                ])
-    map_row = dbc.Row([
-                dbc.Col([make_map_div(df,trips,direction)]), 
-                dbc.Col([make_map_div(df2,trips2,direction2,suff='2')])
-              ])
-    
-    memb_row = dbc.Row([
-                  dbc.Col(children=[
-                    dcc.Graph(
-                        id=f'memb-graph',
-                        figure=make_memb_fig(df)
-                    )
-                  ]),
-                  dbc.Col(children=[
-                    dcc.Graph(
-                        id=f'memb-graph2',
-                        figure=make_memb_fig(df2,suff='2')
-                    )
-                  ])
-                ])
-    
-    button_row = dbc.Row(children=[
-                    dbc.Col(width=6, children=[
-                        dbc.Button("Raw Data", id='data-button'),
-                        make_data_modal(df)
-                    ]),
-                    dbc.Col(width=6, children=[
-                        dbc.Button("Raw Data", id='data-button2'),
-                        make_data_modal(df,suff='2')
-                    ])
-            ])
-    
-    return dbc.Col([res_row, daily_row, map_row, memb_row, button_row])
 
-def make_detail_col(df,wdf,trips,direction):
-    
-    #start_date = df['Departure'].iloc[0].strftime('%Y-%m-%d')
-    #stop_date  = df['Departure'].iloc[-1].strftime('%Y-%m-%d') 
-    if df is None:
-        start_date_str = 'test'
-        stop_date_str = 'test2'
-    else:
-        start_date_str = df['Departure'].iloc[0].strftime('%b %d, %Y')
-        stop_date_str = df['Departure'].iloc[-1].strftime('%b %d, %Y')    
-    
-    header_str = f"{start_date_str} -> {stop_date_str}" if start_date_str != stop_date_str else f"{start_date_str}"
-    
-    
-    return dbc.Col(id='detail-col',children=[
+def make_detail_div():
+    log(f"make_detail_div")
+    startclass = ''
+   
+    output =  [
         
-            dbc.Row([
-                
-                    html.H2(header_str,className="display-5"),
-                    dbc.Tooltip("Pick a date or select a range of days to see comparison.",
-                                            target="compare-button"),
-                    dbc.Button("Compare", id='compare-button', color="success"),
-            ]),
-            
-            #dbc.Row(id=f'detail-cards',children=make_detail_cards(df,wdf)),
-            
-            dbc.Row([
-                
-                dbc.Col(width=6, children=make_detail_cards(df,wdf)),
-                    
-                
-                dbc.Col(width=6, children=[
-                    dcc.Graph(
-                        id=f'daily-graph',
-                        figure=make_daily_fig(df)
-                    ), 
-                ])
-            ]), #Row
+        html.Div(id='detail-div-status', className='d-none', children=startclass),
+        html.Div(id='detail-div-status2', className='d-none', children=startclass),
         
-            dbc.Row(children=[
-                
-                dbc.Col(id=f'map_container', children=make_map_div(df,trips,direction)), #Col
-                
-                dbc.Col(children=[
-                    dcc.Graph(
-                        id=f'memb-graph',
-                        figure=make_memb_fig(df)
-                    )
+        dbc.Col(width=12, children=[
+            dbc.Row([
+                dbc.Col(width=6, id="header-div", className=startclass, children=[
+
+                        html.H2("",id="date-header", className="display-3"),
+                        dbc.Tooltip("Pick a date or select a range of days to see comparison.",
+                                                target="compare-button"),
+                        dbc.Button("Compare", id=f'compare-button', color="success"),
+                ]),
+
+                dbc.Col(width=6, id="header-div2", className=startclass, children=[
+
+                        html.H2("",id="date-header2", className="display-3"),
+                        #dbc.Tooltip("Pick a date or select a range of days to see comparison.",
+                        #                        target="compare-button"),
+                        #dbc.Button("Compare", id=f'compare-button2', color="success"),
                 ]),
             ]),
+        ]),
+                            
+            dbc.Col(width=6, id=f'detail-cards-div', className=startclass, children=make_detail_cards(suff="")),
+            dbc.Col(width=6, id=f'detail-cards-div2', className=startclass, children=make_detail_cards(suff="2")),
+
+            dbc.Col(width=6, id='daily-div', className=startclass, children=[
+                dcc.Graph(
+                    id=f'daily-graph',
+                    figure=make_daily_fig(suff="")
+                ), 
+            ]),
         
-            dbc.Row(children=[
-                dbc.Button("Explore Data", id='data-button'),
-                make_data_modal(df),
+            dbc.Col(width=6, id='daily-div2', className=startclass, children=[
+                dcc.Graph(
+                    id=f'daily-graph2',
+                    figure=make_daily_fig(suff="2")
+                ), 
+            ]),
+        
+                
+            dbc.Col(width=6,id=f'map-div', className=startclass, children=make_map_div(suff="")), #Col
+            dbc.Col(width=6,id=f'map-div2',className=startclass,children=make_map_div(suff="2")), #Col
+
+            dbc.Col(width=6, id='memb-div', className=startclass, children=[
+                dcc.Graph(
+                    id=f'memb-graph',
+                    figure=make_memb_fig(suff="")
+                )
+            ]),
+            dbc.Col(width=6, id='memb-div2', className=startclass, children=[
+                dcc.Graph(
+                    id=f'memb-graph2',
+                    figure=make_memb_fig(suff="2")
+                )
+            ]),
+        
+            dbc.Col(width=6, id="explore-div", className=startclass, children=[
+                dbc.Button("Explore Data", id=f'data-button'),
+                make_data_modal(suff=""),
+            ]),
+        
+            dbc.Col(width=6, id="explore-div2", className=startclass, children=[
+                dbc.Button("Explore Data", id=f'data-button2'),
+                make_data_modal(suff="2"),
             ]),
             
-            # Hidden div to hide dummy comparison objects
-            dbc.Row(className='d-none',children=[
-                
-                dcc.Graph(
-                            id=f'daily-graph2',
-                            figure=make_daily_fig(df,suff='2')
-                           ),
-                
-                make_map_div(df,suff='2'),
-                
-                dcc.Graph(
-                        id=f'memb-graph2',
-                        figure=make_memb_fig(df,suff='2')
-                    ),
-                dbc.Button("Raw Data", id='data-button2'),
-                make_data_modal(df,suff='2')
-            ])
 
-        ]) # Col
+        ] # Col
     
-def make_detail_div(df, wdf, df2=None,trips=False, trips2=False,direction='start',direction2='start'):
-    if df2 is None:
-        return make_detail_col(df,wdf,trips,direction)
-    if df2 is not None:
-        return make_detail_cols(df,df2,wdf,trips,trips2,direction,direction2)
+    #print(output)
+    return output
+    
+# def make_detail_div(df, wdf, df2=None,trips=False, trips2=False,direction='start',direction2='start'):
+#     if df2 is None:
+#         return make_detail_col(df,wdf,trips,direction)
+#     if df2 is not None:
+#         return make_detail_cols(df,df2,wdf,trips,trips2,direction,direction2)
         
-def make_map_div(df,trips=False,direction='start',suff=""):
+def make_map_div(df=None,trips=False,direction='start',suff=""):
     
     return html.Div([
-#                 html.Div(id=f'map-state{suff}', children="trips" if trips else "stations", style={'display':'none'}),
-                
+                html.Div(id=f'map-state{suff}', children="trips" if trips else "stations", style={'display':'none'}),
+                        
+        
                 html.Div(children=[
                     dbc.RadioItems(
                         id=f'stations-radio{suff}',
@@ -269,7 +194,7 @@ def make_map_div(df,trips=False,direction='start',suff=""):
                 )
             ])
 
-def make_data_modal(df, suff=""):
+def make_data_modal(df=None, suff=""):
     if df is None:
         df = pd.DataFrame()
         outfields = []

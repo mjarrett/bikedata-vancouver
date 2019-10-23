@@ -293,7 +293,7 @@ def make_daily_fig(df=None, suff=""):
     return fig
 
 
-def make_memb_fig(df,suff=""):
+def make_memb_fig(df=None,suff=""):
     log(f"make_memb_fig{suff}")
     if df is None:
         return go.Figure(data=[go.Pie(labels=['1','2'], values=[10,20], hole=.3)])
