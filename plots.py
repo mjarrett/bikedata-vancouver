@@ -202,9 +202,16 @@ def make_trips_map(df,direction='start',suff=""):
     
     cdf = mobi.make_con_df(df)
 
+    # Drop trips without station location data:
+    cdf = cdf[cdf['Departure lat'] > 1]
+    cdf = cdf[cdf['Return lat'] > 1]
+#     cdf['Departure lat'] = cdf['Departure coords'].map(lambda x: x[0])
+#     cdf['Departure long'] = cdf['Departure coords'].map(lambda x: x[1])
+#     cdf['Return lat'] = cdf['Return coords'].map(lambda x: x[0])
+#     cdf['Return long'] = cdf['Return coords'].map(lambda x: x[1]) 
     
-    mapdata = [go.Scattermapbox(lat=[cdf.iloc[i].loc["start coords"][0],cdf.iloc[i].loc["stop coords"][0]], 
-                               lon=[cdf.iloc[i].loc["start coords"][1],cdf.iloc[i].loc["stop coords"][1]],
+    mapdata = [go.Scattermapbox(lat=[cdf.iloc[i].loc["Departure lat"],cdf.iloc[i].loc["Return lat"]], 
+                               lon=[cdf.iloc[i].loc["Departure long"],cdf.iloc[i].loc["Return long"]],
                                mode='lines',
                                opacity=0.5,
                                line={
@@ -213,23 +220,19 @@ def make_trips_map(df,direction='start',suff=""):
                               ) for i in range(len(cdf)) ]
     
 
-#     sdf['lat'] = sdf.coordinates.map(lambda x: x[0])
-#     sdf['long'] = sdf.coordinates.map(lambda x: x[1])
-    cdf['start lat'] = cdf['start coords'].map(lambda x: x[0])
-    cdf['start long'] = cdf['start coords'].map(lambda x: x[1])
-    cdf['stop lat'] = cdf['stop coords'].map(lambda x: x[0])
-    cdf['stop long'] = cdf['stop coords'].map(lambda x: x[1])
-    mapdata.append(go.Scattermapbox(lat=cdf["stop lat"], 
-                               lon=cdf["stop long"],
-                               text=cdf["stop station"],
+
+
+    mapdata.append(go.Scattermapbox(lat=cdf["Return lat"], 
+                               lon=cdf["Return long"],
+                               text=cdf["Return station"],
                                hoverinfo='text',
                                marker={'size':4
                                        }
                                    )
                   )
-    mapdata.append(go.Scattermapbox(lat=cdf["start lat"], 
-                               lon=cdf["start long"],
-                               text=cdf["start station"],
+    mapdata.append(go.Scattermapbox(lat=cdf["Departure lat"], 
+                               lon=cdf["Departure long"],
+                               text=cdf["Departure station"],
                                hoverinfo='text',
                                marker={'size':4,
                                        }

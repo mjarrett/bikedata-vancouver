@@ -2,12 +2,6 @@
 "type": "FeatureCollection",
 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::26910" } },
 "features": [
-{ "type": "Feature", "properties": { "active": false, "name": "Hamilton & Robson", "neighbourhood": "Downtown" }, "geometry": { "type": "Point", "coordinates": [ 491631.722873441525735, 5458545.93372998945415 ] } },
-{ "type": "Feature", "properties": { "active": false, "name": "Thurlow & Pendrell", "neighbourhood": "West End" }, "geometry": { "type": "Point", "coordinates": [ 490496.181005145306699, 5458688.966354631818831 ] } },
-{ "type": "Feature", "properties": { "active": false, "name": "Richards & Robson", "neighbourhood": "Downtown" }, "geometry": { "type": "Point", "coordinates": [ 491444.418979600828607, 5458627.821433485485613 ] } },
-{ "type": "Feature", "properties": { "active": false, "name": "Heather & 16th", "neighbourhood": "South Cambie" }, "geometry": { "type": "Point", "coordinates": [ 491262.951798644964583, 5456015.59541742503643 ] } },
-{ "type": "Feature", "properties": { "active": false, "name": "14th & Ontario", "neighbourhood": "Mount Pleasant" }, "geometry": { "type": "Point", "coordinates": [ 492374.482529417204205, 5456196.818204689770937 ] } },
-{ "type": "Feature", "properties": { "active": false, "name": "Ontario & 16th", "neighbourhood": "Mount Pleasant" }, "geometry": { "type": "Point", "coordinates": [ 492342.572937438031659, 5456011.763754497282207 ] } },
 { "type": "Feature", "properties": { "active": true, "name": "10th & Cambie", "neighbourhood": "Mount Pleasant" }, "geometry": { "type": "Point", "coordinates": [ 491676.773044981411658, 5456642.177905998192728 ] } },
 { "type": "Feature", "properties": { "active": true, "name": "Burrard Station", "neighbourhood": "Downtown" }, "geometry": { "type": "Point", "coordinates": [ 491196.880501360457856, 5459242.543034512549639 ] } },
 { "type": "Feature", "properties": { "active": true, "name": "Yaletown-Roundhouse Station", "neighbourhood": "Downtown" }, "geometry": { "type": "Point", "coordinates": [ 491139.076789981219918, 5457985.84855118766427 ] } },
