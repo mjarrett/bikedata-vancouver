@@ -27,7 +27,7 @@ from layouts import *
 #df = prep_sys_df('./Mobi_System_Data.csv')
 log("==================")
 log("Loading data")
-df = pd.read_csv('./data/Mobi_System_Data_Prepped.csv')
+df = pd.read_csv('~/mobi-dash/data/Mobi_System_Data_Prepped.csv')
 memtypes = set(df['Membership Simple'])
 df.Departure = pd.to_datetime(df.Departure)
 df.Return = pd.to_datetime(df.Return)
@@ -41,7 +41,7 @@ startdate_str = startdate.strftime('%b %-d %Y')
 enddate_str = enddate.strftime('%b %-d %Y')
 
 log("Loading weather")  
-wdf = pd.read_csv('weather.csv',index_col=0)
+wdf = pd.read_csv('~/mobi-dash/data/weather.csv',index_col=0)
 wdf.index = pd.to_datetime(wdf.index)
  
 n_days = (enddate-startdate).days
@@ -62,6 +62,7 @@ tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
 external_stylesheets=[dbc.themes.BOOTSTRAP]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
 
 
 header = dbc.NavbarSimple(
