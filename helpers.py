@@ -46,6 +46,7 @@ def filter_ddf(df, date=None, cats=None, stations=None, direction='both'):
                 
     #sdf = geopandas.read_file(f'./data/stations_df.geojson')
     #df = mobi.add_station_coords(df,sdf)
+
     df = df.sort_values('Departure')
     
     log("Filter finished")
