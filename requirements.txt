@@ -20,7 +20,7 @@ kiwisolver==1.1.0
 lxml==4.4.1
 MarkupSafe==1.1.1
 matplotlib==3.1.1
--e git+git@github.com:mjarrett/mobisys.git@d331aadd09e6a129c7557420606a62bdf97f487c#egg=mobisys
+-e git+git@github.com:mjarrett/mobisys.git#egg=mobisys
 munch==2.3.2
 numpy==1.17.2
 pandas==0.25.1

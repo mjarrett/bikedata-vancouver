@@ -122,7 +122,7 @@ def make_station_map(df=None, direction='start', suff=""):
         color = c_green
     
     # https://plot.ly/python/mapbox-layers/
-    sdf = geopandas.read_file(f'./data/stations_df.geojson')
+    sdf = geopandas.read_file(f'/home/mjarrett/mobi-dash/data/stations_df.geojson')
     sdf = sdf.to_crs({'init': 'epsg:4326'})
     sdf['long'] = sdf.geometry.map(lambda x: x.x)
     sdf['lat'] = sdf.geometry.map(lambda x: x.y)
