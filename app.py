@@ -59,7 +59,7 @@ tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
 #
 #######################################################################################
     
-external_stylesheets=[dbc.themes.BOOTSTRAP]
+external_stylesheets=[dbc.themes.BOOTSTRAP,"https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
@@ -117,9 +117,10 @@ summary_cards = dbc.Row(className='p-3 justify-content-center', children=[
         
     ]) 
 
-summary_jumbo = dbc.Jumbotron(
+summary_jumbo = dbc.Jumbotron( 
     [
         html.H1("BikeData BC", className="display-3"),
+
         html.P(
             "This tool makes Mobi's trip data available for analysis",
             className="lead",
@@ -143,8 +144,8 @@ main_div = dbc.Row(children=[
 
             dbc.Col(children=[
 
-                dbc.Card(className="shadow justify-content-center",children=[
-                    dbc.CardHeader(),
+                dbc.Card(className="justify-content-center",children=[
+                    #dbc.CardHeader(),
                     dbc.CardBody([
                         dcc.Graph(
                             id='timeseries-graph',
@@ -550,10 +551,12 @@ def open_data_modal(n_clicks):
     
     
 @app.callback(Output("download-data-button",'href'),
-              [Input("download-data-button",'n_clicks')],
+              [Input("data-button",'n_clicks')],
               [State("data-table","data")]
              )
 def download_data(n_clicks,data):
+    if n_clicks is None:
+        raise PreventUpdate
     ddf = pd.DataFrame(data)
     csv_string = ddf.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
@@ -564,10 +567,12 @@ def download_data(n_clicks,data):
 
 
 @app.callback(Output("download-data-button2",'href'),
-              [Input("download-data-button2",'n_clicks')],
+              [Input("data-button2",'n_clicks')],
               [State("data-table2","data")]
              )
 def download_data2(n_clicks,data):
+    if n_clicks is None:
+        raise PreventUpdate
     ddf = pd.DataFrame(data)
     csv_string = ddf.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)

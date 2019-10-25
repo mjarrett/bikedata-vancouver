@@ -219,7 +219,10 @@ def make_data_modal(df=None, suff=""):
                     
                 ]),
                 dbc.ModalFooter(
-                    html.A(id=f"download-data-button{suff}", className="btn btn-primary", href="#", children="Download CSV")
+                    html.A(id=f"download-data-button{suff}", className="btn btn-primary", href="#", children=[
+                        html.Span(className="fa fa-download"),
+                        " Download CSV",
+                    ])
                 ),
             ],
             id=f"data-modal{suff}",

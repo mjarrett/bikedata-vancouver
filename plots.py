@@ -96,6 +96,11 @@ def make_timeseries_fig(thdf, date=None, date2=None):
                        margin=margin,
                        #autosize=True,
                        dragmode='select',
+                       legend=go.layout.Legend(
+                            x=0,
+                            y=1,
+                            traceorder="normal",
+                        )
             
                   )
 
