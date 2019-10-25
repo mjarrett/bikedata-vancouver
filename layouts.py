@@ -205,7 +205,11 @@ def make_data_modal(df=None, suff=""):
     else:
         outfields = ['Departure','Return','Departure station','Return station','Membership Type','Covered distance (m)','Duration (sec.)']
     
-    modal = dbc.Modal([
+    
+    if len(df) > 1000:
+        log("Selection has >10000 trips, truncating")
+        df = df.iloc[:1000]
+    modal = dbc.Modal(id=f"data-modal{suff}",size="xl",children=[
                 dbc.ModalHeader("Raw Data"),
                 dbc.ModalBody(children=[
                     dash_table.DataTable(
@@ -218,13 +222,14 @@ def make_data_modal(df=None, suff=""):
                     )    
                     
                 ]),
-                dbc.ModalFooter(
-                    html.A(id=f"download-data-button{suff}", className="btn btn-primary", href="#", children="Download CSV")
-                ),
-            ],
-            id=f"data-modal{suff}",
-            size="xl",
-            )
+                dbc.ModalFooter(children=[
+                    html.A(id=f"download-data-button{suff}", className="btn btn-primary", href="#", children=[
+                        html.Span(className="glyphicon glyphicon-download-alt"),
+                        html.Span("Download CSV")
+                    ]),
+                ]),
+            ])
+    
     return modal
 
 

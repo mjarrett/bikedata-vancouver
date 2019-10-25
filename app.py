@@ -554,6 +554,9 @@ def open_data_modal(n_clicks):
               [State("data-table","data")]
              )
 def download_data(n_clicks,data):
+    if n_clicks is None:
+        raise PreventUpdate
+        
     ddf = pd.DataFrame(data)
     csv_string = ddf.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
@@ -568,6 +571,9 @@ def download_data(n_clicks,data):
               [State("data-table2","data")]
              )
 def download_data2(n_clicks,data):
+    if n_clicks is None:
+        raise PreventUpdate
+        
     ddf = pd.DataFrame(data)
     csv_string = ddf.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
