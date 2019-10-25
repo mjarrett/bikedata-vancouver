@@ -44,8 +44,7 @@ def filter_ddf(df, date=None, cats=None, stations=None, direction='both'):
     if cats is not None:    
         df = df[df['Membership Simple'].isin(cats)]
                 
-    sdf = geopandas.read_file(f'./data/stations_df.geojson')
-    df = mobi.add_station_coords(df,sdf)
+
     df = df.sort_values('Departure')
     
     log("Filter finished")
