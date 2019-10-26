@@ -165,25 +165,36 @@ def make_data_modal(df=None, suff=""):
 
 def make_map_div(df=None,trips=False,direction='start',suff=""):
     
+    return_but_class = "pull-right" if trips else "d-none pull-right"
+    if suff == "":
+        return_but_class = return_but_class + " " + "color-primary"
+    elif suff == "2":
+        return_but_class = return_but_class + " " + "color-success"
+        
     return html.Div([
                 html.Div(id=f'map-state{suff}', children="trips" if trips else "stations", style={'display':'none'}),
                         
         
-                html.Div(children=[
-                    dbc.RadioItems(
-                        id=f'stations-radio{suff}',
-                        options=[
-                            {'label': 'Trip Start', 'value': 'start'},
-                            {'label': 'Trip End', 'value': 'stop'},
-                            {'label': 'Both', 'value': 'both'}
-                        ],
-                        value=direction,
-                        inline=True
-                    ),  
+                dbc.Row(children=[
+                    dbc.Col([
+                        dbc.RadioItems(
+                            id=f'stations-radio{suff}',
+                            options=[
+                                {'label': 'Trip Start', 'value': 'start'},
+                                {'label': 'Trip End', 'value': 'stop'},
+                                {'label': 'Both', 'value': 'both'}
+                            ],
+                            value=direction,
+                            inline=True
+                        ),  
+                    ]),
+                    dbc.Col(width=4, children=[
+                        dbc.Tooltip("Go back to all stations",
+                                        target=f'map-return-link{suff}'),
+                        dbc.Button(children="All stations", className=return_but_class, id=f'map-return-link{suff}')
+                    ]),
                 ]),
-                html.Div(id=f'map-meta-div{suff}',style={'display':'none'}, children=[
-                    html.A(children="<", id=f'map-return-link{suff}', title="Return to station map") 
-                ]),
+
 
 
                 dcc.Graph(
