@@ -202,9 +202,17 @@ def make_trips_map(df,direction='start',suff=""):
     elif suff == "2":
         color = c_green
     
+    
     cdf = mobi.make_con_df(df)
     cdf = cdf[cdf['Departure lat'] > 1]
     cdf = cdf[cdf['Return lat'] > 1]
+    
+    sdf = geopandas.read_file(f'./data/stations_df.geojson')
+    sdf = sdf.to_crs({'init': 'epsg:4326'})
+    sdf['long'] = sdf.geometry.map(lambda x: x.x)
+    sdf['lat'] = sdf.geometry.map(lambda x: x.y)
+    
+    
     
     mapdata = [go.Scattermapbox(lat=[cdf.iloc[i].loc["Departure lat"],cdf.iloc[i].loc["Return lat"]], 
                                lon=[cdf.iloc[i].loc["Departure long"],cdf.iloc[i].loc["Return long"]],
@@ -216,24 +224,62 @@ def make_trips_map(df,direction='start',suff=""):
                               ) for i in range(len(cdf)) ]
     
 
+    mapdata.append(go.Scattermapbox(lat=sdf['lat'],
+                                  lon=sdf['long'],
+                                  hoverinfo='text',
+                                  opacity=0.3,
+                                  marker={'size':4,
+                                          'color':c_black
+                                          }
+                                 )
+                 )
+    
 
-    mapdata.append(go.Scattermapbox(lat=cdf["Return lat"], 
-                               lon=cdf["Return long"],
-                               text=cdf["Return station"],
-                               hoverinfo='text',
-                               marker={'size':4
-                                       }
-                                   )
-                  )
-    mapdata.append(go.Scattermapbox(lat=cdf["Departure lat"], 
-                               lon=cdf["Departure long"],
-                               text=cdf["Departure station"],
-                               hoverinfo='text',
-                               marker={'size':4,
-                                       }
-                                   )
-                  )
+    if direction == 'start':
+        text = [ f"{name}<br>{trips} trips" for name,trips in zip(cdf['Return station'],cdf['trips']) ]
+        mapdata.append(go.Scattermapbox(lat=cdf["Return lat"], 
+                                   lon=cdf["Return long"],
+                                   #text=cdf["Return station"],
+                                   text=text,
+                                   hoverinfo='text',
+                                   marker={'size':cdf['trips'],
+                                           'color':color
+                                           }
+                                       )
+                      )
         
+    elif direction == 'stop':
+        text = [ f"{name}<br>{trips} trips" for name,trips in zip(cdf['Departure station'],cdf['trips']) ]
+        mapdata.append(go.Scattermapbox(lat=cdf["Departure lat"], 
+                                   lon=cdf["Departure long"],
+                                   #text=cdf["Departure station"],
+                                   text=text,    
+                                   hoverinfo='text',
+                                   marker={'size':cdf['trips'],
+                                           'color':color
+                                           }
+                                       )
+                      )
+        
+    elif direction == 'both':
+        
+        adf = mobi.make_ahdf(df).sum().astype(int)
+        adf = adf.reset_index()
+        adf.columns = ['station','trips']
+        adf = pd.merge(adf,sdf,left_on='station',right_on='name')
+        
+        text = [ f"{name}<br>{trips} trips" for name,trips in zip(adf['station'],adf['trips']) ]
+        mapdata.append(go.Scattermapbox(lat=adf["lat"], 
+                                   lon=adf["long"],
+                                   #text=cdf["Departure station"],
+                                   text=text,    
+                                   hoverinfo='text',
+                                   marker={'size':5,
+                                           'color':color
+                                           }
+                                       )
+                      )
+
 
     mapfig = go.Figure(data=mapdata,layout=maplayout)
     return mapfig    
