@@ -199,7 +199,7 @@ def make_map_div(df=None,trips=False,direction='start',suff=""):
 
                 dcc.Graph(
                     id=f'map-graph{suff}',
-                    figure=make_trips_map(df,direction=direction) if trips else make_station_map(df,direction=direction,suff=suff)
+                    figure=make_trips_map(df,direction=direction,suff=suff) if trips else make_station_map(df,direction=direction,suff=suff)
 
                 )
             ])
