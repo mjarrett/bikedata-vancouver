@@ -300,7 +300,8 @@ main_div = dbc.Row(children=[
                             figure=make_timeseries_fig(thdf),
                             style={'height':'100%','width':'100%'}
                         ),   
-                        dbc.Button("Explore Data", id='date-button',size='lg',color="primary", className="mr-1")
+                        dbc.Button("Explore Data", id='date-button',size='lg',color="primary", className="mr-1"),
+                        dbc.Button("Compare date", id='date-button2',size='lg',color="success", className="mr-1 d-none"),
                     ]),
                 ]),
             ]),
@@ -388,9 +389,9 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
                 dbc.Col(width=6, id="header-div", className=startclass, children=[
 
                         html.H3("",id="date-header", className=""),
-                        dbc.Tooltip("Pick a date or select a range of days to see comparison.",
-                                                target="date-button2"),
-                        dbc.Button("Compare", id=f'date-button2', color="success"),
+                        #dbc.Tooltip("Pick a date or select a range of days to see comparison.",
+                        #                        target="date-button2"),
+                        #dbc.Button("Compare", id=f'date-button2', color="success"),
                     
                         dbc.Alert(id="filter_output",className="border-rounded",color='primary',children="")
                     
