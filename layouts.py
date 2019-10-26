@@ -2,13 +2,60 @@ import mobisys as mobi
 import numpy as np
 import pandas as pd
 import geopandas
+import json
 
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_table
 
+from helpers import *
 from plots import *
+
+
+
+#######################################################################################
+#
+#  SETUP
+#
+#######################################################################################
+
+#load data
+#df = prep_sys_df('./Mobi_System_Data.csv')
+log("==================")
+log("Loading data")
+df = pd.read_csv('./data/Mobi_System_Data_Prepped.csv')
+memtypes = set(df['Membership Simple'])
+df.Departure = pd.to_datetime(df.Departure)
+df.Return = pd.to_datetime(df.Return)
+  
+thdf = mobi.make_thdf(df)
+
+startdate = thdf.index[0]
+enddate = thdf.index[-1]
+
+startdate_str = startdate.strftime('%b %-d %Y')
+enddate_str = enddate.strftime('%b %-d %Y')
+
+log("Loading weather")  
+wdf = pd.read_csv('./data/weather.csv',index_col=0)
+wdf.index = pd.to_datetime(wdf.index)
+ 
+n_days = (enddate-startdate).days
+n_trips = len(df)
+n_trips_per_day = n_trips / n_days
+tot_dist = df['Covered distance (m)'].sum()/1000
+dist_per_trip = tot_dist/n_trips
+tot_usrs = len(set(df['Account']))
+tot_usrs_per_day = tot_usrs / n_days
+tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
+
+
+#######################################################################################
+#
+#  LAYOUT FUNCTIONS
+#
+#######################################################################################
 
 def make_card(title,content,subcontent=None,color='primary'):
     return dbc.Card(style={'border':'none'},className=f"justify-content-center h-100 py-2", children=[
@@ -82,12 +129,245 @@ def make_detail_cards(df=None,wdf=None,suff=''):
     return output
 
 
+def make_data_modal(df=None, suff=""):
+    if df is None:
+        df = pd.DataFrame()
+        outfields = []
+    else:
+        outfields = ['Departure','Return','Departure station','Return station','Membership Type','Covered distance (m)','Duration (sec.)']
+    
+    modal = dbc.Modal([
+                dbc.ModalHeader("Raw Data"),
+                dbc.ModalBody(children=[
+                    dash_table.DataTable(
+                        id=f'data-table{suff}',
+                        columns=[{"name": i, "id": i} for i in outfields],
+                        data=df[outfields].to_dict('records'),
+                        style_table={'overflowX': 'scroll',
+                                     'maxHeight': '300px'
+                                    },
+                    )    
+                    
+                ]),
+                dbc.ModalFooter(
+                    html.A(id=f"download-data-button{suff}", className="btn btn-primary", href="#", children=[
+                        html.Span(className="fa fa-download"),
+                        " Download CSV",
+                    ])
+                ),
+            ],
+            id=f"data-modal{suff}",
+            size="xl",
+            )
+    return modal
 
-def make_detail_div():
-    log(f"make_detail_div")
-    startclass = ''
-   
-    output =  [
+
+
+def make_map_div(df=None,trips=False,direction='start',suff=""):
+    
+    return html.Div([
+                html.Div(id=f'map-state{suff}', children="trips" if trips else "stations", style={'display':'none'}),
+                        
+        
+                html.Div(children=[
+                    dbc.RadioItems(
+                        id=f'stations-radio{suff}',
+                        options=[
+                            {'label': 'Trip Start', 'value': 'start'},
+                            {'label': 'Trip End', 'value': 'stop'},
+                            {'label': 'Both', 'value': 'both'}
+                        ],
+                        value=direction,
+                        inline=True
+                    ),  
+                ]),
+                html.Div(id=f'map-meta-div{suff}',style={'display':'none'}, children=[
+                    html.A(children="<", id=f'map-return-link{suff}', title="Return to station map") 
+                ]),
+
+
+                dcc.Graph(
+                    id=f'map-graph{suff}',
+                    figure=make_trips_map(df,direction=direction) if trips else make_station_map(df,direction=direction,suff=suff)
+
+                )
+            ])
+
+
+#######################################################################################
+#
+#  LAYOUT
+#
+#######################################################################################
+
+header = dbc.NavbarSimple(
+    children=[
+        dbc.NavItem(dbc.NavLink("Link", href="#")),
+        dbc.DropdownMenu(
+            nav=True,
+            in_navbar=True,
+            label="Menu",
+            children=[
+                dbc.DropdownMenuItem("Entry 1"),
+                dbc.DropdownMenuItem("Entry 2"),
+                dbc.DropdownMenuItem(divider=True),
+                dbc.DropdownMenuItem("Entry 3"),
+            ],
+        ),
+    ],
+    brand="Vancouver Bikeshare Explorer",
+    brand_href="#",
+    sticky="top",
+    color='#1e5359',
+    dark=True
+    )
+
+footer = dbc.NavbarSimple(
+    children=[
+        dbc.NavItem(dbc.NavLink("Link", href="#")),
+        
+    ],
+    brand="Vancouver Bikeshare Explorer",
+    brand_href="#",
+    sticky="bottom",
+    color='#1e5359',
+    dark=False
+    )
+
+summary_cards = dbc.Row(className='p-3 justify-content-center', children=[
+        
+        dbc.Col([
+            dbc.Row(children=[
+                
+                
+                dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
+                    make_card("Total Trips",f"{n_trips:,}",color='primary'),
+                    make_card("Total Distance Travelled",f"{int(tot_dist):,} km",color='info'),
+                    make_card("Total Members",f"{tot_usrs:,}",color='success'),
+                    make_card("Total Trip Time",f"{int(tot_time/(60*60)):,} hours",color='warning')
+
+                ]),
+            ]),
+        ]),
+        
+        
+    ]) 
+
+summary_jumbo = dbc.Jumbotron( 
+    [
+        html.H1("BikeData BC", className="display-3"),
+
+        html.P(
+            "This tool makes Mobi's trip data available for analysis",
+            className="lead",
+        ),
+        html.Hr(className="my-2"),
+        html.P(
+            f"Data available from {startdate_str} to {enddate_str}"
+        ),
+        html.P(dbc.Button("Learn more", id='jumbo-button', color="primary"), className="lead"),
+    ]
+)
+
+
+filter_data = json.dumps({'date':None, 'cats':None, 'stations':None, 'direction':'start'})                          
+filter_data2 = json.dumps({'date':None,'cats':None,'stations':None,'direction':'start'})
+
+main_div = dbc.Row(children=[
+    dbc.Col([
+        
+        
+        dbc.Row(className='py-2',children=[
+
+            dbc.Col(children=[
+
+                dbc.Card(className="justify-content-center",children=[
+                    #dbc.CardHeader(),
+                    dbc.CardBody([
+                        dcc.Graph(
+                            id='timeseries-graph',
+                            figure=make_timeseries_fig(thdf),
+                            style={'height':'100%','width':'100%'}
+                        ),   
+                        dbc.Button("Explore Data", id='date-button',size='lg',color="primary", className="mr-1")
+                    ]),
+                ]),
+            ]),
+        ]),        
+        
+
+        
+
+        dbc.Modal(size='md', id='date-modal', children=[
+            dbc.ModalHeader("Pick a date or date range"),
+            dbc.ModalBody([
+                html.Div(id="filter-meta-div", children=filter_data, className='d-none'),
+
+                dbc.FormGroup([
+                            dcc.DatePickerRange(
+                                id='datepicker',
+                                min_date_allowed=startdate,
+                                max_date_allowed=enddate,
+                                #initial_visible_month = '2018-01-01',
+                                minimum_nights = 0,
+                                clearable = True,
+                            ),
+
+
+                            dbc.Checklist(id='filter-dropdown',
+
+                                options=[{'label':memtype,'value':memtype} for memtype in memtypes],
+                                value=list(memtypes)
+                            ),
+
+                ]),
+                dbc.Tooltip("Pick a date or select a range of days to see details.",
+                                        target="go-button"),
+                dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
+            ])
+        ]),
+        
+        
+        dbc.Modal(size='md', id='date-modal2', children=[
+            dbc.ModalHeader("Pick a date or date range"),
+            dbc.ModalBody([
+                html.Div(id="filter-meta-div2", children=filter_data2, className='d-none'),
+                dbc.FormGroup(children=[
+                    dcc.DatePickerRange(
+                        id='datepicker2',
+                        min_date_allowed=startdate,
+                        max_date_allowed=enddate,
+                        initial_visible_month = '2018-01-01',
+                        minimum_nights = 0,
+                        clearable = True,
+                        ),
+
+                    dbc.Checklist(id='filter-dropdown2',
+
+                        options=[{'label':memtype,'value':memtype} for memtype in memtypes],
+                        value=list(memtypes)
+                    ),
+                ]),
+                dbc.Tooltip("Pick a date or select a range of days to see details.",
+                                        target="go-button2"),
+                dbc.Button("Go    ", id='go-button2', color="success", outline=True, block=True),
+            ]) 
+        ])
+    ])
+])
+
+
+
+
+
+
+
+
+
+
+
+startclass = ''
+detail_div = dbc.Row(id='detail-div', className='', children=[
         
         html.Div(id='detail-div-status', className='d-none', children=startclass),
         html.Div(id='detail-div-status2', className='d-none', children=startclass),
@@ -157,78 +437,12 @@ def make_detail_div():
             ]),
             
 
-        ] # Col
+        ]) 
     
-    #print(output)
-    return output
-    
-# def make_detail_div(df, wdf, df2=None,trips=False, trips2=False,direction='start',direction2='start'):
-#     if df2 is None:
-#         return make_detail_col(df,wdf,trips,direction)
-#     if df2 is not None:
-#         return make_detail_cols(df,df2,wdf,trips,trips2,direction,direction2)
         
-def make_map_div(df=None,trips=False,direction='start',suff=""):
-    
-    return html.Div([
-                html.Div(id=f'map-state{suff}', children="trips" if trips else "stations", style={'display':'none'}),
-                        
-        
-                html.Div(children=[
-                    dbc.RadioItems(
-                        id=f'stations-radio{suff}',
-                        options=[
-                            {'label': 'Trip Start', 'value': 'start'},
-                            {'label': 'Trip End', 'value': 'stop'},
-                            {'label': 'Both', 'value': 'both'}
-                        ],
-                        value=direction,
-                        inline=True
-                    ),  
-                ]),
-                html.Div(id=f'map-meta-div{suff}',style={'display':'none'}, children=[
-                    html.A(children="<", id=f'map-return-link{suff}', title="Return to station map") 
-                ]),
 
 
-                dcc.Graph(
-                    id=f'map-graph{suff}',
-                    figure=make_trips_map(df,direction=direction) if trips else make_station_map(df,direction=direction,suff=suff)
 
-                )
-            ])
-
-def make_data_modal(df=None, suff=""):
-    if df is None:
-        df = pd.DataFrame()
-        outfields = []
-    else:
-        outfields = ['Departure','Return','Departure station','Return station','Membership Type','Covered distance (m)','Duration (sec.)']
-    
-    modal = dbc.Modal([
-                dbc.ModalHeader("Raw Data"),
-                dbc.ModalBody(children=[
-                    dash_table.DataTable(
-                        id=f'data-table{suff}',
-                        columns=[{"name": i, "id": i} for i in outfields],
-                        data=df[outfields].to_dict('records'),
-                        style_table={'overflowX': 'scroll',
-                                     'maxHeight': '300px'
-                                    },
-                    )    
-                    
-                ]),
-                dbc.ModalFooter(
-                    html.A(id=f"download-data-button{suff}", className="btn btn-primary", href="#", children=[
-                        html.Span(className="fa fa-download"),
-                        " Download CSV",
-                    ])
-                ),
-            ],
-            id=f"data-modal{suff}",
-            size="xl",
-            )
-    return modal
 
 
 

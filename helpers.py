@@ -10,6 +10,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_table
 
+
 def log(*args,file=None):
     args = [datetime.now()] + list(args)
     if file == None:
@@ -87,4 +88,6 @@ def date_2_str(date):
     else:
         d1 = datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
         return f"{d1}"
+
+    
 
