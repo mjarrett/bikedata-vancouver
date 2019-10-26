@@ -391,14 +391,18 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
                         dbc.Tooltip("Pick a date or select a range of days to see comparison.",
                                                 target="date-button2"),
                         dbc.Button("Compare", id=f'date-button2', color="success"),
+                    
+                        dbc.Alert(id="filter_output",className="border-rounded",color='primary',children="")
+                    
                 ]),
-
+                
                 dbc.Col(width=6, id="header-div2", className=startclass, children=[
 
                         html.H3("",id="date-header2", className=""),
                         #dbc.Tooltip("Pick a date or select a range of days to see comparison.",
                         #                        target="compare-button"),
-                        #dbc.Button("Compare", id=f'compare-button2', color="success"),
+                        #dbc.Button("Compare", id=f'date-button2', color="success"),
+                        dbc.Alert(id="filter_output2",className="border-rounded",color='success',children="")
                 ]),
             ]),
         ]),

@@ -90,4 +90,17 @@ def date_2_str(date):
         return f"{d1}"
 
     
+def make_filter_table(filter_data):
+    
+    stations = "All" if filter_data['stations'] == None else ", ".join(filter_data['stations'])
+    cats = "All" if filter_data['cats'] == None else ", ".join(filter_data['cats'])
+    
+    row1 = html.Tr([html.Td(html.Strong("Stations")), html.Td(html.Em(stations))])
+    row2 = html.Tr([html.Td(html.Strong("Membership Types")), html.Td(html.Em(cats))])
 
+
+    table_body = [html.Tbody([row1, row2])]
+
+    table = dbc.Table(table_body, bordered=False)
+    
+    return table
