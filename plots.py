@@ -14,6 +14,21 @@ margin=go.layout.Margin(
     t=5,
     pad=0)
 
+maplayout = go.Layout(mapbox_style="light",
+                          mapbox=go.layout.Mapbox(
+                            accesstoken=MAPBOX_TOKEN,
+                            bearing=0,
+                            center=go.layout.mapbox.Center(
+                            lat=49.28, 
+                            lon=-123.11
+                            ),
+                            zoom=11.5
+                            ),
+                          paper_bgcolor='rgba(0,0,0,0)',
+                          plot_bgcolor='rgba(0,0,0,0)',
+                          margin=margin,
+                          showlegend = False,
+                         )
 
 c_dark_teal = '#1e5359'
           
@@ -171,25 +186,7 @@ def make_station_map(df=None, direction='start', suff=""):
                                            'sizemode':'area',
                                            'sizeref':2.*max(trips_df['trips'])/(40.**2),
                                            'sizemin':4})
-    maplayout = go.Layout(#title=date,
-                          mapbox_style="light",
-                          mapbox=go.layout.Mapbox(
-                            accesstoken=MAPBOX_TOKEN,
-                            bearing=0,
-                            center=go.layout.mapbox.Center(
-                                lat=49.28, 
-                                lon=-123.12
-                                ),
-                            pitch=0,
-                            zoom=11
-                            ),
-                          paper_bgcolor='rgba(0,0,0,0)',
-                          plot_bgcolor='rgba(0,0,0,0)',
-                          #showlegend = True,
-                          margin=margin
-                          #width=500,
-                          #height=500
-                         )
+    
     mapfig = go.Figure(data=mapdata,layout=maplayout)
     return mapfig    
 
@@ -237,25 +234,7 @@ def make_trips_map(df,direction='start',suff=""):
                                    )
                   )
         
-    maplayout = go.Layout(#title=date,
-                          mapbox_style="light",
-                          mapbox=go.layout.Mapbox(
-                            accesstoken=MAPBOX_TOKEN,
-                            bearing=0,
-                            center=go.layout.mapbox.Center(
-                                lat=49.28, 
-                                lon=-123.12
-                                ),
-                            pitch=0,
-                            zoom=11
-                            ),
-                          paper_bgcolor='rgba(0,0,0,0)',
-                          plot_bgcolor='rgba(0,0,0,0)',
-                          showlegend = False,
-                          margin=margin
-                          #width=500,
-                          #height=500
-                         )
+
     mapfig = go.Figure(data=mapdata,layout=maplayout)
     return mapfig    
     
