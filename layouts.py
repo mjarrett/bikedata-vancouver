@@ -389,9 +389,7 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
                 dbc.Col(width=6, id="header-div", className=startclass, children=[
 
                     dbc.Row([
-                        dbc.Col([
-                            html.H3("",id="date-header", className=""),
-                        ]),
+                        dbc.Col(id="date-header", children="",className='d-none'),
                         dbc.Col(width=2, children=[
                             dbc.Button(id="date-update-btn", color='primary', children=[
                                 html.Span(className="fa fa-calendar")
@@ -407,9 +405,7 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
                 dbc.Col(width=6, id="header-div2", className=startclass, children=[
 
                     dbc.Row([
-                        dbc.Col([
-                            html.H3("",id="date-header2", className=""),
-                        ]),
+                        dbc.Col(id="date-header2", children="",className='d-none'),
                         dbc.Col(width=2, children=[
                             dbc.Button(id="date-update-btn2", color='success', children=[
                                 html.Span(className="fa fa-calendar")

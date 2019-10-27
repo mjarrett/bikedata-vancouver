@@ -301,7 +301,7 @@ def daily_div_callback(filter_data):
         
     trips = False if filter_data['stations'] is None else True
     direction = filter_data['direction']
-    date = date_2_str(filter_data['date'])
+    date = date_2_div(filter_data['date'])
     
     filter_table = make_filter_table(filter_data)
     data_modal = make_data_modal(ddf, suff=suff)
@@ -320,14 +320,14 @@ def daily_div_callback(filter_data):
                Output('map-div2','children'),Output('memb-graph2','figure')],
               [Input("filter-meta-div2",'children')],
              )
-def daily_div_callback2(filter_data):
+def daily_div_callback2(filter_data): 
     filter_data = json.loads(filter_data)
     suff = "2"
     
     if filter_data['date'] is None:
         raise PreventUpdate
         
-    log("daily_div_callback2")
+    log("daily_div_callback2") 
     
     ddf = filter_ddf(df,date=filter_data['date'], 
                      stations=filter_data['stations'], 
@@ -337,7 +337,7 @@ def daily_div_callback2(filter_data):
         
     trips = False if filter_data['stations'] is None else True
     direction = filter_data['direction']
-    date = date_2_str(filter_data['date'])
+    date = date_2_div(filter_data['date'])
     
     filter_table = make_filter_table(filter_data)
     data_modal = make_data_modal(ddf, suff=suff)

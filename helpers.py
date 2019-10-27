@@ -88,18 +88,45 @@ def date_2_str(date):
     else:
         d1 = datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
         return f"{d1}"
+    
+def date_2_div(date):
+    
+    if date == None:
+        return None
+    
+    if len(date) == 2:
+        d1 = datetime.strptime(date[0],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        d2 = datetime.strptime(date[1],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        return [dbc.Col(html.H3(d1),width=8), 
+              dbc.Col(html.Span(className="fa fa-arrow-right"),width=3),
+              dbc.Col(html.H3(d2),width=8)
+             ]
+    else:
+        d1 = datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
 
+        return dbc.Col(html.H3(d1),width=8), 
+              
     
 def make_filter_table(filter_data):
     
     stations = "All" if filter_data['stations'] == None else ", ".join(filter_data['stations'])
     cats = "All" if filter_data['cats'] == None else ", ".join(filter_data['cats'])
+    date = filter_data['date']
+    if len(date) == 2:
+        d1 = datetime.strptime(date[0],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        d2 = datetime.strptime(date[1],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+    else:
+        d1 = datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        d2 = ""
     
-    row1 = html.Tr([html.Td(html.Strong("Stations")), html.Td(html.Em(stations))])
-    row2 = html.Tr([html.Td(html.Strong("Membership Types")), html.Td(html.Em(cats))])
+    
+    row1 = html.Tr([html.Td(html.Strong("")), html.Td(html.Strong(d1))])
+    row2 = html.Tr([html.Td(html.Strong("")), html.Td(html.Strong(d2))])
+    row3 = html.Tr([html.Td(html.Strong("Stations")), html.Td(html.Em(stations))])
+    row4 = html.Tr([html.Td(html.Strong("Membership Types")), html.Td(html.Em(cats))])
 
 
-    table_body = [html.Tbody([row1, row2])]
+    table_body = [html.Tbody([row1, row2, row3, row4])]
 
     table = dbc.Table(table_body, bordered=False)
     
