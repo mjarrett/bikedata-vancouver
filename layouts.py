@@ -46,6 +46,12 @@ n_trips = len(df)
 n_trips_per_day = n_trips / n_days
 tot_dist = df['Covered distance (m)'].sum()/1000
 dist_per_trip = tot_dist/n_trips
+
+df['Membership Type'] = df['Membership Type'].fillna("")
+df = df[df['Membership Type']!=""]
+
+
+df['Account'] = df['Account'].fillna("")
 tot_usrs = len(set(df['Account']))
 tot_usrs_per_day = tot_usrs / n_days
 tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
