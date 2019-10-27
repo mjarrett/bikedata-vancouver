@@ -243,6 +243,9 @@ def make_trips_map(df,direction='start',suff=""):
                                    text=text,
                                    hoverinfo='text',
                                    marker={'size':cdf['trips'],
+                                           'sizemode':'area',
+                                           'sizeref':2.*max(cdf['trips'])/(40.**2),
+                                           'sizemin':4,
                                            'color':color
                                            }
                                        )
@@ -256,6 +259,9 @@ def make_trips_map(df,direction='start',suff=""):
                                    text=text,    
                                    hoverinfo='text',
                                    marker={'size':cdf['trips'],
+                                           'sizemode':'area',
+                                           'sizeref':2.*max(cdf['trips'])/(40.**2),
+                                           'sizemin':4,
                                            'color':color
                                            }
                                        )
