@@ -108,9 +108,9 @@ def date_2_div(date):
               
     
 def make_filter_table(filter_data):
-    
-    stations = "All" if filter_data['stations'] == None else ", ".join(filter_data['stations'])
-    cats = "All" if filter_data['cats'] == None else ", ".join(filter_data['cats'])
+    print(filter_data)
+    stations = "All" if filter_data['stations'] is None else ", ".join(filter_data['stations'])
+    cats = "All" if filter_data['cats'] is None else ", ".join(filter_data['cats'])
     date = filter_data['date']
     if len(date) == 2:
         d1 = datetime.strptime(date[0],'%Y-%m-%d').strftime('%A, %B %-d %Y')
