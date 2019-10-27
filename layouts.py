@@ -388,23 +388,40 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
             dbc.Row([
                 dbc.Col(width=6, id="header-div", className=startclass, children=[
 
-                        html.H3("",id="date-header", className=""),
-                        #dbc.Tooltip("Pick a date or select a range of days to see comparison.",
-                        #                        target="date-button2"),
-                        #dbc.Button("Compare", id=f'date-button2', color="success"),
-                    
-                        dbc.Alert(id="filter_output",className="border-rounded",color='primary',children="")
-                    
+                    dbc.Row([
+                        dbc.Col([
+                            html.H3("",id="date-header", className=""),
+                        ]),
+                        dbc.Col(width=2, children=[
+                            dbc.Button(id="date-update-btn", color='primary', children=[
+                                html.Span(className="fa fa-calendar")
+                            ]),
+                        ]),
+
+                        dbc.Col(width=12, children=[
+                            dbc.Alert(id="filter_output",className="border-rounded",color='primary',children="")
+                        ]),
+                    ]),
                 ]),
                 
                 dbc.Col(width=6, id="header-div2", className=startclass, children=[
 
-                        html.H3("",id="date-header2", className=""),
-                        #dbc.Tooltip("Pick a date or select a range of days to see comparison.",
-                        #                        target="compare-button"),
-                        #dbc.Button("Compare", id=f'date-button2', color="success"),
-                        dbc.Alert(id="filter_output2",className="border-rounded",color='success',children="")
+                    dbc.Row([
+                        dbc.Col([
+                            html.H3("",id="date-header2", className=""),
+                        ]),
+                        dbc.Col(width=2, children=[
+                            dbc.Button(id="date-update-btn2", color='success', children=[
+                                html.Span(className="fa fa-calendar")
+                            ]),
+                        ]),
+
+                        dbc.Col(width=12, children=[
+                            dbc.Alert(id="filter_output2",className="border-rounded",color='success',children="")
+                        ]),
+                    ]),
                 ]),
+  
             ]),
         ]),
                             

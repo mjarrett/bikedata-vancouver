@@ -350,31 +350,37 @@ def daily_div_callback2(filter_data):
 
   
 @app.callback(Output('date-modal','is_open'),
-               [Input('date-button','n_clicks'),Input('go-button','n_clicks'),
-                Input('timeseries-graph','clickData'),Input('timeseries-graph','selectedData')],
-                [State('filter-meta-div','children')]
+             [Input('date-button','n_clicks'),Input('go-button','n_clicks'),Input("date-update-btn",'n_clicks'),
+              Input('timeseries-graph','clickData'),Input('timeseries-graph','selectedData')],
+             [State('filter-meta-div','children')]
               )
-def toggle_date_modal(n_clicks,go_n_clicks,clickData,selectedData,filter_data):
+def toggle_date_modal(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedData,filter_data):
     
     filter_data = json.loads(filter_data)
-    if filter_data['date'] is not None:
-        raise PreventUpdate
+
 
     if dash.callback_context.triggered[0]['prop_id'] == 'date-button.n_clicks':
         return True if n_clicks is not None else False
     if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
         return False
     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
+        if filter_data['date'] is not None:
+            raise PreventUpdate
         return True
     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
+        if filter_data['date'] is not None:
+            raise PreventUpdate 
         return True
-        
+    if dash.callback_context.triggered[0]['prop_id'] == 'date-update-btn.n_clicks':
+        return True
+    
+    
 @app.callback(Output('date-modal2','is_open'),
-               [Input('date-button2','n_clicks'),Input('go-button2','n_clicks'),
+               [Input('date-button2','n_clicks'),Input('go-button2','n_clicks'),Input("date-update-btn2",'n_clicks'),
                 Input('timeseries-graph','clickData'),Input('timeseries-graph','selectedData')],
                [State('filter-meta-div','children'),State('filter-meta-div2','children')]
               )
-def toggle_date_modal2(n_clicks,go_n_clicks,clickData,selectedData,filter_data,filter_data2):
+def toggle_date_modal2(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedData,filter_data,filter_data2):
     
     filter_data = json.loads(filter_data)
     if filter_data['date'] is None:
@@ -388,7 +394,9 @@ def toggle_date_modal2(n_clicks,go_n_clicks,clickData,selectedData,filter_data,f
         return True
     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
         return True 
-
+    if dash.callback_context.triggered[0]['prop_id'] == 'date-update-btn2.n_clicks':
+        return True
+   
     
     
 @app.callback(Output('data-modal','is_open'),
