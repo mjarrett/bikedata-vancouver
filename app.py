@@ -397,28 +397,43 @@ def open_data_modal(n_clicks):
     
 @app.callback(Output("download-data-button",'href'),
               [Input("data-button",'n_clicks')],
-              [State("data-table","data")]
+              [State('filter-meta-div','children')]
              )
-def download_data(n_clicks,data):
+def download_data(n_clicks,filter_data):
     if n_clicks is None:
         raise PreventUpdate
-    ddf = pd.DataFrame(data)
+    
+    filter_data = json.loads(filter_data)
+    ddf = filter_ddf(df,date=filter_data['date'], 
+                     stations=filter_data['stations'], 
+                     cats=filter_data['cats'], 
+                     direction=filter_data['direction'])
+    
+    if len(ddf) > 100000:
+        raise PreventUpdate
+    
     csv_string = ddf.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
 
-
-
-
-
+ 
 @app.callback(Output("download-data-button2",'href'),
               [Input("data-button2",'n_clicks')],
-              [State("data-table2","data")]
+              [State('filter-meta-div','children')]
              )
-def download_data2(n_clicks,data):
+def download_data2(n_clicks,filter_data):
     if n_clicks is None:
         raise PreventUpdate
-    ddf = pd.DataFrame(data)
+        
+    filter_data = json.loads(filter_data)
+    ddf = filter_ddf(df,date=filter_data['date'], 
+                     stations=filter_data['stations'], 
+                     cats=filter_data['cats'], 
+                     direction=filter_data['direction'])
+    
+    if len(ddf) > 100000:
+        raise PreventUpdate
+    
     csv_string = ddf.to_csv(index=False, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string

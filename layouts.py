@@ -135,31 +135,53 @@ def make_detail_cards(df=None,wdf=None,suff=''):
 
 
 def make_data_modal(df=None, suff=""):
+    max_records = 100000 # Only allow downloads up to limit
+    max_rows    = 10000   # Only show first N rows in data_table
+    
     if df is None:
         df = pd.DataFrame()
         outfields = []
     else:
         outfields = ['Departure','Return','Departure station','Return station','Membership Type','Covered distance (m)','Duration (sec.)']
     
+    if len(df) > max_records:
+        tooltip = dbc.Tooltip("Your selection is too large to download. Try a smaller date range.",
+                                        target=f"download-data-button{suff}")
+        
+    else:
+        tooltip = dbc.Tooltip("Download the records for the selected trips",
+                                        target=f"download-data-button{suff}")
+    
+    
+    if len(df) > max_rows:
+        warning_txt = "Your selection produced too many results and may be truncated"
+    else:
+        warning_txt = ""
+    
+    
+    
+    button =  html.A(id=f"download-data-button{suff}", className="btn btn-primary", href="#", children=[
+                        html.Span(className="fa fa-download"),
+                        " Download CSV",
+                    ])
+    
+    
     modal = dbc.Modal([
                 dbc.ModalHeader("Raw Data"),
                 dbc.ModalBody(children=[
+                    html.Span(warning_txt),
                     dash_table.DataTable(
                         id=f'data-table{suff}',
                         columns=[{"name": i, "id": i} for i in outfields],
-                        data=df[outfields].to_dict('records'),
+                        data=df.head(max_rows)[outfields].to_dict('records'),
                         style_table={'overflowX': 'scroll',
                                      'maxHeight': '300px'
                                     },
                     )    
                     
                 ]),
-                dbc.ModalFooter(
-                    html.A(id=f"download-data-button{suff}", className="btn btn-primary", href="#", children=[
-                        html.Span(className="fa fa-download"),
-                        " Download CSV",
-                    ])
-                ),
+                tooltip,
+                dbc.ModalFooter(button),
             ],
             id=f"data-modal{suff}",
             size="xl",
