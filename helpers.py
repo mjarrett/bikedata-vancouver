@@ -22,7 +22,14 @@ def log(*args,file=None):
             print(*args,file=f,flush=True)
 
     
-def filter_ddf(df, date=None, cats=None, stations=None, direction='both'):
+def filter_ddf(df, filter_data=None, date=None, cats=None, stations=None, direction='both'):
+    
+    if filter_data is not None:
+        date = filter_data['date']
+        cats = filter_data['cats']
+        stations = filter_data['stations']
+        direction = filter_data['direction']
+        
     log(f"Filter {date} {cats} {stations} {direction}")
     if (date is None) and (cats is None) and (stations is None):
         return df

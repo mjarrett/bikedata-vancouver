@@ -272,10 +272,7 @@ def daily_div_callback(filter_data):
     if filter_data['date'] is None:
         raise PreventUpdate
             
-    ddf = filter_ddf(df,date=filter_data['date'], 
-                     stations=filter_data['stations'], 
-                     cats=filter_data['cats'], 
-                     direction=filter_data['direction'])
+    ddf = filter_ddf(df,filter_data)
 
         
     trips = False if filter_data['stations'] is None else True
@@ -306,10 +303,7 @@ def daily_div_callback2(filter_data):
         raise PreventUpdate
         
     
-    ddf = filter_ddf(df,date=filter_data['date'], 
-                     stations=filter_data['stations'], 
-                     cats=filter_data['cats'], 
-                     direction=filter_data['direction'])
+    ddf = filter_ddf(df,filter_data)
 
         
     trips = False if filter_data['stations'] is None else True
@@ -404,10 +398,7 @@ def download_data(n_clicks,filter_data):
         raise PreventUpdate
     
     filter_data = json.loads(filter_data)
-    ddf = filter_ddf(df,date=filter_data['date'], 
-                     stations=filter_data['stations'], 
-                     cats=filter_data['cats'], 
-                     direction=filter_data['direction'])
+    ddf = filter_ddf(df,filter_data)
     
     if len(ddf) > 100000:
         raise PreventUpdate
@@ -426,10 +417,7 @@ def download_data2(n_clicks,filter_data):
         raise PreventUpdate
         
     filter_data = json.loads(filter_data)
-    ddf = filter_ddf(df,date=filter_data['date'], 
-                     stations=filter_data['stations'], 
-                     cats=filter_data['cats'], 
-                     direction=filter_data['direction'])
+    ddf = filter_ddf(df,filter_data)
     
     if len(ddf) > 100000:
         raise PreventUpdate
