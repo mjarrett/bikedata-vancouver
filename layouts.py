@@ -302,7 +302,7 @@ header = dbc.NavbarSimple(
     ],
     brand="Vancouver Bikeshare Explorer",
     brand_href="#",
-    sticky="top",
+#     sticky="top",
     color='#1e5359',
     dark=True
     )
@@ -458,8 +458,8 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
         html.Div(id='detail-div-status', className='d-none', children=startclass),
         html.Div(id='detail-div-status2', className='d-none', children=startclass),
         
-        dbc.Col(width=12, children=[
-            dbc.Row([
+        dbc.Col(className='sticky-top', width=12, children=[
+            dbc.Row(children=[
                 dbc.Col(width=6, id="header-div", className=startclass, children=[
 
                     dbc.Row([
