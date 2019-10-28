@@ -60,7 +60,6 @@ c_black=    '#000' #!default;
 colors = [c_blue,c_indigo,c_red,c_green,c_orange,c_teal,c_cyan,c_purple,c_yellow]
 
 def make_timeseries_fig(thdf, date=None, date2=None):
-    log('make_timeseries_fig')
 
     
     trips_hdf = thdf.sum(1).reset_index()
@@ -134,7 +133,6 @@ def make_timeseries_fig(thdf, date=None, date2=None):
     return fig
 
 def make_station_map(df=None, direction='start', suff=""):
-    log(f'make_station_map{suff}')
       
     if suff == "":
         color = c_blue
@@ -194,7 +192,6 @@ def make_station_map(df=None, direction='start', suff=""):
     
     
 def make_trips_map(df,direction='start',suff=""):
-    log(f'make_trips_map{suff}')
     # https://plot.ly/python/mapbox-layers/
 
     if suff == "":
@@ -292,7 +289,6 @@ def make_trips_map(df,direction='start',suff=""):
     
 
 def make_daily_fig(df=None, suff=""):
-    log(f"make_daily_fig{suff}")
 
     
     if suff == "":
@@ -341,7 +337,6 @@ def make_daily_fig(df=None, suff=""):
 
 
 def make_memb_fig(df=None,suff=""):
-    log(f"make_memb_fig{suff}")
     
     
     if df is None:

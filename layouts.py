@@ -88,7 +88,6 @@ def make_detail_cards(df=None,wdf=None,suff=''):
     start_date = df['Departure'].iloc[0].strftime('%Y-%m-%d')
     stop_date  = df['Departure'].iloc[-1].strftime('%Y-%m-%d')
     
-    log(start_date,stop_date)
     
     start_date_str = df['Departure'].iloc[0].strftime('%b %d, %Y')
     stop_date_str = df['Departure'].iloc[-1].strftime('%b %d, %Y')
@@ -212,7 +211,6 @@ def make_map_div(df=None,trips=False,direction='start',suff=""):
 
 
 def make_detail_header(filter_data, suff=""):
-    print("make_Detail_header")
     
     if suff == "":
         color='primary'

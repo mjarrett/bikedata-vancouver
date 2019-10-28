@@ -60,26 +60,18 @@ app.layout = html.Div([header,body,footer])
               [Input('go-button','n_clicks')],
              )
 def update_detail_status(n_clicks):
-    log("**update_detail_status callback")
-    log(f"n clicks: {n_clicks}")
     if n_clicks is None:
-        log("d-none")
         return "d-none"
     else:
-        log("")
         return ""
 
 @app.callback(Output('detail-div-status2','children'),
               [Input('go-button2','n_clicks')]
              )
 def update_detail_status2(n_clicks):
-    log("**update_detail_status callback2")
-    log(f"n clicks: {n_clicks}")
     if n_clicks is None:
-        log("d-none")
         return "d-none"
     else:
-        log("")
         return ""
     
 @app.callback([Output('header-div','className'), Output('detail-cards-div','className'),
@@ -94,21 +86,15 @@ def update_detail_status2(n_clicks):
              ) 
 # def toggle_div_visibility(n_clicks, filter_data, filter_data2):
 def toggle_div_visibility(status, status2):
-
-    log('**toggle_div_visibility callback')
-    log(status, status2)
     
     if status == 'd-none':
-        log("Hidding both")
         date_1_divs = ["d-none"]*6
         date_2_divs = ["d-none"]*6       
         
     elif status2 == 'd-none':
-        log("show date1")
         date_1_divs = [""]*6
         date_2_divs = ["d-none"]*6
     else:
-        log("show both")
         date_1_divs = [""]*6
         date_2_divs = [""]*6
         
@@ -119,7 +105,6 @@ def toggle_div_visibility(status, status2):
              [Input('filter-meta-div','children'),Input('filter-meta-div2','children')]
              ) 
 def timeseries_callback(filter_data,filter_data2):
-    log('timeseries_callback')
     
     filter_data = json.loads(filter_data)
     filter_data2 = json.loads(filter_data2)
@@ -198,9 +183,7 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks,
                            start_date,end_date,filter_values):
     if clickData is None and n_clicks is None:
         raise PreventUpdate
-    
-    log("update_filter_meta_div")
-    log("trigger: ",dash.callback_context.triggered)  # last triggered
+
     filter_data = json.loads(filter_data)
     
     # IF go-button is triggered, update all values
@@ -246,9 +229,7 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value,return_nclicks,
                            start_date,end_date,filter_values):
     if clickData is None and n_clicks is None:
         raise PreventUpdate
-    
-    log("update_filter_meta_div2")
-    log("trigger: ",dash.callback_context.triggered)  # last triggered
+
     filter_data = json.loads(filter_data)
     
     # If go-butto2 is triggered, update all values
@@ -290,9 +271,7 @@ def daily_div_callback(filter_data):
     
     if filter_data['date'] is None:
         raise PreventUpdate
-        
-    log("daily_div_callback")
-    
+            
     ddf = filter_ddf(df,date=filter_data['date'], 
                      stations=filter_data['stations'], 
                      cats=filter_data['cats'], 
@@ -326,7 +305,6 @@ def daily_div_callback2(filter_data):
     if filter_data['date'] is None:
         raise PreventUpdate
         
-    log("daily_div_callback2") 
     
     ddf = filter_ddf(df,date=filter_data['date'], 
                      stations=filter_data['stations'], 
