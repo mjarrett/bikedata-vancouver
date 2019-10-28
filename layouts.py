@@ -240,7 +240,10 @@ def make_detail_header(filter_data, suff=""):
         color='success'
     
     stations = "All" if filter_data['stations'] is None else ", ".join(filter_data['stations'])
-    cats = "All" if filter_data['cats'] is None else ", ".join(filter_data['cats'])
+    if (filter_data['cats'] is None) or (set(filter_data['cats']) == memtypes): 
+        cats = "All"
+    else: ", ".join(filter_data['cats'])
+        
     date = '2010-01-01' if filter_data['date'] is None else filter_data['date']
 
         
@@ -264,18 +267,11 @@ def make_detail_header(filter_data, suff=""):
     row3 = html.Tr([html.Td("Stations"), html.Td(html.Em(stations))])
     row4 = html.Tr([html.Td("Membership Types"), html.Td(html.Em(cats))])
     table_body = [html.Tbody([row3, row4])]
-    table = dbc.Table(table_body, bordered=False)
+    table = dbc.Table(table_body, size='sm',bordered=False)
 
     card = dbc.Card(children=[
             dbc.CardHeader(className=f"text-strong text-white bg-{color}",children=header),
-            dbc.CardBody([
-                
-                #dbc.Row(header, className=f"text-xs font-weight-bold text-white text-uppercase mb-1"),
-                dbc.Row(table, className=f""),
-                #dbc.Row(subcontent, className=f"h5 mb-0 font-weight-bold text-muted"),
-                
-            ])
-
+            table,
         ])
     return card
 
