@@ -211,6 +211,54 @@ def make_map_div(df=None,trips=False,direction='start',suff=""):
             ])
 
 
+def make_detail_header(filter_data, suff=""):
+    print("make_Detail_header")
+    
+    if suff == "":
+        color='primary'
+    elif suff == "2":
+        color='success'
+    
+    stations = "All" if filter_data['stations'] is None else ", ".join(filter_data['stations'])
+    cats = "All" if filter_data['cats'] is None else ", ".join(filter_data['cats'])
+    date = '2010-01-01' if filter_data['date'] is None else filter_data['date']
+
+        
+    button = dbc.Button(id=f"date-update-btn{suff}", color=color, children=[
+       html.Span(className="fa fa-calendar")
+        ])
+    
+    
+    if len(date) == 2:
+        d1 = datetime.strptime(date[0],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        d2 = datetime.strptime(date[1],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        header = html.Div([d1," ",html.Span(className="fa fa-arrow-right")," ", d2, button])
+    else:
+        d1 = datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        header = html.Div(children=[date,button])
+
+
+
+        
+        
+    row3 = html.Tr([html.Td("Stations"), html.Td(html.Em(stations))])
+    row4 = html.Tr([html.Td("Membership Types"), html.Td(html.Em(cats))])
+    table_body = [html.Tbody([row3, row4])]
+    table = dbc.Table(table_body, bordered=False)
+
+    card = dbc.Card(children=[
+            dbc.CardHeader(className=f"text-strong text-white bg-{color}",children=header),
+            dbc.CardBody([
+                
+                #dbc.Row(header, className=f"text-xs font-weight-bold text-white text-uppercase mb-1"),
+                dbc.Row(table, className=f""),
+                #dbc.Row(subcontent, className=f"h5 mb-0 font-weight-bold text-muted"),
+                
+            ])
+
+        ])
+    return card
+
 #######################################################################################
 #
 #  LAYOUT
@@ -395,32 +443,14 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
                 dbc.Col(width=6, id="header-div", className=startclass, children=[
 
                     dbc.Row([
-                        dbc.Col(id="date-header", children="",className='d-none'),
-                        dbc.Col(width=2, children=[
-                            dbc.Button(id="date-update-btn", color='primary', children=[
-                                html.Span(className="fa fa-calendar")
-                            ]),
-                        ]),
-
-                        dbc.Col(width=12, children=[
-                            dbc.Alert(id="filter_output",className="border-rounded",color='primary',children="")
-                        ]),
+                        dbc.Col(id="date-header", children=make_detail_header(json.loads(filter_data), suff="")),
                     ]),
                 ]),
                 
                 dbc.Col(width=6, id="header-div2", className=startclass, children=[
 
                     dbc.Row([
-                        dbc.Col(id="date-header2", children="",className='d-none'),
-                        dbc.Col(width=2, children=[
-                            dbc.Button(id="date-update-btn2", color='success', children=[
-                                html.Span(className="fa fa-calendar")
-                            ]),
-                        ]),
-
-                        dbc.Col(width=12, children=[
-                            dbc.Alert(id="filter_output2",className="border-rounded",color='success',children="")
-                        ]),
+                        dbc.Col(id="date-header2", children=make_detail_header(json.loads(filter_data), suff="2")),
                     ]),
                 ]),
   

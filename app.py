@@ -278,7 +278,7 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value,return_nclicks,
     return json.dumps(filter_data)
         
 # Update details div
-@app.callback([Output("date-header", 'children'), Output("filter_output","children"),
+@app.callback([Output("date-header", 'children'),
                Output('modal-div','children'),
                Output('detail-cards-div','children'),Output('daily-graph','figure'),
                Output('map-div','children'),Output('memb-graph','figure')],
@@ -301,20 +301,19 @@ def daily_div_callback(filter_data):
         
     trips = False if filter_data['stations'] is None else True
     direction = filter_data['direction']
-    date = date_2_div(filter_data['date'])
     
-    filter_table = make_filter_table(filter_data)
+    detail_header = make_detail_header(filter_data, suff=suff)
     data_modal = make_data_modal(ddf, suff=suff)
     detail_cards_div_children=make_detail_cards(ddf,wdf,suff=suff)
     daily_fig = make_daily_fig(ddf,suff=suff)
     map_div = make_map_div(ddf,trips,direction,suff)
     memb_fig = make_memb_fig(ddf,suff=suff)
     
-    return [date,filter_table,data_modal,detail_cards_div_children,daily_fig,map_div,memb_fig]
+    return [detail_header,data_modal,detail_cards_div_children,daily_fig,map_div,memb_fig]
 
 
 # Update details div2
-@app.callback([Output('date-header2','children'), Output("filter_output2","children"), 
+@app.callback([Output('date-header2','children'), 
                Output('modal-div2','children'),
                Output('detail-cards-div2','children'),Output('daily-graph2','figure'),
                Output('map-div2','children'),Output('memb-graph2','figure')],
@@ -339,13 +338,13 @@ def daily_div_callback2(filter_data):
     direction = filter_data['direction']
     date = date_2_div(filter_data['date'])
     
-    filter_table = make_filter_table(filter_data)
+    detail_header = make_detail_header(filter_data, suff=suff)
     data_modal = make_data_modal(ddf, suff=suff)
     detail_cards_div_children=make_detail_cards(ddf,wdf,suff=suff)
     daily_fig = make_daily_fig(ddf,suff=suff)
     map_div = make_map_div(ddf,trips,direction,suff)
     memb_fig = make_memb_fig(ddf,suff=suff)
-    return [date,filter_table, data_modal,detail_cards_div_children,daily_fig,map_div,memb_fig]
+    return [detail_header, data_modal,detail_cards_div_children,daily_fig,map_div,memb_fig]
 
 
   
