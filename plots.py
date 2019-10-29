@@ -1,6 +1,6 @@
 import plotly.graph_objects as go
 import pandas as pd
-from datetime import datetime
+import datetime as dt
 import geopandas
 import mobisys as mobi
 
@@ -60,7 +60,8 @@ c_black=    '#000' #!default;
 colors = [c_blue,c_indigo,c_red,c_green,c_orange,c_teal,c_cyan,c_purple,c_yellow]
 
 def make_timeseries_fig(thdf, date=None, date2=None):
-
+    print("make_timeseries_fig")
+    print(date,date2)
     
     trips_hdf = thdf.sum(1).reset_index()
     trips_hdf.columns = ['Hour','Trips']
@@ -70,43 +71,33 @@ def make_timeseries_fig(thdf, date=None, date2=None):
     trips_ddf = trips_ddf.reset_index()
     trips_ddf.columns = ['Date','Trips']
     trips_rdf = trips_ddf.set_index('Date')['Trips'].rolling(30,min_periods=1, center=True).mean().reset_index()
-#     if date is None:
-#         colors = [ c_blue for x in trips_ddf['Date'] ] 
-#     elif len(date) == 2:
-#         colors = [ c_blue if (x >= datetime.strptime(date[0], '%Y-%m-%d')) and (x <= datetime.strptime(date[1], '%Y-%m-%d')) else c_gray_200 for x in trips_ddf['Date']] 
-#     else:
-#         colors = [ c_blue if x is True else c_gray_200 for x in trips_ddf['Date'] == date ] 
+
     
     trips_ddf['Color'] = c_blue
     
-    if date is not None:
-        trips_ddf['Color'] = c_gray_200
-        if len(date) == 2:
-            idx = (trips_ddf['Date'] >= datetime.strptime(date[0], '%Y-%m-%d')) & (trips_ddf['Date'] <= datetime.strptime(date[1], '%Y-%m-%d'))
-            trips_ddf.loc[idx,'Color'] = c_blue
-        else:
-            trips_ddf.loc[date,'Color'] = c_blue
-    
-    if date2 is not None:
-        if len(date2) == 2:
-            idx = (trips_ddf['Date'] >= datetime.strptime(date2[0], '%Y-%m-%d')) & (trips_ddf['Date'] <= datetime.strptime(date2[1], '%Y-%m-%d'))
-            trips_ddf.loc[idx,'Color'] = c_green
-        else:
-            trips_ddf.loc[date2,'Color'] = c_green
+    if (date is not None) or (date2 is not None):
+        color = c_gray_200
+    else:
+        color = c_blue
+      
+
 
     data = [go.Bar(
             x=trips_ddf['Date'],
             y=trips_ddf['Trips'],
-            marker_color = trips_ddf['Color'],
+            marker_color = color,
             name="Daily trips"
                 )
            ]
-    layout = go.Layout(#title='Daily Mobi Trips',
-                       paper_bgcolor='rgba(0,0,0,0)',
+    
+    layout = go.Layout(paper_bgcolor='rgba(0,0,0,0)',
                        plot_bgcolor='rgba(0,0,0,0)',
-                       yaxis =  {
-                         'fixedrange': True
-                       },
+                       yaxis = {
+                         'fixedrange': True,
+                         'showgrid':   False
+                               },
+                       xaxis={'showgrid':False
+                              },
                        margin=margin,
                        #autosize=True,
                        dragmode='select',
@@ -119,6 +110,43 @@ def make_timeseries_fig(thdf, date=None, date2=None):
                   )
 
     fig = go.Figure(data=data,layout=layout)
+    
+    def add_highlight(date,color):
+        print(date)
+        if date is None:
+            return None
+        
+        elif date is not None:
+            if len(date) == 2:
+                d1 = dt.datetime.strptime(date[0],'%Y-%m-%d') - dt.timedelta(0.5)
+                d2 = dt.datetime.strptime(date[1],'%Y-%m-%d') + dt.timedelta(0.5)
+            else:
+                d1 = dt.datetime.strptime(date,'%Y-%m-%d') - dt.timedelta(0.5)
+                d2 = d1 + dt.timedelta(1)
+
+            shape = go.layout.Shape(
+                    type="rect",
+                    # x-reference is assigned to the x-values
+                    xref="x",
+                    # y-reference is assigned to the plot paper [0,1]
+                    yref="paper",
+                    x0=d1,
+                    y0=0,
+                    x1=d2,
+                    y1=1,
+                    fillcolor=color,
+                    opacity=0.5,
+                    layer="below",
+                    line_width=0,
+                )
+
+            return shape
+
+    shapes = [add_highlight(date,c_blue),add_highlight(date2,c_green)]
+    fig.update_layout(shapes=[x for x in shapes if x is not None])
+   
+    
+
     
     # Add rolling average
     fig.add_trace(go.Scatter(
@@ -329,8 +357,8 @@ def make_daily_fig(df=None, suff=""):
 
     if df is not None and (trips_df.loc[trips_df.index[-1],'Time'] - trips_df.loc[0,'Time']).days < 1:
         date = trips_df.loc[0,'Time']
-        t1 = datetime(date.year,date.month,date.day,0)
-        t2 = datetime(date.year,date.month,date.day,23)
+        t1 = dt.datetime(date.year,date.month,date.day,0)
+        t2 = dt.datetime(date.year,date.month,date.day,23)
         fig.update_layout(xaxis_range=[t1,t2])
                                
     return fig
