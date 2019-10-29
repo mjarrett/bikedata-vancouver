@@ -57,22 +57,37 @@ app.layout = html.Div([header,body,footer])
 
 
 @app.callback(Output('detail-div-status','children'),
-              [Input('go-button','n_clicks')],
+              [Input('go-button','n_clicks'),Input('close-btn','n_clicks')],
              )
-def update_detail_status(n_clicks):
-    if n_clicks is None:
-        return "d-none"
-    else:
-        return ""
+def update_detail_status(go_n_clicks,close_n_clicks):
+    if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
+        if go_n_clicks is None:
+            return "d-none"
+        else:
+            return ""
 
-@app.callback(Output('detail-div-status2','children'),
-              [Input('go-button2','n_clicks')]
-             )
-def update_detail_status2(n_clicks):
-    if n_clicks is None:
+    if dash.callback_context.triggered[0]['prop_id'] == 'close-btn.n_clicks':
+        if close_n_clicks is None:
+            raise PreventUpdate
         return "d-none"
-    else:
-        return ""
+           
+        
+        
+        
+@app.callback(Output('detail-div-status2','children'),
+              [Input('go-button2','n_clicks'),Input('close-btn2','n_clicks')],
+             )
+def update_detail_status2(go_n_clicks,close_n_clicks):
+    if dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
+        if go_n_clicks is None:
+            return "d-none"
+        else:
+            return ""
+
+    if dash.callback_context.triggered[0]['prop_id'] == 'close-btn2.n_clicks':
+        if close_n_clicks is None:
+            raise PreventUpdate
+        return "d-none"
     
 @app.callback([Output('header-div','className'), Output('detail-cards-div','className'),
                Output('daily-div','className'), Output('map-div','className'),
@@ -172,29 +187,33 @@ def update_datepicker_from_graph(clickData, selectedData, filter_data):
               [Input('go-button','n_clicks'),
                Input('map-graph','clickData'),
                Input('stations-radio','value'),
-               Input('map-return-link','n_clicks')],
+               Input('map-return-link','n_clicks'),
+               Input('close-btn','n_clicks')],
               [State("filter-meta-div",'children'),
                State('datepicker','start_date'), 
                State('datepicker','end_date'),
                State('filter-dropdown','value')]
              )
-def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, 
+def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close_nclicks, 
                            filter_data,
                            start_date,end_date,filter_values):
-    if clickData is None and n_clicks is None:
-        raise PreventUpdate
+
 
     filter_data = json.loads(filter_data)
     
     # IF go-button is triggered, update all values
     if  dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
+        if n_clicks is None:
+            raise PreventUpdate
         date = convert_dates(start_date,end_date)
          
         filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start'}
 
       
     # If map #1 is clicked           
-    if clickData is not None:
+    if dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
+        if clickData is None:
+            raise PreventUpdate
         station = clickData['points'][0]['text'].split('<')[0].strip()
         filter_data['stations'] = [station]
        
@@ -208,7 +227,15 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks,
             
     # If return button triggered
     if  dash.callback_context.triggered[0]['prop_id'] == 'map-return-link.n_clicks':
+        if return_nclicks is None:
+            raise PreventUpdate
         filter_data['stations'] = None
+        
+    # If close button triggered
+    if  dash.callback_context.triggered[0]['prop_id'] == 'close-btn.n_clicks':
+        if close_nclicks is None:
+            raise PreventUpdate
+        filter_data['date'] = None
     
     return json.dumps(filter_data)
 
@@ -218,44 +245,56 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks,
               [Input('go-button2','n_clicks'),
                Input('map-graph2','clickData'),
                Input('stations-radio2','value'),
-               Input('map-return-link2','n_clicks')],
+               Input('map-return-link2','n_clicks'),
+               Input('close-btn2','n_clicks')],
               [State("filter-meta-div2",'children'),
                State('datepicker2','start_date'), 
                State('datepicker2','end_date'),
                State('filter-dropdown2','value')]
              )
-def update_filter_meta_div2(n_clicks,clickData,radio_value,return_nclicks,
+def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close_nclicks, 
                            filter_data,
                            start_date,end_date,filter_values):
-    if clickData is None and n_clicks is None:
-        raise PreventUpdate
+
 
     filter_data = json.loads(filter_data)
     
-    # If go-butto2 is triggered, update all values
+    # IF go-button is triggered, update all values
     if  dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
+        if n_clicks is None:
+            raise PreventUpdate
         date = convert_dates(start_date,end_date)
-        
+         
         filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start'}
 
       
-    # If map2 is clicked           
-    if clickData is not None:
+    # If map #1 is clicked           
+    if dash.callback_context.triggered[0]['prop_id'] == 'map-graph2.clickData':
+        if clickData is None:
+            raise PreventUpdate
         station = clickData['points'][0]['text'].split('<')[0].strip()
         filter_data['stations'] = [station]
        
         
-    # If radio2 is clicked
-    if  dash.callback_context.triggered[0]['prop_id'] == 'stations-radio2.value':
+    # If radio1 is clicked
+    if  dash.callback_context.triggered[0]['prop_id'] == 'stations2-radio.value':
         if radio_value == filter_data['direction']:
             raise PreventUpdate
         else:
             filter_data['direction'] = radio_value
-
+            
     # If return button triggered
-    if  dash.callback_context.triggered[0]['prop_id'] == 'map-return-link.n_clicks':
-        filter_data['stations'] = None           
+    if  dash.callback_context.triggered[0]['prop_id'] == 'map-return-link2.n_clicks':
+        if return_nclicks is None:
+            raise PreventUpdate
+        filter_data['stations'] = None
         
+    # If close button triggered
+    if  dash.callback_context.triggered[0]['prop_id'] == 'close-btn2.n_clicks':
+        if close_nclicks is None:
+            raise PreventUpdate
+        filter_data['date'] = None
+    
     return json.dumps(filter_data)
         
 # Update details div

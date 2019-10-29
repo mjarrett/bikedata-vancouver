@@ -247,20 +247,41 @@ def make_detail_header(filter_data, suff=""):
     date = '2010-01-01' if filter_data['date'] is None else filter_data['date']
 
         
-    button = dbc.Button(id=f"date-update-btn{suff}", color=color, children=[
+    date_button = dbc.Button(id=f"date-update-btn{suff}", color=color, children=[
        html.Span(className="fa fa-calendar")
         ])
+    date_button_tt = dbc.Tooltip(target=f"date-update-btn{suff}",children="Change the current selection")
+   
     
-    
+    close_button = dbc.Button(id=f"close-btn{suff}", color=color, children=[
+        html.Span(className="fa fa-times-circle")
+        ])
+    close_button_tt = dbc.Tooltip(target=f"close-btn{suff}", children="Close current selection")
+
+    if suff == "":
+        date_button2 = dbc.Button(id='date-button2',color=color, children=[
+            html.Span(className="fa fa-plus text-success" )
+            ])
+        date_button2_tt = dbc.Tooltip(target='date-button2',children="Add a new selection")
+    else:
+        date_button2 = ""
+        date_button2_tt = ""
+        
+    button_col = dbc.Col(width=12,children=[date_button,date_button_tt,date_button2,date_button2_tt,close_button,close_button_tt])
+        
+        
     if len(date) == 2:
         d1 = datetime.strptime(date[0],'%Y-%m-%d').strftime('%A, %B %-d %Y')
         d2 = datetime.strptime(date[1],'%Y-%m-%d').strftime('%A, %B %-d %Y')
-        header = html.Div([d1," ",html.Span(className="fa fa-arrow-right")," ", d2, button])
+        header_txt = dbc.Col([d1," ",html.Span(className="fa fa-arrow-right")," ", d2])
     else:
         d1 = datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
-        header = html.Div(children=[date,button])
+        header_txt = dbc.Col(children=[d1])
+        
+    header = dbc.Row([header_txt,button_col])
+                
 
-
+ 
 
         
         
@@ -371,7 +392,7 @@ main_div = dbc.Row(children=[
                             style={'height':'100%','width':'100%'}
                         ),   
                         dbc.Button("Explore Data", id='date-button',size='lg',color="primary", className="mr-1"),
-                        dbc.Button("Compare date", id='date-button2',size='lg',color="success", className="mr-1 d-none"),
+                        
                     ]),
                 ]),
             ]),
