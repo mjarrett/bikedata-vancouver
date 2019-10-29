@@ -11,7 +11,7 @@ import dash_table
 
 from helpers import *
 from plots import *
-
+from credentials import *
 
 
 #######################################################################################
@@ -24,7 +24,7 @@ from plots import *
 #df = prep_sys_df('./Mobi_System_Data.csv')
 log("==================")
 log("Loading data")
-df = pd.read_csv('./data/Mobi_System_Data_Prepped.csv')
+df = pd.read_csv(f'{datapath}/Mobi_System_Data_Prepped.csv')
 memtypes = set(df['Membership Simple'])
 df.Departure = pd.to_datetime(df.Departure)
 df.Return = pd.to_datetime(df.Return)
@@ -38,7 +38,7 @@ startdate_str = startdate.strftime('%b %-d %Y')
 enddate_str = enddate.strftime('%b %-d %Y')
 
 log("Loading weather")  
-wdf = pd.read_csv('./data/weather.csv',index_col=0)
+wdf = pd.read_csv(f'{datapath}/weather.csv',index_col=0)
 wdf.index = pd.to_datetime(wdf.index)
  
 n_days = (enddate-startdate).days

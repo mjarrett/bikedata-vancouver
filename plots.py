@@ -168,7 +168,7 @@ def make_station_map(df=None, direction='start', suff=""):
         color = c_green
     
     # https://plot.ly/python/mapbox-layers/
-    sdf = geopandas.read_file(f'./data/stations_df.geojson')
+    sdf = geopandas.read_file(f'{datapath}/stations_df.geojson')
     sdf = sdf.to_crs({'init': 'epsg:4326'})
     sdf['long'] = sdf.geometry.map(lambda x: x.x)
     sdf['lat'] = sdf.geometry.map(lambda x: x.y)
@@ -232,7 +232,7 @@ def make_trips_map(df,direction='start',suff=""):
     cdf = cdf[cdf['Departure lat'] > 1]
     cdf = cdf[cdf['Return lat'] > 1]
     
-    sdf = geopandas.read_file(f'./data/stations_df.geojson')
+    sdf = geopandas.read_file(f'{datapath}/stations_df.geojson')
     sdf = sdf.to_crs({'init': 'epsg:4326'})
     sdf['long'] = sdf.geometry.map(lambda x: x.x)
     sdf['lat'] = sdf.geometry.map(lambda x: x.y)
