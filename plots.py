@@ -113,7 +113,6 @@ def make_timeseries_fig(thdf, date=None, date2=None):
     fig = go.Figure(data=data,layout=layout)
     
     def add_highlight(date,color):
-        print(date)
         if date is None:
             return None
         
