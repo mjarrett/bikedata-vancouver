@@ -51,10 +51,13 @@ df['Membership Type'] = df['Membership Type'].fillna("")
 df = df[df['Membership Type']!=""]
 
 
-df['Account'] = df['Account'].fillna("")
-tot_usrs = len(set(df['Account']))
-tot_usrs_per_day = tot_usrs / n_days
+#df['Account'] = df['Account'].fillna("")
+#tot_usrs = len(set(df['Account']))
+#tot_usrs_per_day = tot_usrs / n_days
 tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
+
+tot_bikes = len(set(df['Bike'].fillna(0)))
+
 
 
 #######################################################################################
@@ -335,7 +338,7 @@ summary_cards = dbc.Row(className='p-3 justify-content-center', children=[
                 dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
                     make_card("Total Trips",f"{n_trips:,}",color='primary'),
                     make_card("Total Distance Travelled",f"{int(tot_dist):,} km",color='info'),
-                    make_card("Total Members",f"{tot_usrs:,}",color='success'),
+                    make_card("Unique bikes",f"{tot_bikes:,}",color='success'),
                     make_card("Total Trip Time",f"{int(tot_time/(60*60)):,} hours",color='warning')
 
                 ]),
