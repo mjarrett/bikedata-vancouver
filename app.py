@@ -56,6 +56,28 @@ app.layout = html.Div([header,body,footer])
 #######################################################################################
 
 
+# @app.callback(Output('map-return-btn','className'),
+#               [Input('filter-meta-div','children')]
+#              )
+# def toggle_station_return_button(filter_data):
+#     filter_data = json.loads(filter_data)
+#     print(filter_data)
+#     if filter_data['stations'] is None:
+#         return "d-none"
+#     else:
+#         return ""
+    
+# @app.callback(Output('map-return-btn2','className'),
+#               [Input('filter-meta-div2','children')]
+#              )
+# def toggle_station_return_button2(filter_data):
+#     filter_data = json.loads(filter_data)
+#     if filter_data['stations'] is None:
+#         return "d-none"
+#     else:
+#         return ""
+              
+
 @app.callback(Output('detail-div-status','children'),
               [Input('go-button','n_clicks'),Input('close-btn','n_clicks')],
              )
@@ -187,7 +209,7 @@ def update_datepicker_from_graph(clickData, selectedData, filter_data):
               [Input('go-button','n_clicks'),
                Input('map-graph','clickData'),
                Input('stations-radio','value'),
-               Input('map-return-link','n_clicks'),
+               Input('map-return-btn','n_clicks'),
                Input('close-btn','n_clicks')],
               [State("filter-meta-div",'children'),
                State('datepicker','start_date'), 
@@ -226,7 +248,7 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close
             filter_data['direction'] = radio_value
             
     # If return button triggered
-    if  dash.callback_context.triggered[0]['prop_id'] == 'map-return-link.n_clicks':
+    if  dash.callback_context.triggered[0]['prop_id'] == 'map-return-btn.n_clicks':
         if return_nclicks is None:
             raise PreventUpdate
         filter_data['stations'] = None
@@ -245,7 +267,7 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close
               [Input('go-button2','n_clicks'),
                Input('map-graph2','clickData'),
                Input('stations-radio2','value'),
-               Input('map-return-link2','n_clicks'),
+               Input('map-return-btn2','n_clicks'),
                Input('close-btn2','n_clicks')],
               [State("filter-meta-div2",'children'),
                State('datepicker2','start_date'), 
@@ -284,7 +306,7 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close
             filter_data['direction'] = radio_value
             
     # If return button triggered
-    if  dash.callback_context.triggered[0]['prop_id'] == 'map-return-link2.n_clicks':
+    if  dash.callback_context.triggered[0]['prop_id'] == 'map-return-btn2.n_clicks':
         if return_nclicks is None:
             raise PreventUpdate
         filter_data['stations'] = None

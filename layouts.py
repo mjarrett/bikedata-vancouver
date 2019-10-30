@@ -192,37 +192,9 @@ def make_data_modal(df=None, suff=""):
 
 def make_map_div(df=None,trips=False,direction='start',suff=""):
     
-    return_but_class = "pull-right" if trips else "d-none pull-right"
-    if suff == "":
-        return_but_class = return_but_class + " " + "color-primary"
-    elif suff == "2":
-        return_but_class = return_but_class + " " + "color-success"
         
     return html.Div([
                 html.Div(id=f'map-state{suff}', children="trips" if trips else "stations", style={'display':'none'}),
-                        
-        
-                dbc.Row(children=[
-                    dbc.Col([
-                        dbc.RadioItems(
-                            id=f'stations-radio{suff}',
-                            options=[
-                                {'label': 'Trip Start', 'value': 'start'},
-                                {'label': 'Trip End', 'value': 'stop'},
-                                {'label': 'Both', 'value': 'both'}
-                            ],
-                            value=direction,
-                            inline=True
-                        ),  
-                    ]),
-                    dbc.Col(width=4, children=[
-                        dbc.Tooltip("Go back to all stations",
-                                        target=f'map-return-link{suff}'),
-                        dbc.Button(children="All stations", className=return_but_class, id=f'map-return-link{suff}')
-                    ]),
-                ]),
-
-
 
                 dcc.Graph(
                     id=f'map-graph{suff}',
@@ -239,10 +211,12 @@ def make_detail_header(filter_data, suff=""):
     elif suff == "2":
         color='success'
     
+    direction = filter_data['direction']
     stations = "All" if filter_data['stations'] is None else ", ".join(filter_data['stations'])
     if (filter_data['cats'] is None) or (set(filter_data['cats']) == memtypes): 
         cats = "All"
     else: ", ".join(filter_data['cats'])
+        
         
     date = '2010-01-01' if filter_data['date'] is None else filter_data['date']
 
@@ -281,19 +255,35 @@ def make_detail_header(filter_data, suff=""):
     header = dbc.Row([header_txt,button_col])
                 
 
- 
+    radio = dbc.RadioItems(
+                id=f'stations-radio{suff}',
+                options=[
+                    {'label': 'Trip Start', 'value': 'start'},
+                    {'label': 'Trip End', 'value': 'stop'},
+                    {'label': 'Both', 'value': 'both'}
+                ],
+                value=direction,
+                inline=True
+            )
 
+       
+    return_btn_class = 'd-none' if stations=='All' else ''
+    return_btn_tt = dbc.Tooltip("Go back to all stations", target=f'map-return-btn{suff}')
+    return_btn    = dbc.Button(size="sm", className=return_btn_class,id=f'map-return-btn{suff}',color='white', children=[
+                        html.Span(className=f"fa fa-times-circle text-{color}")
+                    ])    
         
-        
-    row3 = html.Tr([html.Td("Stations"), html.Td(html.Em(stations))])
+    row2 = html.Tr([html.Td("Direction"), html.Td(radio)])
+    row3 = html.Tr([html.Td("Stations"), html.Td(html.Em(stations)),return_btn_tt,return_btn])
     row4 = html.Tr([html.Td("Membership Types"), html.Td(html.Em(cats))])
-    table_body = [html.Tbody([row3, row4])]
+    table_body = [html.Tbody([row3, row4, row2])]
     table = dbc.Table(table_body, size='sm',bordered=False)
 
     card = dbc.Card(children=[
             dbc.CardHeader(className=f"text-strong text-white bg-{color}",children=header),
             table,
         ])
+    
     return card
 
 #######################################################################################
