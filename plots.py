@@ -72,19 +72,21 @@ def make_timeseries_fig(thdf, date=None, date2=None):
     trips_rdf = trips_ddf.set_index('Date')['Trips'].rolling(30,min_periods=1, center=True).mean().reset_index()
 
     
-    trips_ddf['Color'] = c_blue
+    trips_ddf['Color'] = c_blue 
     
     if (date is not None) or (date2 is not None):
         color = c_gray_200
+        opacity = 0.5
     else:
         color = c_blue
-      
+        opacity = 1
 
 
     data = [go.Bar(
             x=trips_ddf['Date'],
             y=trips_ddf['Trips'],
             marker_color = color,
+            opacity = opacity,
             name="Daily trips"
                 )
            ]
