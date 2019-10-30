@@ -278,9 +278,10 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value, return_nclicks, clos
     log("update_filter_meta_div2")
     log(dash.callback_context.triggered[0]['prop_id'])
     
+    
     filter_data = json.loads(filter_data)
     
-    # IF go-button is triggered, update all values
+    # IF go-button2 is triggered, update all values
     if  dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
         if n_clicks is None:
             raise PreventUpdate
@@ -289,7 +290,7 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value, return_nclicks, clos
         filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start'}
 
       
-    # If map #1 is clicked           
+    # If map #2 is clicked           
     if dash.callback_context.triggered[0]['prop_id'] == 'map-graph2.clickData':
         if clickData is None:
             raise PreventUpdate
@@ -297,8 +298,10 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value, return_nclicks, clos
         filter_data['stations'] = [station]
        
         
-    # If radio1 is clicked
-    if  dash.callback_context.triggered[0]['prop_id'] == 'stations2-radio.value':
+    # If radio2 is clicked
+    if  dash.callback_context.triggered[0]['prop_id'] == 'stations-radio2.value':
+        log(radio_value)
+        log(filter_data['direction'])
         if radio_value == filter_data['direction']:
             raise PreventUpdate
         else:
@@ -468,7 +471,7 @@ def open_data_modal2(n_clicks):
               [State('filter-meta-div','children')]
              )
 def download_data(n_clicks,filter_data):
-    log("download data")
+    log("download_data")
     log(dash.callback_context.triggered[0]['prop_id'])
     
     if n_clicks is None:
