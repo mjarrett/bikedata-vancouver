@@ -114,15 +114,17 @@ def make_detail_cards(df=None,wdf=None,suff=''):
     avg_daily_high = wdf['Max Temp'].mean()
     avg_daily_pricip = wdf['Total Precipmm'].mean()
     
-
+    avg_daily_high = "Data missing" if np.isnan(avg_daily_high) else f"{avg_daily_high:.1f} °C"
+    avg_daily_pricip = "Data missing" if np.isnan(avg_daily_pricip) else f"{avg_daily_pricip:.1f} mm"
+    
     output =  dbc.Col(style={'width':'100%'},children=[
 
 
         dbc.CardColumns([
             make_card("Total trips", f"{n_trips:,}",color=color),
             make_card("Average trip distance",f"{int(avg_dist):,} km",color=color),
-            make_card("Daily high temp",f"{avg_daily_high:.1f} °C",color=color),
-            make_card("Daily precipitation",f"{avg_daily_pricip:.1f} mm",color=color),
+            make_card("Daily high temp",avg_daily_high,color=color),
+            make_card("Daily precipitation",avg_daily_pricip,color=color),
 
 
         ]),
