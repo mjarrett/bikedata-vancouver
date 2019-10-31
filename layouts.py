@@ -246,7 +246,15 @@ def make_detail_header(filter_data, suff=""):
         date_button2 = ""
         date_button2_tt = ""
         
-    button_col = dbc.Col(width=12,children=[date_button,date_button_tt,date_button2,date_button2_tt,close_button,close_button_tt])
+    data_button = dbc.Button(id=f'data-button{suff}', color=color, children=[
+        html.Span(className="fa fa-table" )
+    ])               
+    data_button_tt = dbc.Tooltip(target=f'data-button{suff}', children="View raw data")
+        
+    button_col = dbc.Col(width=12,children=[date_button,date_button_tt,
+                                            date_button2,date_button2_tt,
+                                            data_button,data_button_tt,
+                                            close_button,close_button_tt])
         
         
     if len(date) == 2:
@@ -511,12 +519,10 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
             ]),
         
             dbc.Col(width=6, id="explore-div", className=startclass, children=[
-                dbc.Button("Explore Data", id=f'data-button'),
                 html.Div(id="modal-div", children=make_data_modal(suff="")),
             ]),
         
             dbc.Col(width=6, id="explore-div2", className=startclass, children=[
-                dbc.Button("Explore Data", id=f'data-button2'),
                 html.Div(id="modal-div2", children=make_data_modal(suff="2")),
             ]),
             
