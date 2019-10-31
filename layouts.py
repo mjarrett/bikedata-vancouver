@@ -421,7 +421,7 @@ main_div = dbc.Row(children=[
                 ]),
                 dbc.Tooltip("Pick a date or select a range of days to see details.",
                                         target="go-button"),
-                dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
+                dbc.Button("Go    ", id='go-button', color="primary", disabled=True, outline=False, block=True),
             ])
         ]),
         
@@ -448,7 +448,7 @@ main_div = dbc.Row(children=[
                 ]),
                 dbc.Tooltip("Pick a date or select a range of days to see details.",
                                         target="go-button2"),
-                dbc.Button("Go    ", id='go-button2', color="success", outline=True, block=True),
+                dbc.Button("Go    ", id='go-button2', color="success", disabled=True, outline=False, block=True),
             ]) 
         ])
     ])

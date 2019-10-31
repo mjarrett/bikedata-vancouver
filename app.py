@@ -55,7 +55,27 @@ app.layout = html.Div([header,body,footer])
 #
 #######################################################################################
 
+@app.callback(Output('go-button','disabled'),
+              [Input('datepicker','start_date')]
+             )
+def toggle_go_button(start_date):
+    log("toggle_go_Button")
 
+    if start_date is None:
+        return True
+    else:
+        return False  
+    
+@app.callback(Output('go-button2','disabled'),
+              [Input('datepicker2','start_date')]
+             )
+def toggle_go_button2(start_date):
+    log("toggle_go_Button")
+
+    if start_date is None:
+        return True
+    else:
+        return False  
 
               
 
