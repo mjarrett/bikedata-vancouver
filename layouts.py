@@ -312,7 +312,7 @@ header = dbc.NavbarSimple(
             ],
         ),
     ],
-    brand="Vancouver Bikeshare Explorer",
+    brand="BikeDataBC",
     brand_href="#",
 #     sticky="top",
     color='#1e5359',
@@ -324,18 +324,19 @@ footer = dbc.NavbarSimple(
         dbc.NavItem(dbc.NavLink("Link", href="#")),
         
     ],
-    brand="Vancouver Bikeshare Explorer",
+    brand="BikeDataBC",
     brand_href="#",
     sticky="bottom",
     color='#1e5359',
-    dark=False
+    dark=True
     )
 
 summary_cards = dbc.Row(className='p-3 justify-content-center', children=[
         
-        dbc.Col([
-            dbc.Row(children=[
-                
+        dbc.Col(html.H2(f"Data available from {startdate_str} to {enddate_str}",className="text-secondary"),width=12),
+    
+    
+        dbc.Col([                
                 
                 dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
                     make_card("Total Trips",f"{n_trips:,}",color='primary'),
@@ -344,25 +345,19 @@ summary_cards = dbc.Row(className='p-3 justify-content-center', children=[
                     make_card("Total Trip Time",f"{int(tot_time/(60*60)):,} hours",color='warning')
 
                 ]),
-            ]),
         ]),
-        
-        
     ]) 
 
-summary_jumbo = dbc.Jumbotron( 
-    [
+summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
         html.H1("BikeData BC", className="display-3"),
 
         html.P(
-            "This tool makes Mobi's trip data available for analysis",
+            "Explore trip data from Mobi, Vancouver's bike share company",
             className="lead",
         ),
         html.Hr(className="my-2"),
-        html.P(
-            f"Data available from {startdate_str} to {enddate_str}"
-        ),
-        html.P(dbc.Button("Learn more", id='jumbo-button', color="primary"), className="lead"),
+        html.P(dbc.Button("About the data", id='jumbo-button', color="primary"), className="lead"),
+        summary_cards
     ]
 )
 
@@ -370,29 +365,21 @@ summary_jumbo = dbc.Jumbotron(
 filter_data = json.dumps({'date':None, 'cats':None, 'stations':None, 'direction':'start'})                          
 filter_data2 = json.dumps({'date':None,'cats':None,'stations':None,'direction':'start'})
 
-main_div = dbc.Row(children=[
+main_div = dbc.Row(className="pb-5", children=[
     dbc.Col([
-        
-        
-        dbc.Row(className='py-2',children=[
+        dbc.Card(style={'border':'none'}, children=[
+            
+            dcc.Graph(
+                id='timeseries-graph',
+                figure=make_timeseries_fig(thdf),
+                style={'height':'100%','width':'100%'}
+            ),   
 
-            dbc.Col(children=[
-
-                dbc.Card(className="justify-content-center",children=[
-                    #dbc.CardHeader(),
-                    dbc.CardBody([
-                        dcc.Graph(
-                            id='timeseries-graph',
-                            figure=make_timeseries_fig(thdf),
-                            style={'height':'100%','width':'100%'}
-                        ),   
-                        dbc.Button("Explore Data", id='date-button',size='lg',color="primary", className="mr-1"),
-                        
-                    ]),
-                ]),
-            ]),
-        ]),        
+            
+        ]),
         
+
+        dbc.Button("Explore Data", id='date-button',color="primary"),
 
         
 
