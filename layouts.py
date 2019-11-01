@@ -341,7 +341,7 @@ footer = dbc.NavbarSimple(
 
 summary_cards = dbc.Row(className='p-3 justify-content-center', children=[
         
-        dbc.Col(html.H2(f"Data available from {startdate_str} to {enddate_str}",className="text-secondary"),width=12),
+        dbc.Col(html.H4(f"Data available from {startdate_str} to {enddate_str}",className="text-secondary"),width=12),
     
     
         dbc.Col([                
