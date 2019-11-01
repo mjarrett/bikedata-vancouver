@@ -51,10 +51,13 @@ df['Membership Type'] = df['Membership Type'].fillna("")
 df = df[df['Membership Type']!=""]
 
 
-df['Account'] = df['Account'].fillna("")
-tot_usrs = len(set(df['Account']))
-tot_usrs_per_day = tot_usrs / n_days
+#df['Account'] = df['Account'].fillna("")
+#tot_usrs = len(set(df['Account']))
+#tot_usrs_per_day = tot_usrs / n_days
 tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
+
+tot_bikes = len(set(df['Bike'].fillna(0)))
+
 
 
 #######################################################################################
@@ -111,15 +114,17 @@ def make_detail_cards(df=None,wdf=None,suff=''):
     avg_daily_high = wdf['Max Temp'].mean()
     avg_daily_pricip = wdf['Total Precipmm'].mean()
     
-
+    avg_daily_high = "Data missing" if np.isnan(avg_daily_high) else f"{avg_daily_high:.1f} °C"
+    avg_daily_pricip = "Data missing" if np.isnan(avg_daily_pricip) else f"{avg_daily_pricip:.1f} mm"
+    
     output =  dbc.Col(style={'width':'100%'},children=[
 
 
         dbc.CardColumns([
             make_card("Total trips", f"{n_trips:,}",color=color),
             make_card("Average trip distance",f"{int(avg_dist):,} km",color=color),
-            make_card("Daily high temp",f"{avg_daily_high:.1f} °C",color=color),
-            make_card("Daily precipitation",f"{avg_daily_pricip:.1f} mm",color=color),
+            make_card("Daily high temp",avg_daily_high,color=color),
+            make_card("Daily precipitation",avg_daily_pricip,color=color),
 
 
         ]),
@@ -192,37 +197,9 @@ def make_data_modal(df=None, suff=""):
 
 def make_map_div(df=None,trips=False,direction='start',suff=""):
     
-    return_but_class = "pull-right" if trips else "d-none pull-right"
-    if suff == "":
-        return_but_class = return_but_class + " " + "color-primary"
-    elif suff == "2":
-        return_but_class = return_but_class + " " + "color-success"
         
     return html.Div([
                 html.Div(id=f'map-state{suff}', children="trips" if trips else "stations", style={'display':'none'}),
-                        
-        
-                dbc.Row(children=[
-                    dbc.Col([
-                        dbc.RadioItems(
-                            id=f'stations-radio{suff}',
-                            options=[
-                                {'label': 'Trip Start', 'value': 'start'},
-                                {'label': 'Trip End', 'value': 'stop'},
-                                {'label': 'Both', 'value': 'both'}
-                            ],
-                            value=direction,
-                            inline=True
-                        ),  
-                    ]),
-                    dbc.Col(width=4, children=[
-                        dbc.Tooltip("Go back to all stations",
-                                        target=f'map-return-link{suff}'),
-                        dbc.Button(children="All stations", className=return_but_class, id=f'map-return-link{suff}')
-                    ]),
-                ]),
-
-
 
                 dcc.Graph(
                     id=f'map-graph{suff}',
@@ -239,40 +216,87 @@ def make_detail_header(filter_data, suff=""):
     elif suff == "2":
         color='success'
     
+    direction = filter_data['direction']
     stations = "All" if filter_data['stations'] is None else ", ".join(filter_data['stations'])
     if (filter_data['cats'] is None) or (set(filter_data['cats']) == memtypes): 
         cats = "All"
     else: ", ".join(filter_data['cats'])
         
+        
     date = '2010-01-01' if filter_data['date'] is None else filter_data['date']
 
         
-    button = dbc.Button(id=f"date-update-btn{suff}", color=color, children=[
+    date_button = dbc.Button(id=f"date-update-btn{suff}", color=color, children=[
        html.Span(className="fa fa-calendar")
         ])
+    date_button_tt = dbc.Tooltip(target=f"date-update-btn{suff}",children="Change the current selection")
+   
     
-    
+    close_button = dbc.Button(id=f"close-btn{suff}", color=color, children=[
+        html.Span(className="fa fa-times-circle")
+        ])
+    close_button_tt = dbc.Tooltip(target=f"close-btn{suff}", children="Close current selection")
+
+    if suff == "":
+        date_button2 = dbc.Button(id='date-button2',color=color, children=[
+            html.Span(className="fa fa-plus text-success" )
+            ])
+        date_button2_tt = dbc.Tooltip(target='date-button2',children="Add a new selection")
+    else:
+        date_button2 = ""
+        date_button2_tt = ""
+        
+    data_button = dbc.Button(id=f'data-button{suff}', color=color, children=[
+        html.Span(className="fa fa-table" )
+    ])               
+    data_button_tt = dbc.Tooltip(target=f'data-button{suff}', children="View raw data")
+        
+    button_col = dbc.Col(width=12,children=[date_button,date_button_tt,
+                                            date_button2,date_button2_tt,
+                                            data_button,data_button_tt,
+                                            close_button,close_button_tt])
+        
+        
     if len(date) == 2:
         d1 = datetime.strptime(date[0],'%Y-%m-%d').strftime('%A, %B %-d %Y')
         d2 = datetime.strptime(date[1],'%Y-%m-%d').strftime('%A, %B %-d %Y')
-        header = html.Div([d1," ",html.Span(className="fa fa-arrow-right")," ", d2, button])
+        header_txt = dbc.Col([d1," ",html.Span(className="fa fa-arrow-right")," ", d2])
     else:
         d1 = datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
-        header = html.Div(children=[date,button])
-
-
-
+        header_txt = dbc.Col(children=[d1])
         
+    header = dbc.Row([header_txt,button_col])
+                
+
+    radio = dbc.RadioItems(
+                id=f'stations-radio{suff}',
+                options=[
+                    {'label': 'Trip Start', 'value': 'start'},
+                    {'label': 'Trip End', 'value': 'stop'},
+                    {'label': 'Both', 'value': 'both'}
+                ],
+                value=direction,
+                inline=True
+            )
+
+       
+    return_btn_class = 'd-none' if stations=='All' else ''
+    return_btn_tt = dbc.Tooltip("Go back to all stations", target=f'map-return-btn{suff}')
+    return_btn    = dbc.Button(size="sm", className=return_btn_class,id=f'map-return-btn{suff}',color='white', children=[
+                        html.Span(className=f"fa fa-times-circle text-{color}")
+                    ])    
         
-    row3 = html.Tr([html.Td("Stations"), html.Td(html.Em(stations))])
+    row2 = html.Tr([html.Td("Direction"), html.Td(radio)])
+    row3 = html.Tr([html.Td("Stations"), html.Td(html.Em(stations)),return_btn_tt,return_btn])
     row4 = html.Tr([html.Td("Membership Types"), html.Td(html.Em(cats))])
-    table_body = [html.Tbody([row3, row4])]
+    table_body = [html.Tbody([row3, row4, row2])]
     table = dbc.Table(table_body, size='sm',bordered=False)
 
     card = dbc.Card(children=[
             dbc.CardHeader(className=f"text-strong text-white bg-{color}",children=header),
             table,
         ])
+    
     return card
 
 #######################################################################################
@@ -296,7 +320,7 @@ header = dbc.NavbarSimple(
             ],
         ),
     ],
-    brand="Vancouver Bikeshare Explorer",
+    brand="BikeDataBC",
     brand_href="#",
 #     sticky="top",
     color='#1e5359',
@@ -308,45 +332,40 @@ footer = dbc.NavbarSimple(
         dbc.NavItem(dbc.NavLink("Link", href="#")),
         
     ],
-    brand="Vancouver Bikeshare Explorer",
+    brand="BikeDataBC",
     brand_href="#",
     sticky="bottom",
     color='#1e5359',
-    dark=False
+    dark=True
     )
 
 summary_cards = dbc.Row(className='p-3 justify-content-center', children=[
         
-        dbc.Col([
-            dbc.Row(children=[
-                
+        dbc.Col(html.H4(f"Data available from {startdate_str} to {enddate_str}",className="text-secondary"),width=12),
+    
+    
+        dbc.Col([                
                 
                 dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
                     make_card("Total Trips",f"{n_trips:,}",color='primary'),
                     make_card("Total Distance Travelled",f"{int(tot_dist):,} km",color='info'),
-                    make_card("Total Members",f"{tot_usrs:,}",color='success'),
+                    make_card("Unique bikes",f"{tot_bikes:,}",color='success'),
                     make_card("Total Trip Time",f"{int(tot_time/(60*60)):,} hours",color='warning')
 
                 ]),
-            ]),
         ]),
-        
-        
     ]) 
 
-summary_jumbo = dbc.Jumbotron( 
-    [
+summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
         html.H1("BikeData BC", className="display-3"),
 
         html.P(
-            "This tool makes Mobi's trip data available for analysis",
+            "Explore trip data from Mobi, Vancouver's bike share company",
             className="lead",
         ),
         html.Hr(className="my-2"),
-        html.P(
-            f"Data available from {startdate_str} to {enddate_str}"
-        ),
-        html.P(dbc.Button("Learn more", id='jumbo-button', color="primary"), className="lead"),
+        html.P(dbc.Button("About the data", id='jumbo-button', color="primary"), className="lead"),
+        summary_cards
     ]
 )
 
@@ -354,29 +373,21 @@ summary_jumbo = dbc.Jumbotron(
 filter_data = json.dumps({'date':None, 'cats':None, 'stations':None, 'direction':'start'})                          
 filter_data2 = json.dumps({'date':None,'cats':None,'stations':None,'direction':'start'})
 
-main_div = dbc.Row(children=[
+main_div = dbc.Row(className="pb-5", children=[
     dbc.Col([
-        
-        
-        dbc.Row(className='py-2',children=[
+        dbc.Card(style={'border':'none'}, children=[
+            
+            dcc.Graph(
+                id='timeseries-graph',
+                figure=make_timeseries_fig(thdf),
+                style={'height':'100%','width':'100%'}
+            ),   
 
-            dbc.Col(children=[
-
-                dbc.Card(className="justify-content-center",children=[
-                    #dbc.CardHeader(),
-                    dbc.CardBody([
-                        dcc.Graph(
-                            id='timeseries-graph',
-                            figure=make_timeseries_fig(thdf),
-                            style={'height':'100%','width':'100%'}
-                        ),   
-                        dbc.Button("Explore Data", id='date-button',size='lg',color="primary", className="mr-1"),
-                        dbc.Button("Compare date", id='date-button2',size='lg',color="success", className="mr-1 d-none"),
-                    ]),
-                ]),
-            ]),
-        ]),        
+            
+        ]),
         
+
+        dbc.Button("Explore Data", id='date-button',color="primary"),
 
         
 
@@ -405,7 +416,7 @@ main_div = dbc.Row(children=[
                 ]),
                 dbc.Tooltip("Pick a date or select a range of days to see details.",
                                         target="go-button"),
-                dbc.Button("Go    ", id='go-button', color="primary", outline=True, block=True),
+                dbc.Button("Go    ", id='go-button', color="primary", disabled=True, outline=False, block=True),
             ])
         ]),
         
@@ -432,7 +443,7 @@ main_div = dbc.Row(children=[
                 ]),
                 dbc.Tooltip("Pick a date or select a range of days to see details.",
                                         target="go-button2"),
-                dbc.Button("Go    ", id='go-button2', color="success", outline=True, block=True),
+                dbc.Button("Go    ", id='go-button2', color="success", disabled=True, outline=False, block=True),
             ]) 
         ])
     ])
@@ -508,12 +519,10 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
             ]),
         
             dbc.Col(width=6, id="explore-div", className=startclass, children=[
-                dbc.Button("Explore Data", id=f'data-button'),
                 html.Div(id="modal-div", children=make_data_modal(suff="")),
             ]),
         
             dbc.Col(width=6, id="explore-div2", className=startclass, children=[
-                dbc.Button("Explore Data", id=f'data-button2'),
                 html.Div(id="modal-div2", children=make_data_modal(suff="2")),
             ]),
             

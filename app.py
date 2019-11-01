@@ -24,7 +24,7 @@ from layouts import *
 external_stylesheets=[dbc.themes.BOOTSTRAP,"https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server = app.server
+server = app.server  #this is needed for wsgi server
 
 
 
@@ -38,9 +38,11 @@ body = dbc.Container(id="mainContainer",children=[
     
     summary_jumbo,
     
-    summary_cards,
+#     summary_cards,
     
     main_div,
+    
+    html.Hr(className="my-2"),
     
     detail_div,
     
@@ -55,24 +57,68 @@ app.layout = html.Div([header,body,footer])
 #
 #######################################################################################
 
+@app.callback(Output('go-button','disabled'),
+              [Input('datepicker','start_date')]
+             )
+def toggle_go_button(start_date):
+    log("toggle_go_Button")
+
+    if start_date is None:
+        return True
+    else:
+        return False  
+    
+@app.callback(Output('go-button2','disabled'),
+              [Input('datepicker2','start_date')]
+             )
+def toggle_go_button2(start_date):
+    log("toggle_go_Button")
+
+    if start_date is None:
+        return True
+    else:
+        return False  
+
+              
 
 @app.callback(Output('detail-div-status','children'),
-              [Input('go-button','n_clicks')],
+              [Input('go-button','n_clicks'),Input('close-btn','n_clicks')],
              )
-def update_detail_status(n_clicks):
-    if n_clicks is None:
-        return "d-none"
-    else:
-        return ""
+def update_detail_status(go_n_clicks,close_n_clicks):
+    log("update_detail_status")
+    log(dash.callback_context.triggered[0]['prop_id'])
+    
+    if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
+        if go_n_clicks is None:
+            return "d-none"
+        else:
+            return ""
 
-@app.callback(Output('detail-div-status2','children'),
-              [Input('go-button2','n_clicks')]
-             )
-def update_detail_status2(n_clicks):
-    if n_clicks is None:
+    if dash.callback_context.triggered[0]['prop_id'] == 'close-btn.n_clicks':
+        if close_n_clicks is None:
+            raise PreventUpdate
         return "d-none"
-    else:
-        return ""
+           
+        
+        
+        
+@app.callback(Output('detail-div-status2','children'),
+              [Input('go-button2','n_clicks'),Input('close-btn2','n_clicks')],
+             )
+def update_detail_status2(go_n_clicks,close_n_clicks):
+    log("update_detail_status2")
+    log(dash.callback_context.triggered[0]['prop_id'])
+    
+    if dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
+        if go_n_clicks is None:
+            return "d-none"
+        else:
+            return ""
+
+    if dash.callback_context.triggered[0]['prop_id'] == 'close-btn2.n_clicks':
+        if close_n_clicks is None:
+            raise PreventUpdate
+        return "d-none"
     
 @app.callback([Output('header-div','className'), Output('detail-cards-div','className'),
                Output('daily-div','className'), Output('map-div','className'),
@@ -86,6 +132,8 @@ def update_detail_status2(n_clicks):
              ) 
 # def toggle_div_visibility(n_clicks, filter_data, filter_data2):
 def toggle_div_visibility(status, status2):
+    log("toggle_div_visibility")
+    log(dash.callback_context.triggered[0]['prop_id'])
     
     if status == 'd-none':
         date_1_divs = ["d-none"]*6
@@ -105,6 +153,8 @@ def toggle_div_visibility(status, status2):
              [Input('filter-meta-div','children'),Input('filter-meta-div2','children')]
              ) 
 def timeseries_callback(filter_data,filter_data2):
+    log("timeseries_callback")
+    log(dash.callback_context.triggered[0]['prop_id'])
     
     filter_data = json.loads(filter_data)
     filter_data2 = json.loads(filter_data2)
@@ -118,6 +168,8 @@ def timeseries_callback(filter_data,filter_data2):
               [State("filter-meta-div",'children')]
              )
 def update_datepicker_from_graph(clickData, selectedData, filter_data):
+    log("update_datepicker_from_graph")
+    log(dash.callback_context.triggered[0]['prop_id'])
     
     if clickData is None and selectedData is None:
         raise PreventUpdate
@@ -143,7 +195,9 @@ def update_datepicker_from_graph(clickData, selectedData, filter_data):
               [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')],
               [State("filter-meta-div2",'children')]
              )
-def update_datepicker_from_graph(clickData, selectedData, filter_data):
+def update_datepicker_from_graph2(clickData, selectedData, filter_data):
+    log("update_datepicker_from_graph2")
+    log(dash.callback_context.triggered[0]['prop_id'])
     
     if clickData is None and selectedData is None:
         raise PreventUpdate
@@ -172,29 +226,35 @@ def update_datepicker_from_graph(clickData, selectedData, filter_data):
               [Input('go-button','n_clicks'),
                Input('map-graph','clickData'),
                Input('stations-radio','value'),
-               Input('map-return-link','n_clicks')],
+               Input('map-return-btn','n_clicks'),
+               Input('close-btn','n_clicks')],
               [State("filter-meta-div",'children'),
                State('datepicker','start_date'), 
                State('datepicker','end_date'),
                State('filter-dropdown','value')]
              )
-def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, 
+def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close_nclicks, 
                            filter_data,
                            start_date,end_date,filter_values):
-    if clickData is None and n_clicks is None:
-        raise PreventUpdate
 
+    log("update_filter_meta_div")
+    log(dash.callback_context.triggered[0]['prop_id'])
+    
     filter_data = json.loads(filter_data)
     
     # IF go-button is triggered, update all values
     if  dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
+        if n_clicks is None:
+            raise PreventUpdate
         date = convert_dates(start_date,end_date)
          
         filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start'}
 
       
     # If map #1 is clicked           
-    if clickData is not None:
+    if dash.callback_context.triggered[0]['prop_id'] == 'map-graph.clickData':
+        if clickData is None:
+            raise PreventUpdate
         station = clickData['points'][0]['text'].split('<')[0].strip()
         filter_data['stations'] = [station]
        
@@ -207,8 +267,16 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks,
             filter_data['direction'] = radio_value
             
     # If return button triggered
-    if  dash.callback_context.triggered[0]['prop_id'] == 'map-return-link.n_clicks':
+    if  dash.callback_context.triggered[0]['prop_id'] == 'map-return-btn.n_clicks':
+        if return_nclicks is None:
+            raise PreventUpdate
         filter_data['stations'] = None
+        
+    # If close button triggered
+    if  dash.callback_context.triggered[0]['prop_id'] == 'close-btn.n_clicks':
+        if close_nclicks is None:
+            raise PreventUpdate
+        filter_data['date'] = None
     
     return json.dumps(filter_data)
 
@@ -218,44 +286,61 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks,
               [Input('go-button2','n_clicks'),
                Input('map-graph2','clickData'),
                Input('stations-radio2','value'),
-               Input('map-return-link2','n_clicks')],
+               Input('map-return-btn2','n_clicks'),
+               Input('close-btn2','n_clicks')],
               [State("filter-meta-div2",'children'),
                State('datepicker2','start_date'), 
                State('datepicker2','end_date'),
                State('filter-dropdown2','value')]
              )
-def update_filter_meta_div2(n_clicks,clickData,radio_value,return_nclicks,
+def update_filter_meta_div2(n_clicks,clickData,radio_value, return_nclicks, close_nclicks, 
                            filter_data,
                            start_date,end_date,filter_values):
-    if clickData is None and n_clicks is None:
-        raise PreventUpdate
 
+    log("update_filter_meta_div2")
+    log(dash.callback_context.triggered[0]['prop_id'])
+    
+    
     filter_data = json.loads(filter_data)
     
-    # If go-butto2 is triggered, update all values
+    # IF go-button2 is triggered, update all values
     if  dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
+        if n_clicks is None:
+            raise PreventUpdate
         date = convert_dates(start_date,end_date)
-        
+         
         filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start'}
 
       
-    # If map2 is clicked           
-    if clickData is not None:
+    # If map #2 is clicked           
+    if dash.callback_context.triggered[0]['prop_id'] == 'map-graph2.clickData':
+        if clickData is None:
+            raise PreventUpdate
         station = clickData['points'][0]['text'].split('<')[0].strip()
         filter_data['stations'] = [station]
        
         
     # If radio2 is clicked
     if  dash.callback_context.triggered[0]['prop_id'] == 'stations-radio2.value':
+        log(radio_value)
+        log(filter_data['direction'])
         if radio_value == filter_data['direction']:
             raise PreventUpdate
         else:
             filter_data['direction'] = radio_value
-
+            
     # If return button triggered
-    if  dash.callback_context.triggered[0]['prop_id'] == 'map-return-link.n_clicks':
-        filter_data['stations'] = None           
+    if  dash.callback_context.triggered[0]['prop_id'] == 'map-return-btn2.n_clicks':
+        if return_nclicks is None:
+            raise PreventUpdate
+        filter_data['stations'] = None
         
+    # If close button triggered
+    if  dash.callback_context.triggered[0]['prop_id'] == 'close-btn2.n_clicks':
+        if close_nclicks is None:
+            raise PreventUpdate
+        filter_data['date'] = None
+    
     return json.dumps(filter_data)
         
 # Update details div
@@ -266,6 +351,9 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value,return_nclicks,
               [Input("filter-meta-div",'children')],
              )
 def daily_div_callback(filter_data):
+    log("daily_div_callback")
+    log(dash.callback_context.triggered[0]['prop_id'])
+    
     filter_data = json.loads(filter_data)
     suff = ""
     
@@ -296,6 +384,9 @@ def daily_div_callback(filter_data):
               [Input("filter-meta-div2",'children')],
              )
 def daily_div_callback2(filter_data): 
+    log("daily_div_callback2")
+    log(dash.callback_context.triggered[0]['prop_id'])
+    
     filter_data = json.loads(filter_data)
     suff = "2"
     
@@ -326,6 +417,8 @@ def daily_div_callback2(filter_data):
              [State('filter-meta-div','children')]
               )
 def toggle_date_modal(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedData,filter_data):
+    log("toggle_date_modal")
+    log(dash.callback_context.triggered[0]['prop_id'])
     
     filter_data = json.loads(filter_data)
 
@@ -352,6 +445,8 @@ def toggle_date_modal(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedDat
                [State('filter-meta-div','children'),State('filter-meta-div2','children')]
               )
 def toggle_date_modal2(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedData,filter_data,filter_data2):
+    log("toggle_date_modal2")
+    log(dash.callback_context.triggered[0]['prop_id'])
     
     filter_data = json.loads(filter_data)
     if filter_data['date'] is None:
@@ -374,6 +469,8 @@ def toggle_date_modal2(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedDa
               [Input('data-button','n_clicks')]
              )
 def open_data_modal(n_clicks):
+    log("open_data_modal")
+    log(dash.callback_context.triggered[0]['prop_id'])
     if n_clicks is not None:
         return True
 
@@ -382,7 +479,9 @@ def open_data_modal(n_clicks):
 @app.callback(Output('data-modal2','is_open'),
               [Input('data-button2','n_clicks')]
              )
-def open_data_modal(n_clicks):
+def open_data_modal2(n_clicks):
+    log("open_data_modal2")
+    log(dash.callback_context.triggered[0]['prop_id'])
     if n_clicks is not None:
         return True
 
@@ -394,6 +493,9 @@ def open_data_modal(n_clicks):
               [State('filter-meta-div','children')]
              )
 def download_data(n_clicks,filter_data):
+    log("download_data")
+    log(dash.callback_context.triggered[0]['prop_id'])
+    
     if n_clicks is None:
         raise PreventUpdate
     
@@ -413,6 +515,9 @@ def download_data(n_clicks,filter_data):
               [State('filter-meta-div','children')]
              )
 def download_data2(n_clicks,filter_data):
+    log("download_data2")
+    log(dash.callback_context.triggered[0]['prop_id'])
+    
     if n_clicks is None:
         raise PreventUpdate
         
@@ -431,6 +536,8 @@ def download_data2(n_clicks,filter_data):
               [Input("filter-meta-div",'children'),Input("filter-meta-div2",'children')],
              )
 def toggle_date_buttons(filter_data,filter_data2):
+    log("toggle_date_buttons")
+    log(dash.callback_context.triggered[0]['prop_id'])
     
     filter_data = json.loads(filter_data)
     filter_data2 = json.loads(filter_data2)

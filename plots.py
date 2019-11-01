@@ -60,8 +60,7 @@ c_black=    '#000' #!default;
 colors = [c_blue,c_indigo,c_red,c_green,c_orange,c_teal,c_cyan,c_purple,c_yellow]
 
 def make_timeseries_fig(thdf, date=None, date2=None):
-    print("make_timeseries_fig")
-    print(date,date2)
+
     
     trips_hdf = thdf.sum(1).reset_index()
     trips_hdf.columns = ['Hour','Trips']
@@ -73,19 +72,21 @@ def make_timeseries_fig(thdf, date=None, date2=None):
     trips_rdf = trips_ddf.set_index('Date')['Trips'].rolling(30,min_periods=1, center=True).mean().reset_index()
 
     
-    trips_ddf['Color'] = c_blue
+    trips_ddf['Color'] = c_blue 
     
     if (date is not None) or (date2 is not None):
         color = c_gray_200
+        opacity = 0.5
     else:
         color = c_blue
-      
+        opacity = 1
 
 
     data = [go.Bar(
             x=trips_ddf['Date'],
             y=trips_ddf['Trips'],
             marker_color = color,
+            opacity = opacity,
             name="Daily trips"
                 )
            ]
@@ -112,7 +113,6 @@ def make_timeseries_fig(thdf, date=None, date2=None):
     fig = go.Figure(data=data,layout=layout)
     
     def add_highlight(date,color):
-        print(date)
         if date is None:
             return None
         

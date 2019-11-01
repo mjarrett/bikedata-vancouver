@@ -10,9 +10,20 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_table
 
+from credentials import loglevel
 
 def log(*args,file=None):
-    args = [datetime.now()] + list(args)
+    """
+    Level is none, log, verbose
+    """
+    if loglevel == 'none':
+        return None
+    
+    if loglevel == 'verbose':
+        args = [datetime.now()] + list(args)
+    elif loglevel == 'log':
+        pass
+    
     if file == None:
         print(*args,file=sys.stdout,flush=True)
     else:
