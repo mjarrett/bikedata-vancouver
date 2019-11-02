@@ -120,31 +120,30 @@ def update_detail_status2(go_n_clicks,close_n_clicks):
             raise PreventUpdate
         return "d-none"
     
+    
+    
 @app.callback([Output('header-div','className'), Output('detail-cards-div','className'),
                Output('daily-div','className'), Output('map-div','className'),
                Output('memb-div','className'), Output('explore-div','className'),
                Output('header-div2','className'), Output('detail-cards-div2','className'),
                Output('daily-div2','className'), Output('map-div2','className'),
                Output('memb-div2','className'), Output('explore-div2','className')],
-               #[Input('go-button','n_clicks'), Input('filter-meta-div','children'), Input('filter-meta-div2','children')]
-#                [Input('go-button','n_clicks'), Input('go-button2','n_clicks')],
                [Input('detail-div-status','children'), Input('detail-div-status2','children')]
              ) 
-# def toggle_div_visibility(n_clicks, filter_data, filter_data2):
 def toggle_div_visibility(status, status2):
     log("toggle_div_visibility")
     log(dash.callback_context.triggered[0]['prop_id'])
     
     if status == 'd-none':
         date_1_divs = ["d-none"]*6
-        date_2_divs = ["d-none"]*6       
-        
-    elif status2 == 'd-none':
-        date_1_divs = [""]*6
-        date_2_divs = ["d-none"]*6
     else:
         date_1_divs = [""]*6
+
+    if status2 == 'd-none':
+        date_2_divs = ["d-none"]*6
+    else:
         date_2_divs = [""]*6
+
         
     return date_1_divs + date_2_divs
 
