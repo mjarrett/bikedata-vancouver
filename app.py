@@ -61,7 +61,7 @@ app.layout = html.Div([header,body,footer])
               [Input('datepicker','start_date')]
              )
 def toggle_go_button(start_date):
-    log("toggle_go_Button")
+    log("toggle_go_button",cb=True)
 
     if start_date is None:
         return True
@@ -72,21 +72,20 @@ def toggle_go_button(start_date):
               [Input('datepicker2','start_date')]
              )
 def toggle_go_button2(start_date):
-    log("toggle_go_Button")
+    log("toggle_go_button2",cb=True)
 
     if start_date is None:
         return True
     else:
         return False  
 
-              
+             
 
 @app.callback(Output('detail-div-status','children'),
               [Input('go-button','n_clicks'),Input('close-btn','n_clicks')],
              )
 def update_detail_status(go_n_clicks,close_n_clicks):
-    log("update_detail_status")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("update_detail_status",cb=True)
     
     if dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
         if go_n_clicks is None:
@@ -106,8 +105,7 @@ def update_detail_status(go_n_clicks,close_n_clicks):
               [Input('go-button2','n_clicks'),Input('close-btn2','n_clicks')],
              )
 def update_detail_status2(go_n_clicks,close_n_clicks):
-    log("update_detail_status2")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("update_detail_status2",cb=True)
     
     if dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
         if go_n_clicks is None:
@@ -131,8 +129,7 @@ def update_detail_status2(go_n_clicks,close_n_clicks):
                [Input('detail-div-status','children'), Input('detail-div-status2','children')]
              ) 
 def toggle_div_visibility(status, status2):
-    log("toggle_div_visibility")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("toggle_div_visibility",cb=True)
     
     if status == 'd-none':
         date_1_divs = ["d-none"]*6
@@ -152,8 +149,7 @@ def toggle_div_visibility(status, status2):
              [Input('filter-meta-div','children'),Input('filter-meta-div2','children')]
              ) 
 def timeseries_callback(filter_data,filter_data2):
-    log("timeseries_callback")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("timeseries_callback",cb=True)
     
     filter_data = json.loads(filter_data)
     filter_data2 = json.loads(filter_data2)
@@ -167,8 +163,7 @@ def timeseries_callback(filter_data,filter_data2):
               [State("filter-meta-div",'children')]
              )
 def update_datepicker_from_graph(clickData, selectedData, filter_data):
-    log("update_datepicker_from_graph")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("update_datepicker_from_graph",cb=True)
     
     if clickData is None and selectedData is None:
         raise PreventUpdate
@@ -195,8 +190,7 @@ def update_datepicker_from_graph(clickData, selectedData, filter_data):
               [State("filter-meta-div2",'children')]
              )
 def update_datepicker_from_graph2(clickData, selectedData, filter_data):
-    log("update_datepicker_from_graph2")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("update_datepicker_from_graph2",cb=True)
     
     if clickData is None and selectedData is None:
         raise PreventUpdate
@@ -236,8 +230,7 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close
                            filter_data,
                            start_date,end_date,filter_values):
 
-    log("update_filter_meta_div")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("update_filter_meta_div",cb=True)
     
     filter_data = json.loads(filter_data)
     
@@ -296,8 +289,7 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value, return_nclicks, clos
                            filter_data,
                            start_date,end_date,filter_values):
 
-    log("update_filter_meta_div2")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("update_filter_meta_div2",cb=True)
     
     
     filter_data = json.loads(filter_data)
@@ -350,8 +342,7 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value, return_nclicks, clos
               [Input("filter-meta-div",'children')],
              )
 def daily_div_callback(filter_data):
-    log("daily_div_callback")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("daily_div_callback",cb=True)
     
     filter_data = json.loads(filter_data)
     suff = ""
@@ -383,8 +374,7 @@ def daily_div_callback(filter_data):
               [Input("filter-meta-div2",'children')],
              )
 def daily_div_callback2(filter_data): 
-    log("daily_div_callback2")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("daily_div_callback2",cb=True)
     
     filter_data = json.loads(filter_data)
     suff = "2"
@@ -416,8 +406,7 @@ def daily_div_callback2(filter_data):
              [State('filter-meta-div','children')]
               )
 def toggle_date_modal(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedData,filter_data):
-    log("toggle_date_modal")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("toggle_date_modal",cb=True)
     
     filter_data = json.loads(filter_data)
 
@@ -444,8 +433,7 @@ def toggle_date_modal(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedDat
                [State('filter-meta-div','children'),State('filter-meta-div2','children')]
               )
 def toggle_date_modal2(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedData,filter_data,filter_data2):
-    log("toggle_date_modal2")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("toggle_date_modal2",cb=True)
     
     filter_data = json.loads(filter_data)
     if filter_data['date'] is None:
@@ -468,8 +456,8 @@ def toggle_date_modal2(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedDa
               [Input('data-button','n_clicks')]
              )
 def open_data_modal(n_clicks):
-    log("open_data_modal")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("open_data_modal",cb=True)
+    
     if n_clicks is not None:
         return True
 
@@ -479,8 +467,7 @@ def open_data_modal(n_clicks):
               [Input('data-button2','n_clicks')]
              )
 def open_data_modal2(n_clicks):
-    log("open_data_modal2")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("open_data_modal2",cb=True)
     if n_clicks is not None:
         return True
 
@@ -492,8 +479,7 @@ def open_data_modal2(n_clicks):
               [State('filter-meta-div','children')]
              )
 def download_data(n_clicks,filter_data):
-    log("download_data")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("download_data",cb=True)
     
     if n_clicks is None:
         raise PreventUpdate
@@ -514,8 +500,7 @@ def download_data(n_clicks,filter_data):
               [State('filter-meta-div','children')]
              )
 def download_data2(n_clicks,filter_data):
-    log("download_data2")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("download_data2",cb=True)
     
     if n_clicks is None:
         raise PreventUpdate
@@ -535,8 +520,7 @@ def download_data2(n_clicks,filter_data):
               [Input("filter-meta-div",'children'),Input("filter-meta-div2",'children')],
              )
 def toggle_date_buttons(filter_data,filter_data2):
-    log("toggle_date_buttons")
-    log(dash.callback_context.triggered[0]['prop_id'])
+    log("toggle_date_buttons",cb=True)
     
     filter_data = json.loads(filter_data)
     filter_data2 = json.loads(filter_data2)

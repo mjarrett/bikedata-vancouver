@@ -65,6 +65,7 @@ tot_bikes = len(set(df['Bike'].fillna(0)))
 #######################################################################################
 
 def make_card(title,content,subcontent=None,color='primary'):
+    log("make_card")
     return dbc.Card(style={'border':'none'},className=f"justify-content-center h-100 py-2", children=[
             #dbc.CardHeader(title,style={'color':color}),
             dbc.CardBody([
@@ -78,6 +79,7 @@ def make_card(title,content,subcontent=None,color='primary'):
         ])  # Card
         
 def make_detail_cards(df=None,wdf=None,suff=''):
+    log("make_detail_cards")
     if df is None:
         return None
     
@@ -139,11 +141,12 @@ def make_detail_cards(df=None,wdf=None,suff=''):
 
         ])
     ])
-    
+    log("make_detail_cards finished")
     return output
 
 
 def make_data_modal(df=None, suff=""):
+    log("Make_data_modal")
     max_records = 100000 # Only allow downloads up to limit
     max_rows    = 10000   # Only show first N rows in data_table
     
@@ -195,14 +198,15 @@ def make_data_modal(df=None, suff=""):
             id=f"data-modal{suff}",
             size="xl",
             )
+    log("make_data_modal finished")
     return modal
 
 
 
 def make_map_div(df=None,trips=False,direction='start',suff=""):
-    
+    log("make_map_div")
         
-    return html.Div([
+    output = html.Div([
                 html.Div(id=f'map-state{suff}', children="trips" if trips else "stations", style={'display':'none'}),
 
                 dcc.Graph(
@@ -211,10 +215,12 @@ def make_map_div(df=None,trips=False,direction='start',suff=""):
 
                 )
             ])
+    log("make_map_div finished")
+    return output
 
 
 def make_detail_header(filter_data, suff=""):
-    
+    log("make_detail_header")
     if suff == "":
         color='primary'
     elif suff == "2":
@@ -307,7 +313,7 @@ def make_detail_header(filter_data, suff=""):
             dbc.CardHeader(className=f"text-strong text-white bg-{color}",children=header),
             table,
         ])
-    
+    log("make_detail_header finished")
     return card
 
 #######################################################################################

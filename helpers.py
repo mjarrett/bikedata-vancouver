@@ -9,10 +9,11 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_table
+import dash
 
 from credentials import loglevel
 
-def log(*args,file=None):
+def log(*args,file=None,cb=False):
     """
     Level is none, log, verbose
     """
@@ -23,6 +24,11 @@ def log(*args,file=None):
         args = [datetime.now()] + list(args)
     elif loglevel == 'log':
         pass
+    
+    
+    if cb:
+        args = ["* "] + list(args) + ["* ", dash.callback_context.triggered[0]['prop_id'] ]
+    
     
     if file == None:
         print(*args,file=sys.stdout,flush=True)
@@ -71,20 +77,7 @@ def filter_ddf(df, filter_data=None, date=None, cats=None, stations=None, direct
     return df
 
 def convert_dates(start_date,end_date):
-#     if start_date2 is not None:
-#         if end_date2 is not None and (start_date2 != end_date2):
-#             date2 = (start_date2[:10], end_date2[:10])
-#         else:
-#             date2 = start_date2[:10] 
-#     else:
-#         date2 = None
-    
-#     if start_date2 is None:
-#         date2 = None
-#     elif (end_date2 is None) or  (start_date2 == end_date2):
-#         date2 = start_date2[:10]
-#     else:
-#         date2 = (start_date2[:10], end_date2[:10])
+    log("convert_dates")
         
     if start_date is None:
         date = None
@@ -95,7 +88,7 @@ def convert_dates(start_date,end_date):
     return date
 
 def date_2_str(date):
-    
+    log("date_2_str")
     if date == None:
         return None
     
@@ -108,7 +101,7 @@ def date_2_str(date):
         return f"{d1}"
     
 def date_2_div(date):
-    
+    log("date_2_div")
     if date == None:
         return None
     
