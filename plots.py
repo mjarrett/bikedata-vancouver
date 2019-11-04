@@ -60,7 +60,7 @@ c_black=    '#000' #!default;
 colors = [c_blue,c_indigo,c_red,c_green,c_orange,c_teal,c_cyan,c_purple,c_yellow]
 
 def make_timeseries_fig(thdf, date=None, date2=None):
-
+    log("make_timeseries_fig")
     
     trips_hdf = thdf.sum(1).reset_index()
     trips_hdf.columns = ['Hour','Trips']
@@ -158,10 +158,11 @@ def make_timeseries_fig(thdf, date=None, date2=None):
                     )
                  )
     
+    log("make_timeseries_fig finished")
     return fig
 
 def make_station_map(df=None, direction='start', suff=""):
-      
+    log("make_station_map")  
     if suff == "":
         color = c_blue
     elif suff == "2":
@@ -214,12 +215,14 @@ def make_station_map(df=None, direction='start', suff=""):
                                            'sizemin':4})
     
     mapfig = go.Figure(data=mapdata,layout=maplayout)
+    log("make_station_map finished")
     return mapfig    
 
 
     
     
 def make_trips_map(df,direction='start',suff=""):
+    log("make_trips_map")
     # https://plot.ly/python/mapbox-layers/
 
     if suff == "":
@@ -313,11 +316,14 @@ def make_trips_map(df,direction='start',suff=""):
 
 
     mapfig = go.Figure(data=mapdata,layout=maplayout)
+
+    
+    log("make_trips_map finished")
     return mapfig    
     
 
 def make_daily_fig(df=None, suff=""):
-
+    log("make_daily_fig")
     
     if suff == "":
         color = c_blue
@@ -361,12 +367,14 @@ def make_daily_fig(df=None, suff=""):
         t2 = dt.datetime(date.year,date.month,date.day,23)
         fig.update_layout(xaxis_range=[t1,t2])
                                
+
+    log("make_daily_fig finished")
     return fig
 
 
 def make_memb_fig(df=None,suff=""):
     
-    
+    log("make_memb_fig")
     if df is None:
         return go.Figure(data=[go.Pie(labels=['1','2'], values=[10,20], hole=.3)])
     
@@ -377,5 +385,7 @@ def make_memb_fig(df=None,suff=""):
                                  values=memb_trips.values, 
                                  hole=.3,
                                  marker={'colors':colors})])
+
+    log("make_memb_fig finished")
     return fig
         
