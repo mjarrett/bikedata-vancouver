@@ -313,8 +313,6 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value, return_nclicks, clos
         
     # If radio2 is clicked
     if  dash.callback_context.triggered[0]['prop_id'] == 'stations-radio2.value':
-        log(radio_value)
-        log(filter_data['direction'])
         if radio_value == filter_data['direction']:
             raise PreventUpdate
         else:

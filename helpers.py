@@ -27,7 +27,7 @@ def log(*args,file=None,cb=False):
     
     
     if cb:
-        args = ["* "] + list(args) + ["* ", dash.callback_context.triggered[0]['prop_id'] ]
+        args = list(args) + ["* ", dash.callback_context.triggered[0]['prop_id'] ]
     
     
     if file == None:
