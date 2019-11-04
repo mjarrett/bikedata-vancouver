@@ -72,7 +72,7 @@ def filter_ddf(df, filter_data=None, date=None, cats=None, stations=None, direct
 
     df = df.sort_values('Departure')
     
-    log("Filter finished")
+    log(f"Filter finished: {len(df)} records")
                                            
     return df
 

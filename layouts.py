@@ -228,9 +228,10 @@ def make_detail_header(filter_data, suff=""):
     
     direction = filter_data['direction']
     stations = "All" if filter_data['stations'] is None else ", ".join(filter_data['stations'])
+    
     if (filter_data['cats'] is None) or (set(filter_data['cats']) == memtypes): 
         cats = "All"
-    else: ", ".join(filter_data['cats'])
+    else: cats = ", ".join(filter_data['cats'])
         
         
     date = ' ' if filter_data['date'] is None else filter_data['date']
