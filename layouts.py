@@ -103,10 +103,16 @@ def make_detail_cards(df=None,wdf=None,suff=''):
     tot_dist = df['Covered distance (m)'].sum()/1000
     avg_dist = tot_dist/n_trips
     avg_trips = n_trips/n_days
+    
+    tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
+    tot_bikes = len(set(df['Bike'].fillna(0)))
+    
     busiest_dep = df.groupby('Departure station').size().sort_values(ascending=False).index[0]
     busiest_dep_n = df.groupby('Departure station').size().sort_values(ascending=False)[0]
     busiest_ret = df.groupby('Return station').size().sort_values(ascending=False).index[0]
     busiest_ret_n = df.groupby('Return station').size().sort_values(ascending=False)[0]
+    
+    
     
     avg_daily_high = wdf['Max Temp'].mean()
     avg_daily_pricip = wdf['Total Precipmm'].mean()
@@ -119,14 +125,15 @@ def make_detail_cards(df=None,wdf=None,suff=''):
 
         dbc.CardColumns([
             make_card("Total trips", f"{n_trips:,}",color=color),
-            make_card("Average trip distance",f"{int(avg_dist):,} km",color=color),
+            make_card("Total trip distance",f"{int(tot_dist):,} km",color=color),
+            make_card("Total trip time",f"{int(tot_time/(60*60)):,} hours",color=color),
+            make_card("Unique bikes used", f"{int(tot_bikes):,}", color=color),
+            
+            
             make_card("Daily high temp",avg_daily_high,color=color),
             make_card("Daily precipitation",avg_daily_pricip,color=color),
-
-
-        ]),
-
-        dbc.CardColumns([
+            
+            
             make_card("Busiest departure station",f"{busiest_dep}",color=color),
             make_card("Busiest return station",f"{busiest_ret}",color=color)
 
@@ -220,7 +227,7 @@ def make_detail_header(filter_data, suff=""):
     else: ", ".join(filter_data['cats'])
         
         
-    date = '2010-01-01' if filter_data['date'] is None else filter_data['date']
+    date = ' ' if filter_data['date'] is None else filter_data['date']
 
         
     date_button = dbc.Button(id=f"date-update-btn{suff}", color=color, children=[
@@ -255,11 +262,18 @@ def make_detail_header(filter_data, suff=""):
         
         
     if len(date) == 2:
-        d1 = datetime.strptime(date[0],'%Y-%m-%d').strftime('%A, %B %-d %Y')
-        d2 = datetime.strptime(date[1],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        try:
+            d1 = datetime.strptime(date[0],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+            d2 = datetime.strptime(date[1],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        except:
+            d1 = " "
+            d2 = " "
         header_txt = dbc.Col([d1," ",html.Span(className="fa fa-arrow-right")," ", d2])
     else:
-        d1 = datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        try:
+            d1 = datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        except:
+            d1 = " "
         header_txt = dbc.Col(children=[d1])
         
     header = dbc.Row([header_txt,button_col])
@@ -338,7 +352,6 @@ footer = dbc.NavbarSimple(
 
 summary_cards = dbc.Row(className='p-3 justify-content-center', children=[
         
-        dbc.Col(html.H4(f"Data available from {startdate_str} to {enddate_str}",className="text-secondary"),width=12),
     
     
         dbc.Col([                
@@ -351,6 +364,9 @@ summary_cards = dbc.Row(className='p-3 justify-content-center', children=[
 
                 ]),
         ]),
+    
+        dbc.Col(html.Em(f"Data available from {startdate_str} to {enddate_str}",className="text-secondary"),width=12),
+
     ]) 
 
 summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
