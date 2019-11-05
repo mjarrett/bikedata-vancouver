@@ -47,8 +47,7 @@ n_trips_per_day = n_trips / n_days
 tot_dist = df['Covered distance (m)'].sum()/1000
 dist_per_trip = tot_dist/n_trips
 
-df['Membership Type'] = df['Membership Type'].fillna("")
-df = df[df['Membership Type']!=""]
+
 
 
 

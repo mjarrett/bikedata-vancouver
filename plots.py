@@ -169,6 +169,7 @@ def make_station_map(df=None, direction='start', suff=""):
         color = c_green
     
     # https://plot.ly/python/mapbox-layers/
+    log("prepping sdf")
     sdf = geopandas.read_file(f'{datapath}/stations_df.geojson')
     sdf = sdf.to_crs({'init': 'epsg:4326'})
     sdf['long'] = sdf.geometry.map(lambda x: x.x)
@@ -185,35 +186,54 @@ def make_station_map(df=None, direction='start', suff=""):
                                    )
                   
     else:
+        
         if direction == 'start':
-            hdf = mobi.make_thdf(df)
+            log("d1, d2")
+            d1 = df.iloc[0].loc['Departure'].strftime('%Y-%m-%d')
+            d2 = df.iloc[-1].loc['Departure'].strftime('%Y-%m-%d')
+            log("load thdf csv")
+            hdf = pd.read_csv(f'{datapath}/Mobi_System_Data_taken_hourly.csv',index_col=0)
+            log("to_datetime")
+            hdf.index = pd.to_datetime(hdf.index)
+            log("trim hdf")
+            hdf = hdf[d1:d2]
         elif direction == 'stop':
-            log("make_rhdf")
-            hdf = mobi.make_rhdf(df)
+            d1 = df.iloc[0].loc['Return'].strftime('%Y-%m-%d')
+            d2 = df.iloc[-1].loc['Return'].strftime('%Y-%m-%d')
+            hdf = pd.read_csv(f'{datapath}/Mobi_System_Data_returned_hourly.csv',index_col=0)
+            hdf.index = pd.to_datetime(hdf.index)
+            hdf = hdf[d1:d2]        
         elif direction == 'both':
-            hdf = mobi.make_ahdf(df)
+            d1 = df.iloc[0].loc['Departure'].strftime('%Y-%m-%d')
+            d2 = df.iloc[-1].loc['Return'].strftime('%Y-%m-%d')
+            hdf = pd.read_csv(f'{datapath}/Mobi_System_Data_activity_hourly.csv',index_col=0)
+            hdf.index = pd.to_datetime(hdf.index)
+            hdf = hdf[d1:d2]            
         else:
             raise ValueError("argument 'direction' must be on of start/stop/both")
-        #thdf = mobi.make_thdf(df)
-        ddf = hdf.groupby(pd.Grouper(freq='d')).sum()
-        
-        trips_df = ddf.sum().reset_index()
-        trips_df.columns = ['station','trips']
 
+
+        log("trips_df")
+        trips_df = hdf.sum().reset_index()
+        trips_df.columns = ['station','trips']
+        log("merge")
         trips_df = pd.merge(sdf,trips_df,right_on='station',left_on='name')
 
+        # NOTE: text must be in specific format so it can be parsed by callback function
+        log("text")
         text = [ f"{name}<br>{trips} trips" for name,trips in zip(trips_df['name'],trips_df['trips']) ]
         
+        log("mapdata")
         mapdata = go.Scattermapbox(lat=trips_df['lat'], 
                                    lon=trips_df['long'],
-                                   text=text,   # NOTE: text must be in specific format so it can be parsed by callback function
+                                   text=text,   
                                    hoverinfo='text',
                                    marker={'color':color,
                                            'size':trips_df['trips'],
                                            'sizemode':'area',
                                            'sizeref':2.*max(trips_df['trips'])/(40.**2),
                                            'sizemin':4})
-    
+    log("fig")
     mapfig = go.Figure(data=mapdata,layout=maplayout)
     log("make_station_map finished")
     return mapfig    
