@@ -59,8 +59,12 @@ c_black=    '#000' #!default;
 
 colors = [c_blue,c_indigo,c_red,c_green,c_orange,c_teal,c_cyan,c_purple,c_yellow]
 
-def make_timeseries_fig(thdf, date=None, date2=None):
+def make_timeseries_fig(date=None, date2=None):
     log("make_timeseries_fig")
+    
+    thdf = pd.read_csv(f'{datapath}/Mobi_System_Data_taken_hourly.csv',index_col=0)
+    thdf.index = pd.to_datetime(thdf.index)
+    
     
     trips_hdf = thdf.sum(1).reset_index()
     trips_hdf.columns = ['Hour','Trips']

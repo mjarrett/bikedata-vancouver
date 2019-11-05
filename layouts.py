@@ -29,10 +29,9 @@ memtypes = set(df['Membership Simple'])
 df.Departure = pd.to_datetime(df.Departure)
 df.Return = pd.to_datetime(df.Return)
   
-thdf = mobi.make_thdf(df)
 
-startdate = thdf.index[0]
-enddate = thdf.index[-1]
+startdate = df.iloc[0].loc['Departure']
+enddate = df.iloc[-1].loc['Departure']
 
 startdate_str = startdate.strftime('%b %-d %Y')
 enddate_str = enddate.strftime('%b %-d %Y')
@@ -398,7 +397,7 @@ main_div = dbc.Row(className="pb-5", children=[
             
             dcc.Graph(
                 id='timeseries-graph',
-                figure=make_timeseries_fig(thdf),
+                figure=make_timeseries_fig(),
                 style={'height':'100%','width':'100%'}
             ),   
 

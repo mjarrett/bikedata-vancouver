@@ -154,7 +154,7 @@ def timeseries_callback(filter_data,filter_data2):
     filter_data = json.loads(filter_data)
     filter_data2 = json.loads(filter_data2)
 
-    return make_timeseries_fig(thdf,filter_data['date'],filter_data2['date'])
+    return make_timeseries_fig(filter_data['date'],filter_data2['date'])
 
 
 @app.callback([Output('datepicker','start_date'), Output('datepicker','end_date'),
