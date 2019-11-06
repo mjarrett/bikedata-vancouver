@@ -57,6 +57,19 @@ app.layout = html.Div([header,body,footer])
 #
 #######################################################################################
 
+
+@app.callback(Output('summary-card-row','children'),
+              [Input('summary-year-select','value')]
+             )
+def udpate_summary_year(value):
+    log("update_summary_year", cb=True)
+    
+    if value == 'All':
+        return make_summary_cards(df)
+    
+    return make_summary_cards(df.set_index('Departure')[value].reset_index())
+
+
 @app.callback(Output('go-button','disabled'),
               [Input('datepicker','start_date')]
              )

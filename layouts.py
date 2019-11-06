@@ -36,11 +36,14 @@ enddate = df.iloc[-1].loc['Departure']
 startdate_str = startdate.strftime('%b %-d %Y')
 enddate_str = enddate.strftime('%b %-d %Y')
 
+years = set(df.Year)
+
 log("Loading weather")  
 wdf = pd.read_csv(f'{datapath}/weather.csv',index_col=0)
 wdf.index = pd.to_datetime(wdf.index)
  
-
+filter_data = json.dumps({'date':None, 'cats':None, 'stations':None, 'direction':'start'})                          
+filter_data2 = json.dumps({'date':None,'cats':None,'stations':None,'direction':'start'})
 
 
 
@@ -78,7 +81,7 @@ def make_summary_cards(df):
 
     tot_bikes = len(set(df['Bike'].fillna(0)))
     
-    output = dbc.Row(className='p-3 justify-content-center', children=[
+    output = [
         
     
     
@@ -105,9 +108,9 @@ def make_summary_cards(df):
         ]),
     
     
-        dbc.Col(html.Em(f"Data available from {startdate_str} to {enddate_str}",className="text-secondary"),width=12),
+        #dbc.Col(html.Em(f"Data available from {startdate_str} to {enddate_str}",className="text-secondary"),width=12),
 
-    ])     
+    ]
     
     return output
     
@@ -392,7 +395,6 @@ footer = dbc.NavbarSimple(
     dark=True
     )
 
-summary_cards = make_summary_cards(df)
 
 summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
         html.H1("BikeData BC", className="display-3"),
@@ -402,14 +404,25 @@ summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
             className="lead",
         ),
         html.Hr(className="my-2"),
-        html.P(dbc.Button("About the data", id='jumbo-button', color="primary"), className="lead"),
-        summary_cards
+    
+        dbc.Row([
+            dbc.Col(width=4, children=[
+                dbc.Select(
+                    id="summary-year-select",
+                    options=[{'label': f"{min(years)} - {max(years)}", 'value':'All' }] + 
+                       [ {'label': f'{x}', 'value':f'{x}' } 
+                       for x in set(years) ],
+                    value='All'
+                ),
+            ]),
+        ]),
+        dbc.Row(id="summary-card-row", className='p-3 justify-content-center', children=make_summary_cards(df))
+            
     ]
 )
 
 
-filter_data = json.dumps({'date':None, 'cats':None, 'stations':None, 'direction':'start'})                          
-filter_data2 = json.dumps({'date':None,'cats':None,'stations':None,'direction':'start'})
+
 
 main_div = dbc.Row(className="pb-5", children=[
     dbc.Col([
