@@ -425,7 +425,13 @@ summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
 
 
 main_div = dbc.Row(className="pb-5", children=[
-    dbc.Col([
+    dbc.Col(width=12, children=[
+        dbc.Row(justify='center', children=[
+            dbc.Button("Explore Data", size='lg', id='date-button',color="primary") 
+        ]),
+    ]),
+    
+    dbc.Col(width=12, children=[
         dbc.Card(style={'border':'none'}, children=[
             
             dcc.Graph(
@@ -438,7 +444,7 @@ main_div = dbc.Row(className="pb-5", children=[
         ]),
         
 
-        dbc.Button("Explore Data", id='date-button',color="primary"),
+        
 
         
 
