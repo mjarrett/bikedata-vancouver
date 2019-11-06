@@ -40,19 +40,7 @@ log("Loading weather")
 wdf = pd.read_csv(f'{datapath}/weather.csv',index_col=0)
 wdf.index = pd.to_datetime(wdf.index)
  
-n_days = (enddate-startdate).days
-n_trips = len(df)
-n_trips_per_day = n_trips / n_days
-tot_dist = df['Covered distance (m)'].sum()/1000
-dist_per_trip = tot_dist/n_trips
 
-
-
-
-
-tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
-
-tot_bikes = len(set(df['Bike'].fillna(0)))
 
 
 
@@ -61,6 +49,7 @@ tot_bikes = len(set(df['Bike'].fillna(0)))
 #  LAYOUT FUNCTIONS
 #
 #######################################################################################
+
 
 def make_card(title,content,subcontent=None,color='primary'):
     log("make_card")
@@ -74,8 +63,56 @@ def make_card(title,content,subcontent=None,color='primary'):
                 
             ])
 
-        ])  # Card
+        ])  
+
+    
+    
+def make_summary_cards(df):
+    n_days = (enddate-startdate).days
+    n_trips = len(df)
+    n_trips_per_day = n_trips / n_days
+    tot_dist = df['Covered distance (m)'].sum()/1000
+    dist_per_trip = tot_dist/n_trips
+
+    tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
+
+    tot_bikes = len(set(df['Bike'].fillna(0)))
+    
+    output = dbc.Row(className='p-3 justify-content-center', children=[
         
+    
+    
+        dbc.Col(width=12, children=[                
+                
+            dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
+                make_card("Total Trips",f"{n_trips:,}",color='primary'),
+                make_card("Total Distance Travelled",f"{int(tot_dist):,} km",color='info'),
+                make_card("Unique bikes",f"{tot_bikes:,}",color='success'),
+                make_card("Total Trip Time",f"{int(tot_time/(60*60)):,} hours",color='warning')
+
+            ]),
+        ]),
+    
+        dbc.Col(width=12, children=[                
+                
+            dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
+                make_card("Trips/day",f"{int(n_trips/n_days):,}",color='primary'),
+                make_card("Avg trip distance",f"{int(tot_dist/n_trips):,} km",color='info'),
+                make_card("Avg distance per bike",f"{int(tot_dist/tot_bikes):,} km",color='success'),
+                make_card("Avg trip time",f"{int((tot_time/(60))/n_trips):,} minutes",color='warning')
+
+            ]),
+        ]),
+    
+    
+        dbc.Col(html.Em(f"Data available from {startdate_str} to {enddate_str}",className="text-secondary"),width=12),
+
+    ])     
+    
+    return output
+    
+    
+    
 def make_detail_cards(df=None,wdf=None,suff=''):
     log("make_detail_cards")
     if df is None:
@@ -355,24 +392,7 @@ footer = dbc.NavbarSimple(
     dark=True
     )
 
-summary_cards = dbc.Row(className='p-3 justify-content-center', children=[
-        
-    
-    
-        dbc.Col([                
-                
-                dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
-                    make_card("Total Trips",f"{n_trips:,}",color='primary'),
-                    make_card("Total Distance Travelled",f"{int(tot_dist):,} km",color='info'),
-                    make_card("Unique bikes",f"{tot_bikes:,}",color='success'),
-                    make_card("Total Trip Time",f"{int(tot_time/(60*60)):,} hours",color='warning')
-
-                ]),
-        ]),
-    
-        dbc.Col(html.Em(f"Data available from {startdate_str} to {enddate_str}",className="text-secondary"),width=12),
-
-    ]) 
+summary_cards = make_summary_cards(df)
 
 summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
         html.H1("BikeData BC", className="display-3"),
