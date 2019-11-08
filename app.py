@@ -237,15 +237,19 @@ def update_datepicker_from_graph2(clickData, selectedData, filter_data):
               [State("filter-meta-div",'children'),
                State('datepicker','start_date'), 
                State('datepicker','end_date'),
-               State('filter-dropdown','value')]
+               State('checklist-member','value'),
+               State('checklist-casual','value'),
+               State('checklist-other','value')]
              )
 def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close_nclicks, 
                            filter_data,
-                           start_date,end_date,filter_values):
+                           start_date,end_date,checklist_member,checklist_casual,checklist_other):
 
     log("update_filter_meta_div",cb=True)
     
     filter_data = json.loads(filter_data)
+    
+    cat_values = checklist_member + checklist_casual + checklist_other
     
     # IF go-button is triggered, update all values
     if  dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
@@ -253,7 +257,7 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close
             raise PreventUpdate
         date = convert_dates(start_date,end_date)
          
-        filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start'}
+        filter_data = {'date':date, 'cats':cat_values, 'stations':None, 'direction':'start'}
 
       
     # If map #1 is clicked           
@@ -296,16 +300,19 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close
               [State("filter-meta-div2",'children'),
                State('datepicker2','start_date'), 
                State('datepicker2','end_date'),
-               State('filter-dropdown2','value')]
+               State('checklist-member2','value'),
+               State('checklist-casual2','value'),
+               State('checklist-other2','value')]
              )
 def update_filter_meta_div2(n_clicks,clickData,radio_value, return_nclicks, close_nclicks, 
                            filter_data,
-                           start_date,end_date,filter_values):
+                           start_date,end_date,checklist_member,checklist_casual,checklist_other):
 
     log("update_filter_meta_div2",cb=True)
     
     
     filter_data = json.loads(filter_data)
+    cat_values = checklist_member + checklist_casual + checklist_other
     
     # IF go-button2 is triggered, update all values
     if  dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
@@ -313,7 +320,7 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value, return_nclicks, clos
             raise PreventUpdate
         date = convert_dates(start_date,end_date)
          
-        filter_data = {'date':date, 'cats':filter_values, 'stations':None, 'direction':'start'}
+        filter_data = {'date':date, 'cats':cat_values, 'stations':None, 'direction':'start'}
 
       
     # If map #2 is clicked           
@@ -460,8 +467,71 @@ def toggle_date_modal2(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedDa
         return True 
     if dash.callback_context.triggered[0]['prop_id'] == 'date-update-btn2.n_clicks':
         return True
-   
+       
+
+
+
+
+
+
+# Checkbox toggles
+@app.callback(Output('checklist-member','value'),
+              [Input('checklist-member-header','value')]
+             )
+def toggle_checkboxes(vals):
+    if vals == ['Member']:
+        return memtypes_member
+    elif vals == []:
+        return []
     
+@app.callback(Output('checklist-casual','value'),
+              [Input('checklist-casual-header','value')]
+             )
+def toggle_checkboxes(vals):
+    if vals == ['Casual']:
+        return memtypes_casual
+    elif vals == []:
+        return []
+    
+@app.callback(Output('checklist-other','value'),
+              [Input('checklist-other-header','value')]
+             )
+def toggle_checkboxes(vals):
+    if vals == ['Other']:
+        return memtypes_other
+    elif vals == []:
+        return []
+
+@app.callback(Output('checklist-member2','value'),
+              [Input('checklist-member-header2','value')]
+             )
+def toggle_checkboxes(vals):
+    if vals == ['Member']:
+        return memtypes_member
+    elif vals == []:
+        return []
+    
+@app.callback(Output('checklist-casual2','value'),
+              [Input('checklist-casual-header2','value')]
+             )
+def toggle_checkboxes(vals):
+    if vals == ['Casual']:
+        return memtypes_casual
+    elif vals == []:
+        return []
+    
+@app.callback(Output('checklist-other2','value'),
+              [Input('checklist-other-header2','value')]
+             )
+def toggle_checkboxes(vals):
+    if vals == ['Other']:
+        return memtypes_other
+    elif vals == []:
+        return []
+    
+    
+    
+############################################
     
 @app.callback(Output('data-modal','is_open'),
               [Input('data-button','n_clicks')]

@@ -25,7 +25,14 @@ from credentials import *
 log("==================")
 log("Loading data")
 df = pd.read_csv(f'{datapath}/Mobi_System_Data_Prepped.csv')
+
+
 memtypes = set(df['Membership Simple'])
+memtypes_member = ['Annual Standard','Annual Plus','Monthly','90 Day']
+memtypes_casual = ['Daily','Single Trip']
+memtypes_other = [x for x in memtypes if (x not in memtypes_member) and (x not in memtypes_casual)]
+
+
 df.Departure = pd.to_datetime(df.Departure)
 df.Return = pd.to_datetime(df.Return)
   
@@ -355,6 +362,69 @@ def make_detail_header(filter_data, suff=""):
     log("make_detail_header finished")
     return card
 
+
+
+def make_date_modal(suff=""):
+    output = dbc.Modal(size='md', id=f'date-modal{suff}', children=[
+            dbc.ModalHeader("Pick a date or date range"),
+            dbc.ModalBody([
+                html.Div(id=f"filter-meta-div{suff}", children=filter_data, className='d-none'),
+                    dbc.Row([
+                        dbc.Col(width=12, children=[
+   
+                            dcc.DatePickerRange(
+                                id=f'datepicker{suff}',
+                                min_date_allowed=startdate,
+                                max_date_allowed=enddate,
+                                #initial_visible_month = '2018-01-01',
+                                minimum_nights = 0,
+                                clearable = True,
+                            ),
+
+                        ]),
+                        dbc.Col(width=4, children=[
+                            dbc.Checklist(id=f'checklist-member-header{suff}', 
+                                options=[{'label':'Regular','value':'Member'}],
+                                value=['Member']
+                            ),
+                                          
+                            dbc.Checklist(id=f'checklist-member{suff}',className="checklist-faded-custom",
+                                options=[{'label':memtype,'value':memtype} for memtype in memtypes_member],
+                                value=memtypes_member,
+                                labelStyle={'color':c_gray_600},
+                            ),
+                        ]),
+                        dbc.Col(width=4, children=[
+                            dbc.Checklist(id=f'checklist-casual-header{suff}',
+                                options=[{'label':'Casual','value':'Casual'}],
+                                value=['Casual']
+                            ),
+                            dbc.Checklist(id=f'checklist-casual{suff}', className="checklist-faded-custom",
+                                options=[{'label':memtype,'value':memtype} for memtype in memtypes_casual],
+                                value=memtypes_casual
+                            ),
+                        ]),
+                        
+                        dbc.Col(width=4, children=[
+                            dbc.Checklist(id=f'checklist-other-header{suff}',
+                                options=[{'label':'Other','value':'Other'}],
+                                value=['Other']
+                            ),
+                            dbc.Checklist(id=f'checklist-other{suff}', className="checklist-faded-custom",
+                                options=[{'label':memtype,'value':memtype} for memtype in memtypes_other],
+                                value=memtypes_other
+                            ),
+                        ]),
+                        
+                        
+                    ]),
+                dbc.Tooltip("Pick a date or select a range of days to see details.",
+                                        target=f"go-button{suff}"),
+                dbc.Button("Go    ", id=f'go-button{suff}', color="primary", disabled=True, outline=False, block=True),
+            ])
+        ])
+    return output
+
 #######################################################################################
 #
 #  LAYOUT
@@ -448,64 +518,11 @@ main_div = dbc.Row(className="pb-5", children=[
 
         
 
-        dbc.Modal(size='md', id='date-modal', children=[
-            dbc.ModalHeader("Pick a date or date range"),
-            dbc.ModalBody([
-                html.Div(id="filter-meta-div", children=filter_data, className='d-none'),
-
-                dbc.FormGroup([
-                            dcc.DatePickerRange(
-                                id='datepicker',
-                                min_date_allowed=startdate,
-                                max_date_allowed=enddate,
-                                #initial_visible_month = '2018-01-01',
-                                minimum_nights = 0,
-                                clearable = True,
-                            ),
-
-
-                            dbc.Checklist(id='filter-dropdown',
-
-                                options=[{'label':memtype,'value':memtype} for memtype in memtypes],
-                                value=list(memtypes)
-                            ),
-
-                ]),
-                dbc.Tooltip("Pick a date or select a range of days to see details.",
-                                        target="go-button"),
-                dbc.Button("Go    ", id='go-button', color="primary", disabled=True, outline=False, block=True),
-            ])
-        ]),
+        make_date_modal(suff=""),
         
-        
-        dbc.Modal(size='md', id='date-modal2', children=[
-            dbc.ModalHeader("Pick a date or date range"),
-            dbc.ModalBody([
-                html.Div(id="filter-meta-div2", children=filter_data2, className='d-none'),
-                dbc.FormGroup(children=[
-                    dcc.DatePickerRange(
-                        id='datepicker2',
-                        min_date_allowed=startdate,
-                        max_date_allowed=enddate,
-                        initial_visible_month = '2018-01-01',
-                        minimum_nights = 0,
-                        clearable = True,
-                        ),
-
-                    dbc.Checklist(id='filter-dropdown2',
-
-                        options=[{'label':memtype,'value':memtype} for memtype in memtypes],
-                        value=list(memtypes)
-                    ),
-                ]),
-                dbc.Tooltip("Pick a date or select a range of days to see details.",
-                                        target="go-button2"),
-                dbc.Button("Go    ", id='go-button2', color="success", disabled=True, outline=False, block=True),
-            ]) 
-        ])
+        make_date_modal(suff="2")
     ])
 ])
-
 
 
 

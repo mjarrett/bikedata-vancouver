@@ -4,7 +4,7 @@
 }
 
 
-
+/********PAGE LOADING SPINNER***********/
 @-webkit-keyframes spin {
   0% {
     -webkit-transform: rotate(0deg);
@@ -59,4 +59,13 @@
   animation: fadein 1s linear forwards, spin 2s infinite linear;
   animation-delay: 1s;
   -webkit-animation-delay: 1s;
+}
+/************************************/
+
+
+.checklist-faded-custom
+  .custom-control-input:checked
+  ~ .custom-control-label::before {
+  background-color: #868e96;
+  border-color: #868e96;
 }
