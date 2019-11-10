@@ -366,11 +366,12 @@ def make_detail_header(filter_data, suff=""):
 
 def make_date_modal(suff=""):
     output = dbc.Modal(size='md', id=f'date-modal{suff}', children=[
-            dbc.ModalHeader("Pick a date or date range"),
+            #dbc.ModalHeader("Explore trip data"),
             dbc.ModalBody([
                 html.Div(id=f"filter-meta-div{suff}", children=filter_data, className='d-none'),
-                    dbc.Row([
-                        dbc.Col(width=12, children=[
+                    dbc.Row(className='pb-2', children=[
+                        dbc.Col(width=12, className='m-2 px-2 pt-2', children=html.H3("Select a date range")),
+                        dbc.Col(width=12, className='m-2 p-2', children=[
    
                             dcc.DatePickerRange(
                                 id=f'datepicker{suff}',
@@ -382,6 +383,8 @@ def make_date_modal(suff=""):
                             ),
 
                         ]),
+
+                        dbc.Col(width=10, className='m-2 px-2 pt-2 border-top', children=html.H3("Filter by membership type")),
                         dbc.Col(width=4, children=[
                             dbc.Checklist(id=f'checklist-member-header{suff}', 
                                 options=[{'label':'Regular','value':'Member'}],
@@ -394,14 +397,15 @@ def make_date_modal(suff=""):
                                 labelStyle={'color':c_gray_600},
                             ),
                         ]),
-                        dbc.Col(width=4, children=[
+                        dbc.Col(width=4, className='border-left border-right', children=[
                             dbc.Checklist(id=f'checklist-casual-header{suff}',
                                 options=[{'label':'Casual','value':'Casual'}],
                                 value=['Casual']
                             ),
                             dbc.Checklist(id=f'checklist-casual{suff}', className="checklist-faded-custom",
                                 options=[{'label':memtype,'value':memtype} for memtype in memtypes_casual],
-                                value=memtypes_casual
+                                value=memtypes_casual,
+                                labelStyle={'color':c_gray_600}, 
                             ),
                         ]),
                         
@@ -412,7 +416,8 @@ def make_date_modal(suff=""):
                             ),
                             dbc.Checklist(id=f'checklist-other{suff}', className="checklist-faded-custom",
                                 options=[{'label':memtype,'value':memtype} for memtype in memtypes_other],
-                                value=memtypes_other
+                                value=memtypes_other,
+                                labelStyle={'color':c_gray_600},
                             ),
                         ]),
                         
