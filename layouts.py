@@ -40,6 +40,9 @@ df.Return = pd.to_datetime(df.Return)
 startdate = df.iloc[0].loc['Departure']
 enddate = df.iloc[-1].loc['Departure']
 
+startdate_iso = startdate.strftime('%Y-%m-%d')
+enddate_iso = enddate.strftime('%Y-%m-%d')
+
 startdate_str = startdate.strftime('%b %-d %Y')
 enddate_str = enddate.strftime('%b %-d %Y')
 
@@ -274,7 +277,7 @@ def make_detail_header(filter_data, suff=""):
     direction = filter_data['direction']
     stations = "All" if filter_data['stations'] is None else ", ".join(filter_data['stations'])
     
-    if (filter_data['cats'] is None) or (set(filter_data['cats']) == memtypes): 
+    if (filter_data['cats'] is None) or (set(filter_data['cats']) == set(memtypes)): 
         cats = "All"
     else: cats = ", ".join(filter_data['cats'])
         
@@ -361,7 +364,7 @@ def make_detail_header(filter_data, suff=""):
         ])
     log("make_detail_header finished")
     return card
-
+ 
 
 
 def make_date_modal(suff=""):
@@ -378,10 +381,14 @@ def make_date_modal(suff=""):
                                 min_date_allowed=startdate,
                                 max_date_allowed=enddate,
                                 #initial_visible_month = '2018-01-01',
+                                display_format='YYYY-MM-DD',
+                                start_date=startdate_iso,
+                                end_date=enddate_iso,
+                                #end_date_placeholder_text="(Optional)",
                                 minimum_nights = 0,
                                 clearable = True,
                             ),
-
+ 
                         ]),
 
                         dbc.Col(width=10, className='m-2 px-2 pt-2 border-top', children=html.H3("Filter by membership type")),
