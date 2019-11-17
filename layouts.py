@@ -310,7 +310,7 @@ def make_detail_header(filter_data, suff=""):
     ])               
     data_button_tt = dbc.Tooltip(target=f'data-button{suff}', children="View raw data")
         
-    button_col = dbc.Col(width=12,children=[date_button,date_button_tt,
+    button_col = dbc.Col(className="d-flex justify-content-end",children=[date_button,date_button_tt,
                                             date_button2,date_button2_tt,
                                             data_button,data_button_tt,
                                             close_button,close_button_tt])
@@ -331,7 +331,7 @@ def make_detail_header(filter_data, suff=""):
             d1 = " "
         header_txt = dbc.Col(children=[d1])
         
-    header = dbc.Row([header_txt,button_col])
+    header = dbc.Row(className='d-flex',children=[header_txt,button_col])
                 
 
     radio = dbc.RadioItems(
@@ -355,7 +355,7 @@ def make_detail_header(filter_data, suff=""):
     row2 = html.Tr([html.Td("Direction"), html.Td(radio)])
     row3 = html.Tr([html.Td("Stations"), html.Td(html.Em(stations)),return_btn_tt,return_btn])
     row4 = html.Tr([html.Td("Membership Types"), html.Td(html.Em(cats))])
-    table_body = [html.Tbody([row3, row4, row2])]
+    table_body = [html.Tbody([row3,row2, row4])]
     table = dbc.Table(table_body, size='sm',bordered=False)
 
     card = dbc.Card(children=[

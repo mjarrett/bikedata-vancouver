@@ -132,6 +132,17 @@ def update_detail_status2(go_n_clicks,close_n_clicks):
         return "d-none"
     
     
+@app.callback([Output('header-div','width'),Output('header-div2','width')],
+              [Input('detail-div-status','children'), Input('detail-div-status2','children')]
+             )
+def toggle_detail_header_width(status,status2):
+    log("toggle_detail_header_width",cb=True)
+    
+    if status == '' and status2 == '':
+        return [6, 6]
+    else:
+        return [12,12]
+    
     
 @app.callback([Output('header-div','className'), Output('detail-cards-div','className'),
                Output('daily-div','className'), Output('map-div','className'),
