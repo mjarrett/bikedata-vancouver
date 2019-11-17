@@ -137,7 +137,7 @@ def make_timeseries_fig(date=None, date2=None):
                     x0=d1,
                     y0=0,
                     x1=d2,
-                    y1=1,
+                    y1=0.8,
                     fillcolor=color,
                     opacity=0.5,
                     layer="below",
