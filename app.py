@@ -25,7 +25,7 @@ external_stylesheets=[dbc.themes.BOOTSTRAP,"https://maxcdn.bootstrapcdn.com/font
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server  #this is needed for wsgi server
-
+app.title = 'BikeDataBC'
 
 
 
