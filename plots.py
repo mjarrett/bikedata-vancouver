@@ -192,27 +192,12 @@ def make_station_map(df=None, direction='start', suff=""):
     else:
         
         if direction == 'start':
-            log("d1, d2")
-            d1 = df.iloc[0].loc['Departure'].strftime('%Y-%m-%d')
-            d2 = df.iloc[-1].loc['Departure'].strftime('%Y-%m-%d')
-            log("load thdf csv")
-            hdf = pd.read_csv(f'{datapath}/Mobi_System_Data_taken_hourly.csv',index_col=0)
-            log("to_datetime")
-            hdf.index = pd.to_datetime(hdf.index)
-            log("trim hdf")
-            hdf = hdf[d1:d2]
+            hdf = mobi.make_thdf(df)
         elif direction == 'stop':
-            d1 = df.iloc[0].loc['Return'].strftime('%Y-%m-%d')
-            d2 = df.iloc[-1].loc['Return'].strftime('%Y-%m-%d')
-            hdf = pd.read_csv(f'{datapath}/Mobi_System_Data_returned_hourly.csv',index_col=0)
-            hdf.index = pd.to_datetime(hdf.index)
-            hdf = hdf[d1:d2]        
+            log("make_rhdf")
+            hdf = mobi.make_rhdf(df)
         elif direction == 'both':
-            d1 = df.iloc[0].loc['Departure'].strftime('%Y-%m-%d')
-            d2 = df.iloc[-1].loc['Return'].strftime('%Y-%m-%d')
-            hdf = pd.read_csv(f'{datapath}/Mobi_System_Data_activity_hourly.csv',index_col=0)
-            hdf.index = pd.to_datetime(hdf.index)
-            hdf = hdf[d1:d2]            
+            hdf = mobi.make_ahdf(df)
         else:
             raise ValueError("argument 'direction' must be on of start/stop/both")
 
