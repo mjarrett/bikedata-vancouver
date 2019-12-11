@@ -80,18 +80,19 @@ def make_timeseries_fig(date=None, date2=None):
     
     if (date is not None) or (date2 is not None):
         color = c_gray_200
-        opacity = 0.5
+        opacity = 0.7
     else:
-        color = c_blue
+        color = c_dark_teal
         opacity = 1
 
 
-    data = [go.Bar(
+    data = [go.Scatter(
             x=trips_ddf['Date'],
             y=trips_ddf['Trips'],
             marker_color = color,
             opacity = opacity,
-            name="Daily trips"
+            name="Daily trips",
+            fill='tozeroy',
                 )
            ]
     
@@ -99,71 +100,60 @@ def make_timeseries_fig(date=None, date2=None):
                        plot_bgcolor='rgba(0,0,0,0)',
                        yaxis = {
                          'fixedrange': True,
-                         'showgrid':   False
                                },
-                       xaxis={'showgrid':False
-                              },
                        margin=margin,
-                       #autosize=True,
-                       dragmode='select',
-                       legend=go.layout.Legend(
-                            x=0,
-                            y=1,
-                            traceorder="normal",
-                        )
-            
+                       dragmode='zoom', 
+                      showlegend=False
                   )
 
-    fig = go.Figure(data=data,layout=layout)
-    
-    def add_highlight(date,color):
-        if date is None:
-            return None
-        
-        elif date is not None:
-            if len(date) == 2:
-                d1 = dt.datetime.strptime(date[0],'%Y-%m-%d') - dt.timedelta(0.5)
-                d2 = dt.datetime.strptime(date[1],'%Y-%m-%d') + dt.timedelta(0.5)
-            else:
-                d1 = dt.datetime.strptime(date,'%Y-%m-%d') - dt.timedelta(0.5)
-                d2 = d1 + dt.timedelta(1)
-
-            shape = go.layout.Shape(
-                    type="rect",
-                    # x-reference is assigned to the x-values
-                    xref="x",
-                    # y-reference is assigned to the plot paper [0,1]
-                    yref="paper",
-                    x0=d1,
-                    y0=0,
-                    x1=d2,
-                    y1=0.8,
-                    fillcolor=color,
-                    opacity=0.5,
-                    layer="below",
-                    line_width=0,
-                )
-
-            return shape
-
-    shapes = [add_highlight(date,c_blue),add_highlight(date2,c_green)]
-    fig.update_layout(shapes=[x for x in shapes if x is not None])
    
-    
+
+
+    if date is not None:
+        if len(date) == 2:
+            d1 = dt.datetime.strptime(date[0],'%Y-%m-%d') - dt.timedelta(0.5)
+            d2 = dt.datetime.strptime(date[1],'%Y-%m-%d') + dt.timedelta(0.5)
+        else:
+            d1 = dt.datetime.strptime(date,'%Y-%m-%d') - dt.timedelta(0.5)
+            d2 = d1 + dt.timedelta(1)
+            
+        data = data + [go.Scatter(
+                        x=trips_ddf.set_index('Date').loc[d1:d2].index,
+                        y=trips_ddf.set_index('Date').loc[d1:d2,'Trips'],
+                        marker_color = c_blue,
+                        fill='tozeroy',
+                        name='Selection 1'
+                            )
+                       ]
+    if date2 is not None:
+        if len(date2) == 2:
+            d1 = dt.datetime.strptime(date2[0],'%Y-%m-%d') - dt.timedelta(0.5)
+            d2 = dt.datetime.strptime(date2[1],'%Y-%m-%d') + dt.timedelta(0.5)
+        else:
+            d1 = dt.datetime.strptime(date2,'%Y-%m-%d') - dt.timedelta(0.5)
+            d2 = d1 + dt.timedelta(1)
+            
+        data = data + [go.Scatter(
+                        x=trips_ddf.set_index('Date').loc[d1:d2].index,
+                        y=trips_ddf.set_index('Date').loc[d1:d2,'Trips'],
+                        marker_color = c_green,
+                        fill='tozeroy',
+                        name='Selection 2'
+                            )
+                       ]
+
+    fig = go.Figure(data=data,layout=layout)
 
     
-    # Add rolling average
-    fig.add_trace(go.Scatter(
-                    x=trips_rdf['Date'],
-                    y=trips_rdf['Trips'],
-                    name="Rolling average",
-                    marker_color = c_cyan,
-                    hoverinfo = 'skip'
-                    )
-                 )
+    fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400)
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,title_text='Daily Trips')
+    
+
+
     
     log("make_timeseries_fig finished")
     return fig
+
 
 def make_station_map(df=None, direction='start', suff=""):
     log("make_station_map")  
