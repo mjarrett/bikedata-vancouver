@@ -409,7 +409,7 @@ def daily_div_callback(filter_data):
     detail_header = make_detail_header(filter_data, suff=suff)
     data_modal = make_data_modal(ddf, suff=suff)
     detail_cards_div_children=make_detail_cards(ddf,wdf,suff=suff)
-    daily_fig = make_daily_fig(ddf,suff=suff)
+    daily_fig = make_daily_fig(ddf,wdf,suff=suff)
     map_div = make_map_div(ddf,trips,direction,suff)
     memb_fig = make_memb_fig(ddf,suff=suff)
     
@@ -443,7 +443,7 @@ def daily_div_callback2(filter_data):
     detail_header = make_detail_header(filter_data, suff=suff)
     data_modal = make_data_modal(ddf, suff=suff)
     detail_cards_div_children=make_detail_cards(ddf,wdf,suff=suff)
-    daily_fig = make_daily_fig(ddf,suff=suff)
+    daily_fig = make_daily_fig(ddf,wdf,suff=suff)
     map_div = make_map_div(ddf,trips,direction,suff)
     memb_fig = make_memb_fig(ddf,suff=suff)
     return [detail_header, data_modal,detail_cards_div_children,daily_fig,map_div,memb_fig]

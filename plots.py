@@ -1,4 +1,6 @@
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
 import pandas as pd
 import datetime as dt
 import geopandas
@@ -321,7 +323,7 @@ def make_trips_map(df,direction='start',suff=""):
     return mapfig    
     
 
-def make_daily_fig(df=None, suff=""):
+def make_daily_fig(df=None,wdf=None, suff=""):
     log("make_daily_fig")
     
     if suff == "":
@@ -329,37 +331,119 @@ def make_daily_fig(df=None, suff=""):
     elif suff == "2":
         color = c_green
     
+    daily = False
+    
     if df is None:
         trips_df = pd.DataFrame(columns=[0,1])
+        wddf = pd.DataFrame(columns=['precipIntensity','temperature'])
   
     else:
         
         thdf = mobi.make_thdf(df) 
+        
+        t1 = df.iloc[0].loc['Departure']
+        t2 = df.iloc[-1].loc['Departure']
+        wddf = wdf[t1:t2]
+        
 
         if len(thdf) < 24*65:   # less than two months of data provide hourly counts, otherwise daily
             trips_df = thdf.sum(1).reset_index() 
+            daily = True
         else:
             trips_df = thdf.groupby(pd.Grouper(freq='d')).sum().sum(1).reset_index()
+            wddf = wddf[['precipIntensity','temperature']].groupby(pd.Grouper(freq='d')).agg(
+                                                                        {'precipIntensity':sum,'temperature':max}
+                                                                        )
+            
 
     trips_df.columns = ['Time','Trips']
-    data = [go.Bar(
-        x=trips_df['Time'],
-        y=trips_df['Trips'],
-        marker={'color':color}
-            )
-       ]
+
     layout = go.Layout(#title='Hourly Mobi Trips',
                    paper_bgcolor='rgba(0,0,0,0)',
                    plot_bgcolor='rgba(0,0,0,0)',
-                   yaxis =  {
-                     'fixedrange': True
-                   },
+                                  
                    margin=margin,
-                   #height=500,
-                   #width=500
+
+                   yaxis =  {
+                     'fixedrange': True,
+                     'domain':[0.3,1],
+                     'showline':True,
+                     'linewidth':1, 
+                     'linecolor':c_gray_600,
+                   },
+
+                   yaxis2={'domain':[0, 0.25],
+                            'showline':True,
+                            'linewidth':1,
+                            'linecolor':c_gray_600},
+                    
+                   xaxis2={
+                            'anchor':"y2",
+                            'showline':True,
+                            'linewidth':1,
+                            'linecolor':c_gray_600                       
+                           },
+                    
+                   showlegend=False
+
               )
-    fig = go.Figure(data=data,layout=layout)
+
     
+    
+    fig = make_subplots(rows=2, cols=1, row_heights=[0.8, 0.2],shared_xaxes=True,
+                       specs=[[{"secondary_y": False}], [{"secondary_y": True}]])
+    
+    if daily:
+        print("short")
+        fig.add_trace(go.Scatter(
+            x=trips_df['Time'],
+            y=trips_df['Trips'],
+            marker={'color':color},
+            fill='tozeroy',
+            name='Hourly Trips'
+        ),
+            row=1,col=1
+                )
+    else:
+        print("long")
+        fig.add_trace(go.Bar(
+            x=trips_df['Time'],
+            y=trips_df['Trips'],
+            marker={'color':color},
+            name='Daily Trips'
+        ),
+            row=1,col=1
+                )
+    
+    
+
+    
+    
+    
+    fig.add_trace(go.Scatter(
+                    x=wddf.index,
+                    y=wddf['temperature'],
+                    marker_color=c_yellow,
+                    name='Temperature'
+                    ),
+                row=2,col=1,
+                  
+                 )
+    fig.add_trace(go.Bar(
+                    x=wddf.index,
+                    y=wddf['precipIntensity'],
+                    marker_color='#00238b',
+                    name='Precipitation'
+                    ),
+                row=2,col=1,
+                secondary_y=True
+                 )
+
+    fig.update_layout(layout)
+    fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400)
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,title_text='Trips',row=1,col=1)
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,title_text='Temparture (°C)',row=2,col=1)
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,title_text='Precipitation (mm)',row=2,col=1,secondary_y=True)
 
     if df is not None and (trips_df.loc[trips_df.index[-1],'Time'] - trips_df.loc[0,'Time']).days < 1:
         date = trips_df.loc[0,'Time']
@@ -370,7 +454,6 @@ def make_daily_fig(df=None, suff=""):
 
     log("make_daily_fig finished")
     return fig
-
 
 def make_memb_fig(df=None,suff=""):
     

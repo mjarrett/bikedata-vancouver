@@ -50,7 +50,7 @@ years = set(df.Year)
 
 log("Loading weather")  
 wdf = pd.read_csv(f'{datapath}/weather.csv',index_col=0)
-wdf.index = pd.to_datetime(wdf.index)
+wdf.index = pd.to_datetime(wdf.index,utc=True).tz_convert('America/Vancouver').tz_localize(None)
  
 filter_data = json.dumps({'date':None, 'cats':None, 'stations':None, 'direction':'start'})                          
 filter_data2 = json.dumps({'date':None,'cats':None,'stations':None,'direction':'start'})
@@ -164,24 +164,25 @@ def make_detail_cards(df=None,wdf=None,suff=''):
     
     
     
-    avg_daily_high = wdf['Max Temp'].mean()
-    avg_daily_pricip = wdf['Total Precipmm'].mean()
+#     avg_daily_high = wdf['Max Temp'].mean()
+#     avg_daily_pricip = wdf['Total Precipmm'].mean()
     
-    avg_daily_high = "Data missing" if np.isnan(avg_daily_high) else f"{avg_daily_high:.1f} °C"
-    avg_daily_pricip = "Data missing" if np.isnan(avg_daily_pricip) else f"{avg_daily_pricip:.1f} mm"
+#     avg_daily_high = "Data missing" if np.isnan(avg_daily_high) else f"{avg_daily_high:.1f} °C"
+#     avg_daily_pricip = "Data missing" if np.isnan(avg_daily_pricip) else f"{avg_daily_pricip:.1f} mm"
     
     output =  dbc.Col(style={'width':'100%'},children=[
 
 
         dbc.CardColumns([
             make_card("Total trips", f"{n_trips:,}",color=color),
-            make_card("Total trip distance",f"{int(tot_dist):,} km",color=color),
-            make_card("Total trip time",f"{int(tot_time/(60*60)):,} hours",color=color),
+            #make_card("Total trip distance",f"{int(tot_dist):,} km",color=color),
+            make_card("Average trip distance",f"{int(avg_dist):,} km",color=color),
+            make_card("Average trip time",f"{int(tot_time/(60*n_trips)):,} minutes",color=color),
             make_card("Unique bikes used", f"{int(tot_bikes):,}", color=color),
             
             
-            make_card("Daily high temp",avg_daily_high,color=color),
-            make_card("Daily precipitation",avg_daily_pricip,color=color),
+#             make_card("Daily high temp",avg_daily_high,color=color),
+#             make_card("Daily precipitation",avg_daily_pricip,color=color),
             
             
             make_card("Busiest departure station",f"{busiest_dep}",color=color),
