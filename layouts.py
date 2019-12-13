@@ -81,7 +81,8 @@ def make_card(title,content,subcontent=None,color='primary'):
     
     
 def make_summary_cards(df):
-    n_days = (enddate-startdate).days
+
+    n_days = (df.iloc[-1].loc['Departure'] - df.iloc[0].loc['Departure']).days
     n_trips = len(df)
     n_trips_per_day = n_trips / n_days
     tot_dist = df['Covered distance (m)'].sum()/1000
@@ -169,26 +170,34 @@ def make_detail_cards(df=None,wdf=None,suff=''):
     
 #     avg_daily_high = "Data missing" if np.isnan(avg_daily_high) else f"{avg_daily_high:.1f} °C"
 #     avg_daily_pricip = "Data missing" if np.isnan(avg_daily_pricip) else f"{avg_daily_pricip:.1f} mm"
-    
+    titleclass = f"text-xs font-weight-bold text-{color} text-uppercase mb-1"
+    row1 = html.Tr([html.Td("Total trips",className=titleclass), html.Td(f"{n_trips:,}")])
+    row2 = html.Tr([html.Td("Average trip distance",className=titleclass), html.Td(f"{int(avg_dist):,} km")])
+    row3 = html.Tr([html.Td("Average trip time",className=titleclass), html.Td(f"{int(tot_time/(60*n_trips)):,} minutes")])
+    row4 = html.Tr([html.Td("Unique bikes used",className=titleclass), html.Td(f"{int(tot_bikes):,}")])
+    table_body = [html.Tbody([row1, row2,row3, row4])]
+    table = dbc.Table(table_body,bordered=False)    
+   
     output =  dbc.Col(style={'width':'100%'},children=[
+           html.H4("Summary"),
+           table 
 
+#         dbc.CardColumns([
+#             make_card("Total trips", f"{n_trips:,}",color=color),
+#             #make_card("Total trip distance",f"{int(tot_dist):,} km",color=color),
+#             make_card("Average trip distance",f"{int(avg_dist):,} km",color=color),
+#             make_card("Average trip time",f"{int(tot_time/(60*n_trips)):,} minutes",color=color),
+#             make_card("Unique bikes used", f"{int(tot_bikes):,}", color=color),
+            
+            
+# #             make_card("Daily high temp",avg_daily_high,color=color),
+# #             make_card("Daily precipitation",avg_daily_pricip,color=color),
+            
+            
+#             make_card("Busiest departure station",f"{busiest_dep}",color=color),
+#             make_card("Busiest return station",f"{busiest_ret}",color=color)
 
-        dbc.CardColumns([
-            make_card("Total trips", f"{n_trips:,}",color=color),
-            #make_card("Total trip distance",f"{int(tot_dist):,} km",color=color),
-            make_card("Average trip distance",f"{int(avg_dist):,} km",color=color),
-            make_card("Average trip time",f"{int(tot_time/(60*n_trips)):,} minutes",color=color),
-            make_card("Unique bikes used", f"{int(tot_bikes):,}", color=color),
-            
-            
-#             make_card("Daily high temp",avg_daily_high,color=color),
-#             make_card("Daily precipitation",avg_daily_pricip,color=color),
-            
-            
-            make_card("Busiest departure station",f"{busiest_dep}",color=color),
-            make_card("Busiest return station",f"{busiest_ret}",color=color)
-
-        ])
+#         ])
     ])
     log("make_detail_cards finished")
     return output
@@ -359,7 +368,7 @@ def make_detail_header(filter_data, suff=""):
     table_body = [html.Tbody([row3,row2, row4])]
     table = dbc.Table(table_body, size='sm',bordered=False)
 
-    card = dbc.Card(children=[
+    card = dbc.Card(className='mb-3',children=[
             dbc.CardHeader(className=f"text-strong text-white bg-{color}",children=header),
             table,
         ])
