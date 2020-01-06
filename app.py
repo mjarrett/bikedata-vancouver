@@ -191,7 +191,8 @@ def update_initial_date(date):
     else:
         return startdate_iso
 
-@app.callback([Output('datepicker','start_date'), Output('datepicker','end_date')],
+@app.callback([Output('datepicker','start_date'), Output('datepicker','end_date'),
+               Output('datepicker2','start_date'), Output('datepicker2','end_date')],
               [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData'),
                Input('timeseries-graph','relayoutData')],
               [State("filter-meta-div",'children')]
@@ -205,19 +206,20 @@ def update_datepicker_from_graph(clickData, selectedData, relayoutData,filter_da
 
     filter_data = json.loads(filter_data)
 
-    if filter_data['date'] is not None:
-        raise PreventUpdate
+#     if filter_data['date'] is not None:
+#         raise PreventUpdate
 
 
     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
         date = clickData['points'][0]['x']
-        return (date, date)
+        return (date, date, date, date)
     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
         dates = [x['x'] for x in selectedData['points'] ]
-        return (dates[0], dates[-1])
+        return (dates[0], dates[-1], dates[0], dates[-1])
     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.relayoutData':
         log(relayoutData)
-        return (relayoutData['xaxis.range[0]'][:10],relayoutData['xaxis.range[1]'][:10])
+        return (relayoutData['xaxis.range[0]'][:10],relayoutData['xaxis.range[1]'][:10],
+                relayoutData['xaxis.range[0]'][:10],relayoutData['xaxis.range[1]'][:10])
 
     else:
         raise PreventUpdate
@@ -234,31 +236,31 @@ def update_initial_date2(date):
         return startdate_iso
 
 
-@app.callback([Output('datepicker2','start_date'), Output('datepicker2','end_date')],
-              [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')],
-              [State("filter-meta-div2",'children')]
-             )
-def update_datepicker_from_graph2(clickData, selectedData, filter_data):
-    log("update_datepicker_from_graph2",cb=True)
+# @app.callback([Output('datepicker2','start_date'), Output('datepicker2','end_date')],
+#               [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')],
+#               [State("filter-meta-div2",'children')]
+#              )
+# def update_datepicker_from_graph2(clickData, selectedData, filter_data):
+#     log("update_datepicker_from_graph2",cb=True)
 
-    if clickData is None and selectedData is None:
-        raise PreventUpdate
+#     if clickData is None and selectedData is None:
+#         raise PreventUpdate
 
-    filter_data = json.loads(filter_data)
+#     filter_data = json.loads(filter_data)
 
-    if filter_data['date'] is not None:
-        raise PreventUpdate
+#     if filter_data['date'] is not None:
+#         raise PreventUpdate
 
 
-    if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
-        date = clickData['points'][0]['x']
-        return (date, date)
-    elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
-        dates = [x['x'] for x in selectedData['points'] ]
-        return (dates[0], dates[-1])
+#     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
+#         date = clickData['points'][0]['x']
+#         return (date, date)
+#     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
+#         dates = [x['x'] for x in selectedData['points'] ]
+#         return (dates[0], dates[-1])
 
-    else:
-        raise PreventUpdate
+#     else:
+#         raise PreventUpdate
 
 
 
