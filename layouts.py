@@ -144,7 +144,8 @@ def make_detail_cards(df=None,wdf=None,suff=''):
     start_date_str = df['Departure'].iloc[0].strftime('%b %d, %Y')
     stop_date_str = df['Departure'].iloc[-1].strftime('%b %d, %Y')
     
-    wdf = wdf[start_date:stop_date]
+    if wdf is not None:
+        wdf = wdf[start_date:stop_date]
     
     n_days = (df['Departure'].iloc[-1] - df['Departure'].iloc[0]).days + 1
     n_days = n_days if (n_days > 1) else 1
@@ -555,7 +556,7 @@ main_div = dbc.Row(className="pb-2",children=[
 
 
 
-startclass = ''
+startclass = 'd-none'
 detail_div = dbc.Row(id='detail-div', className='', children=[
         
         html.Div(id='detail-div-status', className='d-none', children=startclass),
@@ -563,7 +564,7 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
         
         dbc.Col(className='sticky-top', width=12, children=[
             dbc.Row(children=[
-                dbc.Col(width=6, id="header-div", className=startclass, children=[
+                dbc.Col(width=True, id="header-div", className=startclass, children=[
 
                     dbc.Row([
                         dbc.Col(id="date-header", children=make_detail_header(json.loads(filter_data), suff="")),
@@ -580,13 +581,13 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
             ]),
         ]),
                             
-            dbc.Col(width=6, id=f'detail-cards-div', className=startclass, children=make_detail_cards(suff="")),
+            dbc.Col(width=6, id=f'detail-cards-div', className=startclass, children=make_detail_cards(df,suff="")),
             dbc.Col(width=6, id=f'detail-cards-div2', className=startclass, children=make_detail_cards(suff="2")),
 
             dbc.Col(width=6, id='daily-div', className=startclass, children=[
                 dcc.Graph(
                     id=f'daily-graph',
-                    figure=make_daily_fig(suff="")
+                    figure=make_daily_fig(df,wdf,suff="")
                 ), 
             ]),
         
@@ -598,24 +599,24 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
             ]),
         
                 
-            dbc.Col(width=6,id=f'map-div', className=startclass, children=make_map_div(suff="")), #Col
+            dbc.Col(width=6,id=f'map-div', className=startclass, children=make_map_div(df,suff="")), #Col
             dbc.Col(width=6,id=f'map-div2',className=startclass,children=make_map_div(suff="2")), #Col
 
             dbc.Col(width=6, id='memb-div', className=startclass, children=[
                 dcc.Graph(
                     id=f'memb-graph',
-                    figure=make_memb_fig(suff="")
+                    figure=make_memb_fig(df,suff="")
                 )
             ]),
             dbc.Col(width=6, id='memb-div2', className=startclass, children=[
                 dcc.Graph(
                     id=f'memb-graph2',
-                    figure=make_memb_fig(suff="2")
+                    figure=make_memb_fig(df,suff="2")
                 )
             ]),
         
             dbc.Col(width=6, id="explore-div", className=startclass, children=[
-                html.Div(id="modal-div", children=make_data_modal(suff="")),
+                html.Div(id="modal-div", children=make_data_modal(df,suff="")),
             ]),
         
             dbc.Col(width=6, id="explore-div2", className=startclass, children=[

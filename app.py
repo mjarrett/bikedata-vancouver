@@ -132,16 +132,16 @@ def update_detail_status2(go_n_clicks,close_n_clicks):
         return "d-none"
 
 
-@app.callback([Output('header-div','width'),Output('header-div2','width')],
-              [Input('detail-div-status','children'), Input('detail-div-status2','children')]
-             )
-def toggle_detail_header_width(status,status2):
-    log("toggle_detail_header_width",cb=True)
+# @app.callback([Output('header-div','width'),Output('header-div2','width')],
+#               [Input('detail-div-status','children'), Input('detail-div-status2','children')]
+#              )
+# def toggle_detail_header_width(status,status2):
+#     log("toggle_detail_header_width",cb=True)
 
-    if status == '' and status2 == '':
-        return [6, 6]
-    else:
-        return [12,12]
+#     if status == '' and status2 == '':
+#         return [6, 6]
+#     else:
+#         return [12,12]
 
 
 @app.callback([Output('header-div','className'), Output('detail-cards-div','className'),
@@ -155,10 +155,10 @@ def toggle_detail_header_width(status,status2):
 def toggle_div_visibility(status, status2):
     log("toggle_div_visibility",cb=True)
 
-    if status == 'd-none':
-        date_1_divs = ["d-none"]*6
-    else:
-        date_1_divs = [""]*6
+#     if status == 'd-none':
+#         date_1_divs = ["d-none"]*6
+#     else:
+#         date_1_divs = [""]*6
 
     if status2 == 'd-none':
         date_2_divs = ["d-none"]*6
@@ -166,7 +166,7 @@ def toggle_div_visibility(status, status2):
         date_2_divs = [""]*6
 
 
-    return date_1_divs + date_2_divs
+    return [""]*6 + date_2_divs
 
 
 @app.callback(Output('timeseries-graph','figure'),
@@ -288,7 +288,7 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close
     cat_values = checklist_member + checklist_casual + checklist_other
 
     # IF go-button is triggered, update all values
-    if  dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks':
+    if  dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks': 
         if n_clicks is None:
             raise PreventUpdate
         date = convert_dates(start_date,end_date)
