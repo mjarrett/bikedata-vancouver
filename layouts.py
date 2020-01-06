@@ -518,7 +518,7 @@ summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
 
 
 main_div = dbc.Row(className="pb-2",children=[
-    dbc.Col(width=12, children=[
+    dbc.Col(width=12, className='d-none',children=[
         dbc.Row(justify='center', children=[
             dbc.Button("Explore Data", size='lg', id='date-button',color="primary") 
         ]),
@@ -556,7 +556,7 @@ main_div = dbc.Row(className="pb-2",children=[
 
 
 
-startclass = 'd-none'
+startclass = ''
 detail_div = dbc.Row(id='detail-div', className='', children=[
         
         html.Div(id='detail-div-status', className='d-none', children=startclass),
