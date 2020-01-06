@@ -529,7 +529,7 @@ main_div = dbc.Row(className="pb-2",children=[
             
             dcc.Graph(
                 id='timeseries-graph',
-                figure=make_timeseries_fig(),
+                figure=make_timeseries_fig([startdate_iso,enddate_iso],None),
                 style={'height':'200px','width':'100%'}
             ),   
 
