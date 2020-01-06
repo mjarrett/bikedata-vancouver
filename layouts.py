@@ -52,7 +52,7 @@ log("Loading weather")
 wdf = pd.read_csv(f'{datapath}/weather.csv',index_col=0)
 wdf.index = pd.to_datetime(wdf.index,utc=True).tz_convert('America/Vancouver').tz_localize(None)
  
-filter_data = json.dumps({'date':None, 'cats':None, 'stations':None, 'direction':'start'})                          
+filter_data = json.dumps({'date':[startdate_iso,enddate_iso], 'cats':None, 'stations':None, 'direction':'start'})                          
 filter_data2 = json.dumps({'date':None,'cats':None,'stations':None,'direction':'start'})
 
 
@@ -516,7 +516,7 @@ summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
 
 
 
-main_div = dbc.Row(className="pb-5", children=[
+main_div = dbc.Row(className="pb-2",children=[
     dbc.Col(width=12, children=[
         dbc.Row(justify='center', children=[
             dbc.Button("Explore Data", size='lg', id='date-button',color="primary") 
@@ -529,7 +529,7 @@ main_div = dbc.Row(className="pb-5", children=[
             dcc.Graph(
                 id='timeseries-graph',
                 figure=make_timeseries_fig(),
-                style={'height':'100%','width':'100%'}
+                style={'height':'200px','width':'100%'}
             ),   
 
             

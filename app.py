@@ -29,14 +29,14 @@ app.title = 'BikeDataBC'
 
 
 
+app.config['suppress_callback_exceptions'] = True
 
 
 
 
+body = dbc.Container(id="mainContainer",fluid=True,children=[
 
-body = dbc.Container(id="mainContainer",children=[
-
-    summary_jumbo,
+#    summary_jumbo,
 
 #     summary_cards,
 
