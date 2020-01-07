@@ -201,8 +201,6 @@ def update_datepicker_from_graph(clickData, selectedData, relayoutData,filter_da
     log("update_datepicker_from_graph",cb=True)
     print(relayoutData)
 
-    if (clickData is None) and (selectedData is None ) and (relayoutData is None or 'xaxis.range[0]' not in relayoutData.keys()):
-        raise PreventUpdate
 
     filter_data = json.loads(filter_data)
 
@@ -211,13 +209,18 @@ def update_datepicker_from_graph(clickData, selectedData, relayoutData,filter_da
 
 
     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
+        if clickData is None:
+            raise PreventUpdate
         date = clickData['points'][0]['x']
         return (date, date, date, date)
     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
+        if selectedData is None:
+            raise PreventUpdate
         dates = [x['x'] for x in selectedData['points'] ]
         return (dates[0], dates[-1], dates[0], dates[-1])
     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.relayoutData':
-        log(relayoutData)
+        if relayoutData is None or 'xaxis.range[0]' not in relayoutData.keys():
+            raise PreventUpdate
         return (relayoutData['xaxis.range[0]'][:10],relayoutData['xaxis.range[1]'][:10],
                 relayoutData['xaxis.range[0]'][:10],relayoutData['xaxis.range[1]'][:10])
 
