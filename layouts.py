@@ -382,10 +382,11 @@ def make_detail_header(filter_data, suff=""):
 
 
 def make_date_modal(suff=""):
+    fdata = filter_data if suff=="" else filter_data2
     output = dbc.Modal(size='md', id=f'date-modal{suff}', children=[
             #dbc.ModalHeader("Explore trip data"),
             dbc.ModalBody([
-                html.Div(id=f"filter-meta-div{suff}", children=filter_data, className='d-none'),
+                html.Div(id=f"filter-meta-div{suff}", children=fdata, className='d-none'),
                     dbc.Row(className='pb-2', children=[
                         dbc.Col(width=12, className='m-2 px-2 pt-2', children=html.H3("Select a date range")),
                         dbc.Col(width=12, className='m-2 p-2', children=[

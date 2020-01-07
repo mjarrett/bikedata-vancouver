@@ -25,7 +25,7 @@ external_stylesheets=[dbc.themes.BOOTSTRAP,"https://maxcdn.bootstrapcdn.com/font
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server  #this is needed for wsgi server
-app.title = 'BikeDataBC'
+app.title = 'BikeData Vancouver'
 
 
 
@@ -199,7 +199,6 @@ def update_initial_date(date):
              )
 def update_datepicker_from_graph(clickData, selectedData, relayoutData,filter_data):
     log("update_datepicker_from_graph",cb=True)
-    print(relayoutData)
 
 
     filter_data = json.loads(filter_data)
@@ -328,7 +327,6 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close
             raise PreventUpdate
         filter_data['date'] = None
 
-    print(filter_data)
     return json.dumps(filter_data)
 
 
@@ -351,7 +349,7 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value, return_nclicks, clos
                            start_date,end_date,checklist_member,checklist_casual,checklist_other):
 
     log("update_filter_meta_div2",cb=True)
-
+    
 
     filter_data = json.loads(filter_data)
     cat_values = checklist_member + checklist_casual + checklist_other
