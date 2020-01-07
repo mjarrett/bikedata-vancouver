@@ -37,7 +37,7 @@ df.Departure = pd.to_datetime(df.Departure)
 df.Return = pd.to_datetime(df.Return)
   
 
-startdate = df.iloc[0].loc['Departure']
+startdate = df.iloc[0].loc['Departure'] 
 enddate = df.iloc[-1].loc['Departure']
 
 startdate_iso = startdate.strftime('%Y-%m-%d')
@@ -299,19 +299,22 @@ def make_detail_header(filter_data, suff=""):
     date_button = dbc.Button(id=f"date-update-btn{suff}", color=color, children=[
        html.Span(className="fa fa-calendar")
         ])
-    date_button_tt = dbc.Tooltip(target=f"date-update-btn{suff}",children="Change the current selection")
+    date_button_tt = dbc.Tooltip(target=f"date-update-btn{suff}",children="Change the current date range")
    
     
     close_button = dbc.Button(id=f"close-btn{suff}", color=color, children=[
         html.Span(className="fa fa-times-circle")
         ])
-    close_button_tt = dbc.Tooltip(target=f"close-btn{suff}", children="Close current selection")
+    close_button_tt = dbc.Tooltip(target=f"close-btn{suff}", children="Close")
 
     if suff == "":
-        date_button2 = dbc.Button(id='date-button2',color=color, children=[
-            html.Span(className="fa fa-plus text-success" )
+        date_button2 = dbc.Button(id='date-button2', color=color,children=[
+            html.Span(className="fa fa-plus" )
             ])
-        date_button2_tt = dbc.Tooltip(target='date-button2',children="Add a new selection")
+        date_button2_tt = dbc.Tooltip(target='date-button2',children="Compare a second date range")
+        close_button = dbc.Button(id=f"close-btn{suff}", className='d-none',color=color, children=[
+            html.Span(className="fa fa-times-circle")
+            ])
     else:
         date_button2 = ""
         date_button2_tt = ""
@@ -322,8 +325,8 @@ def make_detail_header(filter_data, suff=""):
     data_button_tt = dbc.Tooltip(target=f'data-button{suff}', children="View raw data")
         
     button_col = dbc.Col(className="d-flex justify-content-end",children=[date_button,date_button_tt,
-                                            date_button2,date_button2_tt,
                                             data_button,data_button_tt,
+                                            date_button2,date_button2_tt,
                                             close_button,close_button_tt])
         
         
