@@ -565,7 +565,7 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
         html.Div(id='detail-div-status', className='d-none', children=startclass),
         html.Div(id='detail-div-status2', className='d-none', children=startclass),
         
-        dbc.Col(className='sticky-top', width=12, children=[
+        dbc.Col(className='', width=12, children=[
             dbc.Row(children=[
                 dbc.Col(width=True, id="header-div", className=startclass, children=[
 
