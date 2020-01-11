@@ -354,7 +354,8 @@ def make_daily_fig(df=None,wdf=None, suff=""):
             wddf = wddf[['precipIntensity','temperature']].groupby(pd.Grouper(freq='d')).agg(
                                                                         {'precipIntensity':sum,'temperature':max}
                                                                         )
-            
+    yaxis_title="Hourly Trips" if not daily else "Daily Trips"
+    yaxis_title_weather = 'Precipitation (mm)' if daily else 'Precipitation (mm/h)'
 
     trips_df.columns = ['Time','Trips']
 
@@ -395,12 +396,11 @@ def make_daily_fig(df=None,wdf=None, suff=""):
     
     if not daily:
         print("short")
-        fig.add_trace(go.Scatter(
+        fig.add_trace(go.Bar(
             x=trips_df['Time'],
             y=trips_df['Trips'],
             marker={'color':color},
-            fill='tozeroy',
-            name='Hourly Trips'
+            name='Hourly Trips',
         ),
             row=1,col=1
                 )
@@ -410,7 +410,7 @@ def make_daily_fig(df=None,wdf=None, suff=""):
             x=trips_df['Time'],
             y=trips_df['Trips'],
             marker={'color':color},
-            name='Daily Trips'
+            name='Daily Trips',
         ),
             row=1,col=1
                 )
@@ -441,9 +441,9 @@ def make_daily_fig(df=None,wdf=None, suff=""):
 
     fig.update_layout(layout)
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400)
-    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,title_text='Trips',row=1,col=1)
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,title_text=yaxis_title,row=1,col=1)
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,title_text='Temparture (°C)',row=2,col=1)
-    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,title_text='Precipitation (mm)',row=2,col=1,secondary_y=True)
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,title_text=yaxis_title_weather,row=2,col=1,secondary_y=True)
 
     if df is not None and (trips_df.loc[trips_df.index[-1],'Time'] - trips_df.loc[0,'Time']).days < 1:
         date = trips_df.loc[0,'Time']
