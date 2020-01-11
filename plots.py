@@ -330,7 +330,6 @@ def make_daily_fig(df=None,wdf=None, suff=""):
     elif suff == "2":
         color = c_green
     
-    daily = False
     
     if df is None:
         trips_df = pd.DataFrame(columns=[0,1])
@@ -345,14 +344,8 @@ def make_daily_fig(df=None,wdf=None, suff=""):
         wddf = wdf[t1:t2]
         
 
-        if len(thdf) < 24*65:   # less than two months of data provide hourly counts, otherwise daily
-            trips_df = thdf.sum(1).reset_index() 
-            daily = True
-        else:
-            trips_df = thdf.groupby(pd.Grouper(freq='d')).sum().sum(1).reset_index()
-            wddf = wddf[['precipIntensity','temperature']].groupby(pd.Grouper(freq='d')).agg(
-                                                                        {'precipIntensity':sum,'temperature':max}
-                                                                        )
+        trips_df = thdf.sum(1).reset_index() 
+
             
 
     trips_df.columns = ['Time','Trips']
@@ -392,27 +385,16 @@ def make_daily_fig(df=None,wdf=None, suff=""):
     fig = make_subplots(rows=2, cols=1, row_heights=[0.8, 0.2],shared_xaxes=True,
                        specs=[[{"secondary_y": False}], [{"secondary_y": True}]])
     
-    if daily:
-        print("short")
-        fig.add_trace(go.Scatter(
-            x=trips_df['Time'],
-            y=trips_df['Trips'],
-            marker={'color':color},
-            fill='tozeroy',
-            name='Hourly Trips'
-        ),
-            row=1,col=1
-                )
-    else:
-        print("long")
-        fig.add_trace(go.Bar(
-            x=trips_df['Time'],
-            y=trips_df['Trips'],
-            marker={'color':color},
-            name='Daily Trips'
-        ),
-            row=1,col=1
-                )
+    fig.add_trace(go.Scatter(
+        x=trips_df['Time'],
+        y=trips_df['Trips'],
+        marker={'color':color},
+        fill='tozeroy',
+        name='Hourly Trips'
+    ),
+        row=1,col=1
+            )
+ 
     
     
 
