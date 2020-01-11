@@ -288,7 +288,8 @@ def make_detail_header(filter_data, suff=""):
     direction = filter_data['direction']
     stations = "All" if filter_data['stations'] is None else ", ".join(filter_data['stations'])
     
-    if (filter_data['cats'] is None) or (set(filter_data['cats']) == set(memtypes)): 
+
+    if (filter_data['cats'] is None) or (len(set(filter_data['cats'])) >= len(set(memtypes))): 
         cats = "All"
     else: cats = ", ".join(filter_data['cats'])
         
@@ -345,11 +346,13 @@ def make_detail_header(filter_data, suff=""):
             d1 = " "
         header_txt = dbc.Col(children=[d1])
         
-    header = dbc.Row(className='d-flex',children=[header_txt,button_col])
+    header = dbc.Row(className='',children=[header_txt,button_col])
                 
 
+    radio_class = 'd-none' if stations=='All' else ''
     radio = dbc.RadioItems(
                 id=f'stations-radio{suff}',
+                className=radio_class,
                 options=[
                     {'label': 'Trip Start', 'value': 'start'},
                     {'label': 'Trip End', 'value': 'stop'},
@@ -358,18 +361,25 @@ def make_detail_header(filter_data, suff=""):
                 value=direction,
                 inline=True
             )
-
+    
        
     return_btn_class = 'd-none' if stations=='All' else ''
     return_btn_tt = dbc.Tooltip("Go back to all stations", target=f'map-return-btn{suff}')
     return_btn    = dbc.Button(size="sm", className=return_btn_class,id=f'map-return-btn{suff}',color='white', children=[
                         html.Span(className=f"fa fa-times-circle text-{color}")
                     ])    
-        
-    row2 = html.Tr([html.Td("Direction"), html.Td(radio)])
-    row3 = html.Tr([html.Td("Stations"), html.Td(html.Em(stations)),return_btn_tt,return_btn])
-    row4 = html.Tr([html.Td("Membership Types"), html.Td(html.Em(cats))])
-    table_body = [html.Tbody([row3,row2, row4])]
+    
+    stations_div = dbc.Row([
+                       dbc.Col([html.Em(stations),return_btn_tt,return_btn]),
+                       dbc.Col([radio])
+    ])
+    
+    stations_header_tt = dbc.Tooltip("Select a station by clicking on the map", target=f'stations-header{suff}')
+    membership_header_tt = dbc.Tooltip("Select membership types when choosing a date range", target=f'membership-header{suff}')
+    
+    row3 = html.Tr([html.Th(html.Span(id=f'stations-header{suff}',children="Stations")), html.Td(stations_div), stations_header_tt])
+    row4 = html.Tr([html.Th(html.Span(id=f'membership-header{suff}',children="Membership Types")), html.Td(html.Em(cats)),membership_header_tt])
+    table_body = [html.Tbody([row3, row4])]
     table = dbc.Table(table_body, size='sm',bordered=False)
 
     card = dbc.Card(className='mb-3',children=[
