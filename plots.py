@@ -345,10 +345,11 @@ def make_daily_fig(df=None,wdf=None, suff=""):
         wddf = wdf[t1:t2]
         
 
-        if len(thdf) < 24*65:   # less than two months of data provide hourly counts, otherwise daily
+        if len(thdf) < 24*370:   # less than 1 year of data provide hourly counts, otherwise daily
             trips_df = thdf.sum(1).reset_index() 
-            daily = True
+            
         else:
+            daily = True
             trips_df = thdf.groupby(pd.Grouper(freq='d')).sum().sum(1).reset_index()
             wddf = wddf[['precipIntensity','temperature']].groupby(pd.Grouper(freq='d')).agg(
                                                                         {'precipIntensity':sum,'temperature':max}
@@ -392,7 +393,7 @@ def make_daily_fig(df=None,wdf=None, suff=""):
     fig = make_subplots(rows=2, cols=1, row_heights=[0.8, 0.2],shared_xaxes=True,
                        specs=[[{"secondary_y": False}], [{"secondary_y": True}]])
     
-    if daily:
+    if not daily:
         print("short")
         fig.add_trace(go.Scatter(
             x=trips_df['Time'],
