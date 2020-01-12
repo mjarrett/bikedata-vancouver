@@ -346,10 +346,10 @@ def make_detail_header(filter_data, suff=""):
     ])               
     data_button_tt = dbc.Tooltip(target=f'data-button{suff}', children="View raw data")
         
-    button_col = dbc.Col(className="d-flex justify-content-end",children=[date_button,date_button_tt,
-                                            data_button,data_button_tt,
-                                            date_button2,date_button2_tt,
-                                            close_button,close_button_tt])
+#     button_col = dbc.Col(className="d-flex justify-content-end",children=[date_button,date_button_tt,
+#                                             data_button,data_button_tt,
+#                                             date_button2,date_button2_tt,
+#                                             close_button,close_button_tt])
         
         
     if len(date) == 2:
@@ -367,7 +367,10 @@ def make_detail_header(filter_data, suff=""):
             d1 = " "
         header_txt = dbc.Col(children=[d1])
         
-    header = dbc.Row(className='',children=[header_txt,button_col])
+    header = dbc.Row(className='',children=[header_txt,date_button,date_button_tt,
+                                            data_button,data_button_tt,
+                                            date_button2,date_button2_tt,
+                                            close_button,close_button_tt])
                 
 
     radio_class = 'd-none' if stations=='All' else ''
