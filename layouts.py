@@ -317,30 +317,31 @@ def make_detail_header(filter_data, suff=""):
     date = ' ' if filter_data['date'] is None else filter_data['date']
 
         
-    date_button = dbc.Button(id=f"date-update-btn{suff}", color=color, children=[
-       html.Span(className="fa fa-calendar")
-        ])
+    date_button = dbc.Button(id=f"date-update-btn{suff}", outline=True, className='rounded-0', color='link', children=[
+      html.Span(className="fa fa-calendar")
+       ])
+    #date_button = dcc.Link(href="#",id=f"date-update-btn{suff}",children=html.Span(className="fa fa-calendar"))
     date_button_tt = dbc.Tooltip(target=f"date-update-btn{suff}",children="Change the current date range")
    
     
-    close_button = dbc.Button(id=f"close-btn{suff}", color=color, children=[
+    close_button = dbc.Button(id=f"close-btn{suff}", outline=True, className='rounded-0', color='link', children=[
         html.Span(className="fa fa-times-circle")
         ])
     close_button_tt = dbc.Tooltip(target=f"close-btn{suff}", children="Close")
 
     if suff == "":
-        date_button2 = dbc.Button(id='date-button2', color=color,children=[
+        date_button2 = dbc.Button(id='date-button2', outline=True, className='rounded-0', color='link', children=[
             html.Span(className="fa fa-plus" )
             ])
         date_button2_tt = dbc.Tooltip(target='date-button2',children="Compare a second date range")
-        close_button = dbc.Button(id=f"close-btn{suff}", className='d-none',color=color, children=[
+        close_button = dbc.Button(id=f"close-btn{suff}", className='d-none',color='link', children=[
             html.Span(className="fa fa-times-circle")
             ])
     else:
         date_button2 = ""
         date_button2_tt = ""
         
-    data_button = dbc.Button(id=f'data-button{suff}', color=color, children=[
+    data_button = dbc.Button(id=f'data-button{suff}', outline=True, className='rounded-0', color='link', children=[
         html.Span(className="fa fa-table" )
     ])               
     data_button_tt = dbc.Tooltip(target=f'data-button{suff}', children="View raw data")
@@ -403,7 +404,7 @@ def make_detail_header(filter_data, suff=""):
     table = dbc.Table(table_body, size='sm',bordered=False)
 
     card = dbc.Card(className='mb-3',children=[
-            dbc.CardHeader(className=f"text-strong text-white bg-{color}",children=header),
+            dbc.CardHeader(className=f"text-strong text-{color} border-{color}",children=header),
             table,
         ])
     log("make_detail_header finished")
