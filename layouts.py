@@ -204,6 +204,26 @@ def make_detail_cards(df=None,wdf=None,suff=''):
     return output
 
 
+
+def make_about_modal():
+    log("make_about_modal")    
+
+    with open('README.md') as f:
+        md_text = f.read()
+    
+    
+    modal = dbc.Modal([
+                dbc.ModalBody(children=[
+                    dcc.Markdown(md_text)
+                    
+                ]),
+            ],
+            id=f"about-modal",
+            size="xl",
+            )
+    
+    return modal
+
 def make_data_modal(df=None, suff=""):
     log("Make_data_modal")
     max_records = 100000 # Only allow downloads up to limit
@@ -470,37 +490,19 @@ def make_date_modal(suff=""):
 
 header = dbc.NavbarSimple(
     children=[
-        dbc.NavItem(dbc.NavLink("Link", href="#")),
-        dbc.DropdownMenu(
-            nav=True,
-            in_navbar=True,
-            label="Menu",
-            children=[
-                dbc.DropdownMenuItem("Entry 1"),
-                dbc.DropdownMenuItem("Entry 2"),
-                dbc.DropdownMenuItem(divider=True),
-                dbc.DropdownMenuItem("Entry 3"),
-            ],
-        ),
+        dbc.NavItem(dbc.NavLink(id='about-navlink',children="About", href="#")),
+        dbc.NavItem(dbc.NavLink(id='blog-navlink',children="Blog", href="http://notes.mikejarrett.ca")),
+        dbc.NavItem(dbc.NavLink(id='bot-navlink',children="@VanBikeShareBot", href="http://twitter.com/vanbikesharebot")),
     ],
-    brand="BikeDataBC",
+    brand="BikeData Vancouver",
     brand_href="#",
 #     sticky="top",
-    color='#1e5359',
-    dark=True
+    #color='#1e5359',
+    dark=False,
+    #style={'font-family': 'Bitstream'}
     )
 
-footer = dbc.NavbarSimple(
-    children=[
-        dbc.NavItem(dbc.NavLink("Link", href="#")),
-        
-    ],
-    brand="BikeDataBC",
-    brand_href="#",
-    sticky="bottom",
-    color='#1e5359',
-    dark=True
-    )
+
 
 
 summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
@@ -565,7 +567,7 @@ main_div = dbc.Row(className="pb-2",children=[
 
 
 
-
+about_modal = make_about_modal()
 
 
 
@@ -635,6 +637,7 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
         
             dbc.Col(width=6, id="explore-div2", className=startclass, children=[
                 html.Div(id="modal-div2", children=make_data_modal(suff="2")),
+                html.Div(id="about-modal-div",  children=about_modal)
             ]),
             
 

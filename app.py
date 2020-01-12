@@ -29,7 +29,7 @@ app.title = 'BikeData Vancouver'
 
 
 
-app.config['suppress_callback_exceptions'] = True
+#app.config['suppress_callback_exceptions'] = True
 
 
 
@@ -49,7 +49,7 @@ body = dbc.Container(id="mainContainer",fluid=True,children=[
 
 ])
 
-app.layout = html.Div([header,body,footer])
+app.layout = html.Div([header,body])
 
 #######################################################################################
 #
@@ -58,16 +58,7 @@ app.layout = html.Div([header,body,footer])
 #######################################################################################
 
 
-@app.callback(Output('summary-card-row','children'),
-              [Input('summary-year-select','value')]
-             )
-def udpate_summary_year(value):
-    log("update_summary_year", cb=True)
 
-    if value == 'All':
-        return make_summary_cards(df)
-
-    return make_summary_cards(df.set_index('Departure')[value].reset_index())
 
 
 @app.callback(Output('go-button','disabled'),
@@ -510,7 +501,15 @@ def toggle_date_modal2(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedDa
 
 
 
-
+@app.callback(Output('about-modal','is_open'),
+              [Input('about-navlink','n_clicks')]
+             )
+def toggle_about_modal(n_clicks):
+    print('toggle_about_modal')
+    if n_clicks is None:
+        raise PreventUpdate
+    return True
+            
 
 
 
