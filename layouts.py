@@ -208,7 +208,7 @@ def make_detail_cards(df=None,wdf=None,suff=''):
 def make_about_modal():
     log("make_about_modal")    
 
-    with open('README.md') as f:
+    with open(f'{datapath}/README.md') as f:
         md_text = f.read()
     
     
