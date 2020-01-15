@@ -268,18 +268,17 @@ def update_initial_date2(date):
                State('datepicker','start_date'),
                State('datepicker','end_date'),
                State('checklist-member','value'),
-               State('checklist-casual','value'),
-               State('checklist-other','value')]
+               State('checklist-casual','value')]
              )
 def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close_nclicks,
                            filter_data,
-                           start_date,end_date,checklist_member,checklist_casual,checklist_other):
+                           start_date,end_date,checklist_member,checklist_casual):
 
     log("update_filter_meta_div",cb=True)
 
     filter_data = json.loads(filter_data)
 
-    cat_values = checklist_member + checklist_casual + checklist_other
+    cat_values = checklist_member + checklist_casual 
 
     # IF go-button is triggered, update all values
     if  dash.callback_context.triggered[0]['prop_id'] == 'go-button.n_clicks': 
@@ -331,18 +330,17 @@ def update_filter_meta_div(n_clicks,clickData,radio_value, return_nclicks, close
                State('datepicker2','start_date'),
                State('datepicker2','end_date'),
                State('checklist-member2','value'),
-               State('checklist-casual2','value'),
-               State('checklist-other2','value')]
+               State('checklist-casual2','value')]
              )
 def update_filter_meta_div2(n_clicks,clickData,radio_value, return_nclicks, close_nclicks,
                            filter_data,
-                           start_date,end_date,checklist_member,checklist_casual,checklist_other):
+                           start_date,end_date,checklist_member,checklist_casual):
 
     log("update_filter_meta_div2",cb=True)
     
 
     filter_data = json.loads(filter_data)
-    cat_values = checklist_member + checklist_casual + checklist_other
+    cat_values = checklist_member + checklist_casual 
 
     # IF go-button2 is triggered, update all values
     if  dash.callback_context.triggered[0]['prop_id'] == 'go-button2.n_clicks':
@@ -531,14 +529,7 @@ def toggle_checkboxes(vals):
     elif vals == []:
         return []
 
-@app.callback(Output('checklist-other','value'),
-              [Input('checklist-other-header','value')]
-             )
-def toggle_checkboxes(vals):
-    if vals == ['Other']:
-        return memtypes_other
-    elif vals == []:
-        return []
+
 
 @app.callback(Output('checklist-member2','value'),
               [Input('checklist-member-header2','value')]
@@ -558,14 +549,7 @@ def toggle_checkboxes(vals):
     elif vals == []:
         return []
 
-@app.callback(Output('checklist-other2','value'),
-              [Input('checklist-other-header2','value')]
-             )
-def toggle_checkboxes(vals):
-    if vals == ['Other']:
-        return memtypes_other
-    elif vals == []:
-        return []
+
 
 
 

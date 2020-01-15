@@ -61,6 +61,24 @@ c_black=    '#000' #!default;
 
 colors = [c_blue,c_indigo,c_red,c_green,c_orange,c_teal,c_cyan,c_purple,c_yellow]
 
+memb_colors = [
+'#0056b3',
+'#0062cc',
+'#006fe6',
+'#007bff',
+'#1a88ff',
+'#3395ff',
+'#4da3ff']
+cas_colors  = [
+'#19692c',
+'#1e7e34',
+'#23923d',
+'#28a745',
+'#2dbc4e',
+'#34ce57',
+'#48d368']
+
+
 def make_timeseries_fig(date=None, date2=None):
     log("make_timeseries_fig")
     thdf = pd.read_csv(f'{datapath}/Mobi_System_Data_taken_hourly.csv',index_col=0)
@@ -461,11 +479,24 @@ def make_memb_fig(df=None,suff=""):
     if df is None:
         return go.Figure(data=[go.Pie(labels=['1','2'], values=[10,20], hole=.3)])
     
+    memtypes = list(set(df['Membership Simple']))
+    memtypes_member = list(set(df.loc[df['Membership Category']=='Member','Membership Simple']))
+    memtypes_casual = list(set(df.loc[df['Membership Category']=='Casual','Membership Simple']))
+    memb_col_dict = {y:x for x,y in zip(memb_colors,memtypes_member)}
+    memb_col_dict.update({y:x for x,y in zip(cas_colors,memtypes_casual)})
+    
+    print(memb_col_dict)
     pdf = df.pivot_table(values='Departure',index='Month',columns='Membership Simple',aggfunc='count')
     memb_trips = pdf.fillna(0).astype(int).sum()
+    memb_trips = memb_trips.sort_values(ascending=False)
+    memb_trips = memb_trips.to_dict()
+
+    labels = [x for x in memb_trips.keys() if x in memtypes_member] + [x for x in memb_trips.keys() if x in memtypes_casual] 
+    values = [memb_trips[x] for x in labels]
+    colors = [memb_col_dict[x] for x in labels]
     
-    fig = go.Figure(data=[go.Pie(labels=memb_trips.index, 
-                                 values=memb_trips.values, 
+    fig = go.Figure(data=[go.Pie(labels=labels, 
+                                 values=values, 
                                  hole=.3,
                                  marker={'colors':colors})])
 

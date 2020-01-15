@@ -24,14 +24,13 @@ from credentials import *
 #df = prep_sys_df('./Mobi_System_Data.csv')
 log("==================")
 log("Loading data")
-df = pd.read_csv(f'{datapath}/Mobi_System_Data_Prepped.csv')
+df = pd.read_csv(f'{datapath}/Mobi_System_Data_Prepped.csv') 
 
 
-memtypes = set(df['Membership Simple'])
-memtypes_member = ['Annual Standard','Annual Plus','Monthly','90 Day']
-memtypes_casual = ['Daily','Single Trip']
+memtypes = list(set(df['Membership Simple']))
+memtypes_member = list(set(df.loc[df['Membership Category']=='Member','Membership Simple']))
+memtypes_casual = list(set(df.loc[df['Membership Category']=='Casual','Membership Simple']))
 memtypes_other = [x for x in memtypes if (x not in memtypes_member) and (x not in memtypes_casual)]
-
 
 df.Departure = pd.to_datetime(df.Departure)
 df.Return = pd.to_datetime(df.Return)
@@ -456,7 +455,7 @@ def make_date_modal(suff=""):
                         ]),
 
                         dbc.Col(width=10, className='m-2 px-2 pt-2 border-top', children=html.H3("Filter by membership type")),
-                        dbc.Col(width=4, children=[
+                        dbc.Col(width=6, children=[
                             dbc.Checklist(id=f'checklist-member-header{suff}', 
                                 options=[{'label':'Regular','value':'Member'}],
                                 value=['Member']
@@ -468,7 +467,7 @@ def make_date_modal(suff=""):
                                 labelStyle={'color':c_gray_600},
                             ),
                         ]),
-                        dbc.Col(width=4, className='border-left border-right', children=[
+                        dbc.Col(width=6, className='border-left', children=[
                             dbc.Checklist(id=f'checklist-casual-header{suff}',
                                 options=[{'label':'Casual','value':'Casual'}],
                                 value=['Casual']
@@ -480,17 +479,17 @@ def make_date_modal(suff=""):
                             ),
                         ]),
                         
-                        dbc.Col(width=4, children=[
-                            dbc.Checklist(id=f'checklist-other-header{suff}',
-                                options=[{'label':'Other','value':'Other'}],
-                                value=['Other']
-                            ),
-                            dbc.Checklist(id=f'checklist-other{suff}', className="checklist-faded-custom",
-                                options=[{'label':memtype,'value':memtype} for memtype in memtypes_other],
-                                value=memtypes_other,
-                                labelStyle={'color':c_gray_600},
-                            ),
-                        ]),
+#                         dbc.Col(width=4, children=[
+#                             dbc.Checklist(id=f'checklist-other-header{suff}',
+#                                 options=[{'label':'Other','value':'Other'}],
+#                                 value=['Other']
+#                             ),
+#                             dbc.Checklist(id=f'checklist-other{suff}', className="checklist-faded-custom",
+#                                 options=[{'label':memtype,'value':memtype} for memtype in memtypes_other],
+#                                 value=memtypes_other,
+#                                 labelStyle={'color':c_gray_600},
+#                             ),
+#                         ]),
                         
                         
                     ]),
