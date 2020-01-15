@@ -214,6 +214,7 @@ def make_about_modal():
     
     modal = dbc.Modal([
                 dbc.ModalBody(children=[
+                    html.Img(src='/assets/logo.png',height=300),
                     dcc.Markdown(md_text)
                     
                 ]),
@@ -398,16 +399,30 @@ def make_detail_header(filter_data, suff=""):
                        dbc.Col([radio])
     ])
     
-    stations_header_tt = dbc.Tooltip("Select a station by clicking on the map", target=f'stations-header{suff}')
-    membership_header_tt = dbc.Tooltip("Select membership types when choosing a date range", target=f'membership-header{suff}')
+    stations_header_tt = dbc.Tooltip("Select a station by clicking on the map", 
+                                     target=f'stations-header-icon{suff}')
+    membership_header_tt = dbc.Tooltip("Select membership types when choosing a date range", 
+                                       target=f'membership-header-icon{suff}')
     
-    row3 = html.Tr([html.Th(html.Span(id=f'stations-header{suff}',children="Stations")), html.Td(stations_div), stations_header_tt])
-    row4 = html.Tr([html.Th(html.Span(id=f'membership-header{suff}',children="Membership Types")), html.Td(html.Em(cats)),membership_header_tt])
+    stations_header_text = html.Div(["Stations ",
+                                     html.Span(id=f'stations-header-icon{suff}',
+                                               className=f"fa fa-question-circle text-{color}")
+                                    ])
+    membership_header_text = html.Div(["Membership Types ",
+                                     html.Span(id=f'membership-header-icon{suff}',
+                                               className=f"fa fa-question-circle text-{color}")
+                                    ])
+    
+    
+    row3 = html.Tr([html.Th(html.Span(id=f'stations-header{suff}',
+                                      children=stations_header_text)), html.Td(stations_div), stations_header_tt])
+    row4 = html.Tr([html.Th(html.Span(id=f'membership-header{suff}',
+                                      children=membership_header_text)), html.Td(html.Em(cats)),membership_header_tt])
     table_body = [html.Tbody([row3, row4])]
     table = dbc.Table(table_body, size='sm',bordered=False)
 
     card = dbc.Card(className='mb-3',children=[
-            dbc.CardHeader(className=f"text-strong text-{color} border-{color}",children=header),
+            dbc.CardHeader(className=f"font-weight-bold text-muted  border-{color}",children=header),
             table,
         ])
     log("make_detail_header finished")
