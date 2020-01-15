@@ -1,5 +1,3 @@
-# BikeData Vancouver
-
 ## What is BikeData Vancouver?
 BikeData Vancouver is a dashboard that allows users to explore the [official system data](https://www.mobibikes.ca/en/system-data) supplied by the [Mobi bikeshare company](https://www.mobibikes.ca/). BikeData Vancouver is not associated with or endorsed by Mobi.
 

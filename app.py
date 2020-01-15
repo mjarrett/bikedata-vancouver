@@ -39,7 +39,6 @@ body = dbc.Container(id="mainContainer",fluid=True,children=[
 #    summary_jumbo,
 
 #     summary_cards,
-
     main_div,
 
     html.Hr(className="my-2"),

@@ -494,6 +494,7 @@ def make_date_modal(suff=""):
 
 header = dbc.NavbarSimple(
     children=[
+        dbc.NavItem(html.Img(src='/assets/logo.png', height="30px")),
         dbc.NavItem(dbc.NavLink(id='about-navlink',children="About", href="#")),
         dbc.NavItem(dbc.NavLink(id='blog-navlink',children="Blog", href="http://notes.mikejarrett.ca")),
         dbc.NavItem(dbc.NavLink(id='bot-navlink',children="@VanBikeShareBot", href="http://twitter.com/vanbikesharebot")),
@@ -506,7 +507,26 @@ header = dbc.NavbarSimple(
     #style={'font-family': 'Bitstream'}
     )
 
+# header = dbc.Navbar(
+#     [
+#         html.A(
+#             # Use row and col to control vertical alignment of logo / brand
+#             dbc.Row(
+#                 [
+#                     dbc.Col(html.Img(src='/assets/logo.png', height="30px")),
+#                     dbc.Col(dbc.NavbarBrand("BikeData Vancouver", className="ml-2")),
+#                 ],
+#                 align="center",
+#                 no_gutters=True,
+#             ),
+#             href="#",
+#         ),
+#         dbc.NavItem(dbc.NavLink(id='about-navlink',children="About", href="#")),
+#         dbc.NavItem(dbc.NavLink(id='blog-navlink',children="Blog", href="http://notes.mikejarrett.ca")),
+#         dbc.NavItem(dbc.NavLink(id='bot-navlink',children="@VanBikeShareBot", href="http://twitter.com/vanbikesharebot")),
 
+#     ],
+# )
 
 
 summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
