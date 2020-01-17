@@ -498,7 +498,9 @@ def make_memb_fig(df=None,suff=""):
     fig = go.Figure(data=[go.Pie(labels=labels, 
                                  values=values, 
                                  hole=.3,
-                                 marker={'colors':colors})])
+                                 marker={'colors':colors},
+                                 sort=False
+                                 )])
 
     log("make_memb_fig finished")
     return fig
