@@ -99,6 +99,7 @@ def make_summary_cards(df):
                 
             dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
                 make_card("Total Trips",f"{n_trips:,}",color='primary'),
+                make_card("Trips per day", f"{n_trips_per_day}",color='primary'),
                 make_card("Total Distance Travelled",f"{int(tot_dist):,} km",color='info'),
                 make_card("Unique bikes",f"{tot_bikes:,}",color='success'),
                 make_card("Total Trip Time",f"{int(tot_time/(60*60)):,} hours",color='warning')
@@ -155,6 +156,8 @@ def make_detail_cards(df=None,wdf=None,suff=''):
     avg_dist = tot_dist/n_trips
     avg_trips = n_trips/n_days
     
+    print(n_days,avg_trips)
+    
     tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
     tot_bikes = len(set(df['Bike'].fillna(0)))
     
@@ -172,10 +175,11 @@ def make_detail_cards(df=None,wdf=None,suff=''):
 #     avg_daily_pricip = "Data missing" if np.isnan(avg_daily_pricip) else f"{avg_daily_pricip:.1f} mm"
     titleclass = f"text-xs font-weight-bold text-{color} text-uppercase mb-1"
     row1 = html.Tr([html.Td("Total trips",className=titleclass), html.Td(f"{n_trips:,}")])
-    row2 = html.Tr([html.Td("Average trip distance",className=titleclass), html.Td(f"{int(avg_dist):,} km")])
-    row3 = html.Tr([html.Td("Average trip time",className=titleclass), html.Td(f"{int(tot_time/(60*n_trips)):,} minutes")])
-    row4 = html.Tr([html.Td("Unique bikes used",className=titleclass), html.Td(f"{int(tot_bikes):,}")])
-    table_body = [html.Tbody([row1, row2,row3, row4])]
+    row2 = html.Tr([html.Td("Trips per day",className=titleclass), html.Td(f"{int(avg_trips)}")])
+    row3 = html.Tr([html.Td("Average trip distance",className=titleclass), html.Td(f"{int(avg_dist):,} km")])
+    row4 = html.Tr([html.Td("Average trip time",className=titleclass), html.Td(f"{int(tot_time/(60*n_trips)):,} minutes")])
+    row5 = html.Tr([html.Td("Unique bikes used",className=titleclass), html.Td(f"{int(tot_bikes):,}")])
+    table_body = [html.Tbody([row1, row2,row3, row4, row5])]
     table = dbc.Table(table_body,bordered=False)    
    
     output =  dbc.Col(style={'width':'100%'},children=[
@@ -543,30 +547,30 @@ header = dbc.NavbarSimple(
 # )
 
 
-summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
-        html.H1("BikeData BC", className="display-3"),
+# summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
+#         html.H1("BikeData BC", className="display-3"),
 
-        html.P(
-            "Explore trip data from Mobi, Vancouver's bike share company",
-            className="lead",
-        ),
-        html.Hr(className="my-2"),
+#         html.P(
+#             "Explore trip data from Mobi, Vancouver's bike share company",
+#             className="lead",
+#         ),
+#         html.Hr(className="my-2"),
     
-        dbc.Row([
-            dbc.Col(width=4, children=[
-                dbc.Select(
-                    id="summary-year-select",
-                    options=[{'label': f"{min(years)} - {max(years)}", 'value':'All' }] + 
-                       [ {'label': f'{x}', 'value':f'{x}' } 
-                       for x in set(years) ],
-                    value='All'
-                ),
-            ]),
-        ]),
-        dbc.Row(id="summary-card-row", className='p-3 justify-content-center', children=make_summary_cards(df))
+#         dbc.Row([
+#             dbc.Col(width=4, children=[
+#                 dbc.Select(
+#                     id="summary-year-select",
+#                     options=[{'label': f"{min(years)} - {max(years)}", 'value':'All' }] + 
+#                        [ {'label': f'{x}', 'value':f'{x}' } 
+#                        for x in set(years) ],
+#                     value='All'
+#                 ),
+#             ]),
+#         ]),
+#         dbc.Row(id="summary-card-row", className='p-3 justify-content-center', children=make_summary_cards(df))
             
-    ]
-)
+#     ]
+# )
 
 
 
