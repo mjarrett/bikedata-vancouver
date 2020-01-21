@@ -34,14 +34,14 @@ maplayout = go.Layout(mapbox_style="light",
 
 c_dark_teal = '#1e5359'
           
-c_blue =     '#007bff' #!default; // primary
+c_blue =     '#6494AA' #!default; // primary
 c_indigo =   '#6610f2' #!default;
 c_purple =   '#6f42c1' #!default;
 c_pink =     '#e83e8c' #!default;
 c_red =      '#dc3545' #!default; // danger
 c_orange =   '#fd7e14' #!default;
 c_yellow =   '#ffc107' #!default; // warning
-c_green =    '#28a745' #!default; // success
+c_green =    '#90A959' #!default; // success
 c_teal =     '#20c997' #!default;
 c_cyan =     '#17a2b8' #!default; // info
 
@@ -81,7 +81,7 @@ cas_colors  = [
 
 def make_timeseries_fig(date=None, date2=None):
     log("make_timeseries_fig")
-    thdf = pd.read_csv(f'{datapath}/Mobi_System_Data_taken_hourly.csv',index_col=0)
+    thdf = pd.read_csv(f'{datapath}/data/Mobi_System_Data_taken_hourly.csv',index_col=0)
     thdf.index = pd.to_datetime(thdf.index)
     
     
@@ -183,7 +183,7 @@ def make_station_map(df=None, direction='start', suff=""):
     
     # https://plot.ly/python/mapbox-layers/
     log("prepping sdf")
-    sdf = geopandas.read_file(f'{datapath}/stations_df.geojson')
+    sdf = geopandas.read_file(f'{datapath}/data/stations_df.geojson')
     sdf = sdf.to_crs({'init': 'epsg:4326'})
     sdf['long'] = sdf.geometry.map(lambda x: x.x)
     sdf['lat'] = sdf.geometry.map(lambda x: x.y)
@@ -253,7 +253,7 @@ def make_trips_map(df,direction='start',suff=""):
     cdf = cdf[cdf['Departure lat'] > 1]
     cdf = cdf[cdf['Return lat'] > 1]
     
-    sdf = geopandas.read_file(f'{datapath}/stations_df.geojson')
+    sdf = geopandas.read_file(f'{datapath}/data/stations_df.geojson')
     sdf = sdf.to_crs({'init': 'epsg:4326'})
     sdf['long'] = sdf.geometry.map(lambda x: x.x)
     sdf['lat'] = sdf.geometry.map(lambda x: x.y)

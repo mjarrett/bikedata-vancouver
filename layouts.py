@@ -24,7 +24,7 @@ from credentials import *
 #df = prep_sys_df('./Mobi_System_Data.csv')
 log("==================")
 log("Loading data")
-df = pd.read_csv(f'{datapath}/Mobi_System_Data_Prepped.csv') 
+df = pd.read_csv(f'{datapath}/data/Mobi_System_Data_Prepped.csv') 
 
 
 memtypes = list(set(df['Membership Simple']))
@@ -48,7 +48,7 @@ enddate_str = enddate.strftime('%b %-d %Y')
 years = set(df.Year)
 
 log("Loading weather")  
-wdf = pd.read_csv(f'{datapath}/weather.csv',index_col=0)
+wdf = pd.read_csv(f'{datapath}/data/weather.csv',index_col=0)
 wdf.index = pd.to_datetime(wdf.index,utc=True).tz_convert('America/Vancouver').tz_localize(None)
  
 filter_data = json.dumps({'date':[startdate_iso,enddate_iso], 'cats':None, 'stations':None, 'direction':'start'})                          
@@ -211,7 +211,7 @@ def make_detail_cards(df=None,wdf=None,suff=''):
 def make_about_modal():
     log("make_about_modal")    
 
-    with open(f'{datapath}/../README.md') as f:
+    with open(f'{datapath}/README.md') as f:
         md_text = f.read()
     
     
