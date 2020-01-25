@@ -32,18 +32,13 @@ maplayout = go.Layout(mapbox_style="light",
                           showlegend = False,
                          )
 
-c_dark_teal = '#1e5359'
           
-c_blue =     '#6494AA' #!default; // primary
-c_indigo =   '#6610f2' #!default;
-c_purple =   '#6f42c1' #!default;
-c_pink =     '#e83e8c' #!default;
-c_red =      '#dc3545' #!default; // danger
-c_orange =   '#fd7e14' #!default;
-c_yellow =   '#ffc107' #!default; // warning
-c_green =    '#90A959' #!default; // success
-c_teal =     '#20c997' #!default;
-c_cyan =     '#17a2b8' #!default; // info
+c_blue =     '#3286AD' #// primary
+c_light_blue='#50AAD3'
+c_purple =   '#8357B2' #// info
+c_red =      '#FF5B71' # // danger
+c_yellow =   '#E5DE50' #// warning
+c_green =    '#5FCEC1' #// success
 
 
 c_white =   '#fff' #!default;
@@ -59,24 +54,7 @@ c_gray_900= '#212529' #!default;
 c_black=    '#000' #!default;
 
 
-colors = [c_blue,c_indigo,c_red,c_green,c_orange,c_teal,c_cyan,c_purple,c_yellow]
 
-memb_colors = [
-'#0056b3',
-'#0062cc',
-'#006fe6',
-'#007bff',
-'#1a88ff',
-'#3395ff',
-'#4da3ff']
-cas_colors  = [
-'#19692c',
-'#1e7e34',
-'#23923d',
-'#28a745',
-'#2dbc4e',
-'#34ce57',
-'#48d368']
 
 
 def make_timeseries_fig(date=None, date2=None):
@@ -450,7 +428,7 @@ def make_daily_fig(df=None,wdf=None, suff=""):
     fig.add_trace(go.Bar(
                     x=wddf.index,
                     y=wddf['precipIntensity'],
-                    marker_color='#00238b',
+                    marker_color=c_light_blue,
                     name='Precipitation'
                     ),
                 row=2,col=1,
@@ -482,25 +460,28 @@ def make_memb_fig(df=None,suff=""):
     memtypes = list(set(df['Membership Simple']))
     memtypes_member = list(set(df.loc[df['Membership Category']=='Member','Membership Simple']))
     memtypes_casual = list(set(df.loc[df['Membership Category']=='Casual','Membership Simple']))
-    memb_col_dict = {y:x for x,y in zip(memb_colors,memtypes_member)}
-    memb_col_dict.update({y:x for x,y in zip(cas_colors,memtypes_casual)})
+
     
-    print(memb_col_dict)
     pdf = df.pivot_table(values='Departure',index='Month',columns='Membership Simple',aggfunc='count')
     memb_trips = pdf.fillna(0).astype(int).sum()
     memb_trips = memb_trips.sort_values(ascending=False)
     memb_trips = memb_trips.to_dict()
 
-    labels = [x for x in memb_trips.keys() if x in memtypes_member] + [x for x in memb_trips.keys() if x in memtypes_casual] 
-    values = [memb_trips[x] for x in labels]
-    colors = [memb_col_dict[x] for x in labels]
+
+    labels = ['Member','Casual'] + list(memtypes_member) + list(memtypes_casual)
+    parents = ["", ""] +  ["Member"]*len(memtypes_member) + ["Casual"]*len(memtypes_casual)
+    values = [sum([memb_trips[x] for x in list(labels) if x in memtypes_member]),sum([memb_trips[x] for x in labels if x in memtypes_casual])]+ [memb_trips[x] for x in list(memtypes_member) + list(memtypes_casual)]
+
     
-    fig = go.Figure(data=[go.Pie(labels=labels, 
-                                 values=values, 
-                                 hole=.3,
-                                 marker={'colors':colors},
-                                 sort=False
-                                 )])
+    fig =go.Figure(go.Sunburst(
+        labels=labels,
+        parents=parents ,
+        values= values,
+        branchvalues="total",
+        marker={'colors':[c_purple,c_light_blue]}
+    ))
+    
+    fig.update_layout(margin = dict(t=1, l=0, r=0, b=0))
 
     log("make_memb_fig finished")
     return fig
