@@ -19,9 +19,9 @@ from layouts import *
 
 
 
+print(dash.__version__)
 
-
-external_stylesheets=['/assets/bootstrap.min.css',"https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"]
+external_stylesheets=['/assets/css/bootstrap_custom.min.css','/assets/css/style.css',"https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server  #this is needed for wsgi server
@@ -36,9 +36,8 @@ app.title = 'BikeData Vancouver'
 
 body = dbc.Container(id="mainContainer",fluid=True,children=[
 
-#    summary_jumbo,
-
-#     summary_cards,
+    lead,
+    
     main_div,
 
     html.Hr(className="my-2"),

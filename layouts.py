@@ -322,31 +322,31 @@ def make_detail_header(filter_data, suff=""):
 
         
     date_button = dbc.Button(id=f"date-update-btn{suff}", outline=True, className='rounded-0', color='link', children=[
-      html.Span(className="fa fa-calendar")
+      html.Span(className="fa fa-calendar text-white")
        ])
     #date_button = dcc.Link(href="#",id=f"date-update-btn{suff}",children=html.Span(className="fa fa-calendar"))
     date_button_tt = dbc.Tooltip(target=f"date-update-btn{suff}",children="Change the current date range")
    
     
     close_button = dbc.Button(id=f"close-btn{suff}", outline=True, className='rounded-0', color='link', children=[
-        html.Span(className="fa fa-times-circle")
+        html.Span(className="fa fa-times-circle text-white")
         ])
     close_button_tt = dbc.Tooltip(target=f"close-btn{suff}", children="Close")
 
     if suff == "":
         date_button2 = dbc.Button(id='date-button2', outline=True, className='rounded-0', color='link', children=[
-            html.Span(className="fa fa-plus" )
+            html.Span(className="fa fa-plus text-white" )
             ])
         date_button2_tt = dbc.Tooltip(target='date-button2',children="Compare a second date range")
         close_button = dbc.Button(id=f"close-btn{suff}", className='d-none',color='link', children=[
-            html.Span(className="fa fa-times-circle")
+            html.Span(className="fa fa-times-circle text-white")
             ])
     else:
         date_button2 = ""
         date_button2_tt = ""
         
     data_button = dbc.Button(id=f'data-button{suff}', outline=True, className='rounded-0', color='link', children=[
-        html.Span(className="fa fa-table" )
+        html.Span(className="fa fa-table text-white" )
     ])               
     data_button_tt = dbc.Tooltip(target=f'data-button{suff}', children="View raw data")
         
@@ -425,7 +425,7 @@ def make_detail_header(filter_data, suff=""):
     table = dbc.Table(table_body, size='sm',bordered=False)
 
     card = dbc.Card(className='mb-3',children=[
-            dbc.CardHeader(className=f"font-weight-bold text-muted  border-{color}",children=header),
+            dbc.CardHeader(className=f"font-weight-bold text-white bg-{color}",children=header),
             table,
         ])
     log("make_detail_header finished")
@@ -506,18 +506,21 @@ def make_date_modal(suff=""):
 
 #######################################################################################
 #
-#  LAYOUT
+#  LAYOUT  
 #
 #######################################################################################
 
 header = dbc.NavbarSimple(
     children=[
-        dbc.NavItem(html.Img(src='/assets/logo.png', height="30px")),
+        dbc.NavItem(html.Img(src='/assets/logo.png', height="50px")),
         dbc.NavItem(dbc.NavLink(id='about-navlink',children="About", href="#")),
         dbc.NavItem(dbc.NavLink(id='blog-navlink',children="Blog", href="http://notes.mikejarrett.ca")),
         dbc.NavItem(dbc.NavLink(id='bot-navlink',children="@VanBikeShareBot", href="http://twitter.com/vanbikesharebot")),
     ],
     brand="BikeData Vancouver",
+    brand_style={'font-family':"courier new",
+                 'font-size':'50px',
+                'color':'#3286AD'},
     brand_href="#",
 #     sticky="top",
     #color='#1e5359',
@@ -547,30 +550,28 @@ header = dbc.NavbarSimple(
 # )
 
 
-# summary_jumbo = dbc.Jumbotron(className="bg-white", children=[
-#         html.H1("BikeData BC", className="display-3"),
+lead = dbc.Card([
+            dbc.CardBody(
+                [
+                    html.P("Explore trip data from Mobi, Vancouver's bike share provider.",
+                        className="lead text-center",
+                    ),
+                ]
+            ),
+        ], 
+    color="primary", 
+    outline=True,
+    className='my-2 mx-5'
+    )
 
-#         html.P(
-#             "Explore trip data from Mobi, Vancouver's bike share company",
-#             className="lead",
-#         ),
-#         html.Hr(className="my-2"),
-    
-#         dbc.Row([
-#             dbc.Col(width=4, children=[
-#                 dbc.Select(
-#                     id="summary-year-select",
-#                     options=[{'label': f"{min(years)} - {max(years)}", 'value':'All' }] + 
-#                        [ {'label': f'{x}', 'value':f'{x}' } 
-#                        for x in set(years) ],
-#                     value='All'
-#                 ),
-#             ]),
-#         ]),
-#         dbc.Row(id="summary-card-row", className='p-3 justify-content-center', children=make_summary_cards(df))
-            
-#     ]
-# )
+
+# lead = dbc.Col(width=12, children=html.P(
+#                                 "~Explore trip data from Mobi, Vancouver's bike share company~",
+#                                 className="lead text-center",
+                            
+
+#                                 )
+#               )
 
 
 
