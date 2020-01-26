@@ -35,10 +35,10 @@ maplayout = go.Layout(mapbox_style="light",
           
 c_blue =     '#3286AD' #// primary
 c_light_blue='#50AAD3'
-c_purple =   '#8357B2' #// info
+c_indigo =   '#8357B2' #// info
 c_red =      '#FF5B71' # // danger
 c_yellow =   '#E5DE50' #// warning
-c_green =    '#5FCEC1' #// success
+c_green =    '#77ACA2' #// success
 
 
 c_white =   '#fff' #!default;
@@ -478,7 +478,7 @@ def make_memb_fig(df=None,suff=""):
         parents=parents ,
         values= values,
         branchvalues="total",
-        marker={'colors':[c_purple,c_light_blue]}
+        marker={'colors':[c_indigo,c_light_blue]}
     ))
     
     fig.update_layout(margin = dict(t=1, l=0, r=0, b=0))
