@@ -228,7 +228,7 @@ def make_about_modal():
     
     return modal
 
-def make_data_modal(df=None, suff=""):
+def make_data_modal(df=None, filter_data=None, suff=""):
     log("Make_data_modal")
     max_records = 100000 # Only allow downloads up to limit
     max_rows    = 10000   # Only show first N rows in data_table
@@ -238,6 +238,12 @@ def make_data_modal(df=None, suff=""):
         outfields = []
     else:
         outfields = ['Departure','Return','Departure station','Return station','Membership Type','Covered distance (m)','Duration (sec.)']
+    
+    if type(filter_data) != dict:
+        try:
+            filter_data = json.loads(filter_data)
+        except:
+            filter_data = None
     
     if len(df) > max_records:
         tooltip = dbc.Tooltip("Your selection is too large to download. Try a smaller date range.",
@@ -260,11 +266,45 @@ def make_data_modal(df=None, suff=""):
                         " Download CSV",
                     ])
     
+    if filter_data is not None:
+        
+        
+        direction = filter_data['direction']
+        stations = "All" if filter_data['stations'] is None else ", ".join(filter_data['stations'])
+        if stations != "All":
+            if direction == 'start':
+                stations = f"Trips starting at {stations}"
+            elif direction == 'end':
+                stations = f"Trips ending at {stations}"
+            elif direction == 'both':
+                stations = f"Trips starting or ending at {stations}"
+
+
+        if (filter_data['cats'] is None) or (len(set(filter_data['cats'])) >= len(set(memtypes))): 
+            cats = "All"
+        else: cats = ", ".join(filter_data['cats'])
+
+
+        date = ' ' if filter_data['date'] is None else filter_data['date']
+        if len(date) == 2:
+            date = f"{date[0]} to {date[1]}"
+        
+        
+        row1 = html.Tr([html.Th("Dates"), html.Td(date)])
+        row2 = html.Tr([html.Th("Membership Types"), html.Td(cats)])
+        row3 = html.Tr([html.Th("Stations"), html.Td(stations)])
+
+        table_body = [html.Tbody([row1, row2, row3])]
+
+        table = dbc.Table(table_body, bordered=True, size='sm')
+    else:
+        table = dbc.Table()
     
     modal = dbc.Modal([
                 dbc.ModalHeader("Raw Data"),
                 dbc.ModalBody(children=[
                     html.Span(warning_txt),
+                    table,
                     dash_table.DataTable(
                         id=f'data-table{suff}',
                         columns=[{"name": i, "id": i} for i in outfields],
@@ -724,11 +764,11 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
             ]),
         
             dbc.Col(width=6, id="explore-div", className=startclass, children=[
-                html.Div(id="modal-div", children=make_data_modal(df,suff="")),
+                html.Div(id="modal-div", children=make_data_modal(df,filter_data,suff="")),
             ]),
         
             dbc.Col(width=6, id="explore-div2", className=startclass, children=[
-                html.Div(id="modal-div2", children=make_data_modal(suff="2")),
+                html.Div(id="modal-div2", children=make_data_modal(None,None,suff="2")),
                 html.Div(id="about-modal-div",  children=about_modal)
             ]),
             
