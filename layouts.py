@@ -556,8 +556,57 @@ lead = dbc.Card([
                     html.P("Explore trip data from Mobi, Vancouver's bike share provider.",
                         className="lead text-center",
                     ),
-                ]
-            ),
+                    #dbc.Button("More",id='open-info-collapse-btn',color='link'),
+                    dbc.Collapse(id='info-collapse', is_open=True, children=[
+                        dbc.CardDeck(
+                            [
+                                dbc.Card(
+                                    dbc.CardBody(
+                                        [
+                                            html.H5("Choose a date range", className="card-title"),
+                                            html.P(
+                                                "Click to calendar icon to select a date range and filter"
+                                                "by membership types",
+                                                className="card-text",
+                                            ),
+                                        ]
+                                    ),
+                                outline=True,
+                                color='success'
+                                ),
+                                dbc.Card(
+                                    dbc.CardBody(
+                                        [
+                                            html.H5("Select a station", className="card-title"),
+                                            html.P(
+                                                "Click on a station on the map to see trips beginning"
+                                                "or ending at that station",
+                                                className="card-text",
+                                            ),
+                                        ]
+                                    ),
+                                outline=True,
+                                color='info'
+                                ),
+                                dbc.Card(
+                                    dbc.CardBody(
+                                        [
+                                            html.H5("Compare date ranges", className="card-title"),
+                                            html.P(
+                                                "Click on the plus icon to select a second date range",
+                                                className="card-text",
+                                            ),
+                                        ],
+                                    ),
+                                outline=True,
+                                color='danger'
+                                ),
+                            ]
+                        )
+      
+   
+                    ])
+                ]),
         ], 
     color="primary", 
     outline=True,
