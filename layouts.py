@@ -175,7 +175,7 @@ def make_detail_cards(df=None,wdf=None,suff=''):
 #     avg_daily_pricip = "Data missing" if np.isnan(avg_daily_pricip) else f"{avg_daily_pricip:.1f} mm"
     titleclass = f"text-xs font-weight-bold text-{color} text-uppercase mb-1"
     row1 = html.Tr([html.Td("Total trips",className=titleclass), html.Td(f"{n_trips:,}")])
-    row2 = html.Tr([html.Td("Trips per day",className=titleclass), html.Td(f"{int(avg_trips)}")])
+    row2 = html.Tr([html.Td("Trips per day",className=titleclass), html.Td(f"{int(avg_trips):,}")])
     row3 = html.Tr([html.Td("Average trip distance",className=titleclass), html.Td(f"{int(avg_dist):,} km")])
     row4 = html.Tr([html.Td("Average trip time",className=titleclass), html.Td(f"{int(tot_time/(60*n_trips)):,} minutes")])
     row5 = html.Tr([html.Td("Unique bikes used",className=titleclass), html.Td(f"{int(tot_bikes):,}")])
