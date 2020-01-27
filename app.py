@@ -23,7 +23,26 @@ print(dash.__version__)
 
 external_stylesheets=['/assets/css/bootstrap_custom.min.css','/assets/css/style.css',"https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"]
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+meta_tags = [{'name':"twitter:card", 'content':"summary_large_image"},
+             {'name':"twitter:site", 'content':"@VanBikeShareBot"},
+             {'name':"twitter:creator", 'content':"@mikejarrett_"},
+             {'name':"twitter:title", 'content':"BikeData Vancouver"},
+             {'name':"twitter:description", 'content':"A tool to explore bikeshare usage in Vancouver"},
+             {'name':"twitter:image" , 'content':"https://bikedata.mikejarrett.ca/assets/logo.png"},
+             {'property':"og:url", 'content':"https://bikedata.mikejarrett.ca"},
+             {'property':"og:title", 'content':"BikeData Vancouver"},
+             {'property':"og:description", 'content':"A tool to explore bikeshare usage in Vancouver"},
+             {'property':"og:image" , 'content':"https://bikedata.mikejarrett.ca/assets/logo.png"},
+             {'property':"og:type" , 'content':"website"},
+             #             html.Meta(property="og:url", content="https://bikedata.mikejarrett.ca"),
+             #             html.Meta(property="og:title", content="A Twitter for My Sister"),
+             #             html.Meta(property="og:description", content="In the early days, Twitt"),
+             #             html.Meta(property="og:image", content="http://graphics8.nytimes.com/images/2011/12/08/technology/bits-newtwitter/bits-newtwitter-tmagArticle.jpg")
+                        ]
+
+
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets, meta_tags=meta_tags)
 server = app.server  #this is needed for wsgi server
 app.title = 'BikeData Vancouver'
 
