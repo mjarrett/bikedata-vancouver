@@ -99,7 +99,7 @@ def make_summary_cards(df):
                 
             dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
                 make_card("Total Trips",f"{n_trips:,}",color='primary'),
-                make_card("Trips per day", f"{n_trips_per_day}",color='primary'),
+                make_card("Trips per day", f"{n_trips_per_day:,}",color='primary'),
                 make_card("Total Distance Travelled",f"{int(tot_dist):,} km",color='info'),
                 make_card("Unique bikes",f"{tot_bikes:,}",color='success'),
                 make_card("Total Trip Time",f"{int(tot_time/(60*60)):,} hours",color='warning')
