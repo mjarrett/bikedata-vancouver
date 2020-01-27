@@ -591,8 +591,9 @@ header = dbc.NavbarSimple(
 
 
 lead = dbc.Card([
-            dbc.CardBody(
-                [
+            dbc.CardBody([
+#lead = html.Div([    
+                
                     html.P("Explore trip data from Mobi, Vancouver's bike share provider.",
                         className="lead text-center",
                     ),
@@ -603,12 +604,14 @@ lead = dbc.Card([
                                 dbc.Card(
                                     dbc.CardBody(
                                         [
-                                            html.H5("Choose a date range", className="card-title"),
+                                            html.H5([html.Span(className="fa fa-calendar")," Choose a date range"], 
+                                                    className="card-title"),
                                             html.P(
-                                                "Click to calendar icon to select a date range and filter "
+                                                "Click on the calendar icon to select a date range and filter "
                                                 "by membership types",
                                                 className="card-text",
                                             ),
+                                            
                                         ]
                                     ),
                                 outline=True,
@@ -617,9 +620,10 @@ lead = dbc.Card([
                                 dbc.Card(
                                     dbc.CardBody(
                                         [
-                                            html.H5("Select a station", className="card-title"),
+                                            html.H5([html.Span(className="fa fa-map-marker")," Select a station"], 
+                                                    className="card-title"),
                                             html.P(
-                                                "Click on a station on the map to see trips beginning "
+                                                "Click a station on the map to see trips beginning "
                                                 "or ending at that station",
                                                 className="card-text",
                                             ),
@@ -631,9 +635,10 @@ lead = dbc.Card([
                                 dbc.Card(
                                     dbc.CardBody(
                                         [
-                                            html.H5("Compare date ranges", className="card-title"),
+                                            html.H5([html.Span(className="fa fa-plus")," Compare date ranges"], 
+                                                    className="card-title"),
                                             html.P(
-                                                "Click on the plus icon to select a second date range",
+                                                "Click on the plus icon to select a second date range for a side-by-side comparison",
                                                 className="card-text",
                                             ),
                                         ],
@@ -641,16 +646,32 @@ lead = dbc.Card([
                                 outline=True,
                                 color='danger'
                                 ),
+                                dbc.Card(
+                                    dbc.CardBody(
+                                        [
+                                            html.H5([html.Span(className="fa fa-table")," Download raw data"], 
+                                                    className="card-title"),
+                                            html.P(
+                                                "Click on the table icon to view the raw data for your selection. "
+                                                "You can optionally download the records as a CSV file (size limit applies) ",
+                                                className="card-text",
+                                            ),
+                                        ],
+                                    ),
+                                outline=True,
+                                color='primary'
+                                ),
                             ]
                         )
       
    
                     ])
                 ]),
+
         ], 
-    color="primary", 
-    outline=True,
-    className='my-2 mx-5'
+#     color="primary", 
+#     outline=True,
+    className='my-2 mx-5 border-0'
     )
 
 
