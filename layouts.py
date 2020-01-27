@@ -565,7 +565,7 @@ lead = dbc.Card([
                                         [
                                             html.H5("Choose a date range", className="card-title"),
                                             html.P(
-                                                "Click to calendar icon to select a date range and filter"
+                                                "Click to calendar icon to select a date range and filter "
                                                 "by membership types",
                                                 className="card-text",
                                             ),
@@ -579,7 +579,7 @@ lead = dbc.Card([
                                         [
                                             html.H5("Select a station", className="card-title"),
                                             html.P(
-                                                "Click on a station on the map to see trips beginning"
+                                                "Click on a station on the map to see trips beginning "
                                                 "or ending at that station",
                                                 className="card-text",
                                             ),
