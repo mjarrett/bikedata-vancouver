@@ -35,6 +35,8 @@ meta_tags = [{'name':"twitter:card", 'content':"summary_large_image"},
              {'property':"og:description", 'content':"A tool to explore bikeshare usage in Vancouver"},
              {'property':"og:image" , 'content':"https://bikedata.mikejarrett.ca/assets/logo.png"},
              {'property':"og:type" , 'content':"website"},
+             {'name':"viewport", 'content':"width=device-width, initial-scale=1"},
+
              #             html.Meta(property="og:url", content="https://bikedata.mikejarrett.ca"),
              #             html.Meta(property="og:title", content="A Twitter for My Sister"),
              #             html.Meta(property="og:description", content="In the early days, Twitt"),
@@ -55,6 +57,8 @@ app.title = 'BikeData Vancouver'
 
 body = dbc.Container(id="mainContainer",fluid=True,children=[
 
+    
+    
     lead,
     
     main_div,

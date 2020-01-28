@@ -559,12 +559,13 @@ header = dbc.NavbarSimple(
     ],
     brand="BikeData Vancouver",
     brand_style={'font-family':"courier new",
-                 'font-size':'50px',
+                 'font-size':'4vw',
                 'color':'#3286AD'},
     brand_href="#",
 #     sticky="top",
     #color='#1e5359',
     dark=False,
+    fluid=True,
     #style={'font-family': 'Bitstream'}
     )
 
