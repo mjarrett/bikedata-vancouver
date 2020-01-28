@@ -728,39 +728,43 @@ about_modal = make_about_modal()
 startclass = ''
 detail_div = dbc.Row(id='detail-div', className='', children=[
         
+        # invisible divs
         html.Div(id='detail-div-status', className='d-none', children=startclass),
         html.Div(id='detail-div-status2', className='d-none', children=startclass),
+        html.Div(id="modal-div", children=make_data_modal(df,filter_data,suff="")),
+        html.Div(id="modal-div2", children=make_data_modal(None,None,suff="2")),
+        html.Div(id="about-modal-div",  children=about_modal),
         
-        dbc.Col(className='', width=12, children=[
-            dbc.Row(children=[
-                dbc.Col(width=True, id="header-div", className=startclass, children=[
+    
+        # result figures
 
-                    dbc.Row([
-                        dbc.Col(id="date-header", children=make_detail_header(json.loads(filter_data), suff="")),
-                    ]),
-                ]),
-                
-                dbc.Col(width=6, id="header-div2", className=startclass, children=[
+            dbc.Col(xs={'size':12,'order':1},md={'size':12,'order':1}, id="header-div", className=startclass, children=[
 
-                    dbc.Row([
-                        dbc.Col(id="date-header2", children=make_detail_header(json.loads(filter_data), suff="2")),
-                    ]),
+                dbc.Row([
+                    dbc.Col(id="date-header", children=make_detail_header(json.loads(filter_data), suff="")),
                 ]),
-  
             ]),
-        ]),
-                            
-            dbc.Col(width=6, id=f'detail-cards-div', className=startclass, children=make_detail_cards(df,suff="")),
-            dbc.Col(width=6, id=f'detail-cards-div2', className=startclass, children=make_detail_cards(suff="2")),
 
-            dbc.Col(width=6, id='daily-div', className=startclass, children=[
+            dbc.Col(xs={'size':12,'order':6},md={'size':6,'order':2}, id="header-div2", className=startclass, children=[
+
+                dbc.Row([
+                    dbc.Col(id="date-header2", children=make_detail_header(json.loads(filter_data), suff="2")),
+                ]),
+            ]),
+
+                            
+            dbc.Col(xs={'size':12,'order':2},md={'size':6,'order':3}, 
+                    id=f'detail-cards-div', className=startclass, children=make_detail_cards(df,suff="")),
+            dbc.Col(xs={'size':12,'order':7},md={'size':6,'order':4}, 
+                    id=f'detail-cards-div2', className=startclass, children=make_detail_cards(suff="2")),
+
+            dbc.Col(xs={'size':12,'order':3},md={'size':6,'order':5}, id='daily-div', className=startclass, children=[
                 dcc.Graph(
                     id=f'daily-graph',
                     figure=make_daily_fig(df,wdf,suff="")
                 ), 
             ]),
-        
-            dbc.Col(width=6, id='daily-div2', className=startclass, children=[
+            dbc.Col(xs={'size':12,'order':8},md={'size':6,'order':6}, id='daily-div2', className=startclass, children=[
                 dcc.Graph(
                     id=f'daily-graph2',
                     figure=make_daily_fig(suff="2")
@@ -768,30 +772,25 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
             ]),
         
                 
-            dbc.Col(width=6,id=f'map-div', className=startclass, children=make_map_div(df,suff="")), #Col
-            dbc.Col(width=6,id=f'map-div2',className=startclass,children=make_map_div(suff="2")), #Col
+            dbc.Col(xs={'size':12,'order':4},md={'size':6,'order':7},
+                    id=f'map-div', className=startclass, children=make_map_div(df,suff="")), #Col
+            dbc.Col(xs={'size':12,'order':9},md={'size':6,'order':8},
+                    id=f'map-div2',className=startclass,children=make_map_div(suff="2")), #Col
 
-            dbc.Col(width=6, id='memb-div', className=startclass, children=[
+            dbc.Col(xs={'size':12,'order':5},md={'size':6,'order':9}, id='memb-div', className=startclass, children=[
                 dcc.Graph(
                     id=f'memb-graph',
                     figure=make_memb_fig(df,suff="")
                 )
             ]),
-            dbc.Col(width=6, id='memb-div2', className=startclass, children=[
+            dbc.Col(xs={'size':12,'order':10},md={'size':6,'order':10}, id='memb-div2', className=startclass, children=[
                 dcc.Graph(
                     id=f'memb-graph2',
                     figure=make_memb_fig(df,suff="2")
                 )
             ]),
         
-            dbc.Col(width=6, id="explore-div", className=startclass, children=[
-                html.Div(id="modal-div", children=make_data_modal(df,filter_data,suff="")),
-            ]),
-        
-            dbc.Col(width=6, id="explore-div2", className=startclass, children=[
-                html.Div(id="modal-div2", children=make_data_modal(None,None,suff="2")),
-                html.Div(id="about-modal-div",  children=about_modal)
-            ]),
+
             
 
         ]) 

@@ -162,27 +162,34 @@ def update_detail_status2(go_n_clicks,close_n_clicks):
 
 @app.callback([Output('header-div','className'), Output('detail-cards-div','className'),
                Output('daily-div','className'), Output('map-div','className'),
-               Output('memb-div','className'), Output('explore-div','className'),
+               Output('memb-div','className'),
                Output('header-div2','className'), Output('detail-cards-div2','className'),
                Output('daily-div2','className'), Output('map-div2','className'),
-               Output('memb-div2','className'), Output('explore-div2','className')],
+               Output('memb-div2','className')],
                [Input('detail-div-status','children'), Input('detail-div-status2','children')]
              )
 def toggle_div_visibility(status, status2):
     log("toggle_div_visibility",cb=True)
 
-#     if status == 'd-none':
-#         date_1_divs = ["d-none"]*6
-#     else:
-#         date_1_divs = [""]*6
 
     if status2 == 'd-none':
-        date_2_divs = ["d-none"]*6
+        date_2_divs = ["d-none"]*5
     else:
-        date_2_divs = [""]*6
+        date_2_divs = [""]*5
 
 
-    return [""]*6 + date_2_divs
+    return [""]*5 + date_2_divs
+
+@app.callback(Output('header-div','md'),
+               [Input('detail-div-status2','children')]
+             )
+def toggle_detail_header_width(status2):
+    log("toggle_detail_header_width")
+    
+    if status2 == 'd-none':
+        return {'size':12,'order':1}
+    else:
+        return {'size':6, 'order':1}
 
 
 @app.callback(Output('timeseries-graph','figure'),
