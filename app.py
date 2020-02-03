@@ -483,6 +483,8 @@ def daily_div_callback2(filter_data):
 
 
 
+
+
 @app.callback(Output('date-modal','is_open'),
              [Input('date-button','n_clicks'),Input('go-button','n_clicks'),Input("date-update-btn",'n_clicks'),
               Input('timeseries-graph','clickData'),Input('timeseries-graph','selectedData')],
@@ -536,14 +538,16 @@ def toggle_date_modal2(n_clicks,go_n_clicks,update_n_clicks,clickData,selectedDa
 
 
 @app.callback(Output('about-modal','is_open'),
-              [Input('about-navlink','n_clicks')]
+              [Input('about-navlink','n_clicks'),Input('about-modal-close-btn','n_clicks')]
              )
-def toggle_about_modal(n_clicks):
-    print('toggle_about_modal')
-    if n_clicks is None:
+def toggle_about_modal(n_clicks_nav, n_clicks_close):
+    log('toggle_about_modal')
+    if n_clicks_nav is None and n_clicks_close is None:
         raise PreventUpdate
-    return True
-            
+    if dash.callback_context.triggered[0]['prop_id'] == 'about-navlink.n_clicks':
+        return True
+    if dash.callback_context.triggered[0]['prop_id'] == 'about-modal-close-btn.n_clicks':
+        return False
 
 
 

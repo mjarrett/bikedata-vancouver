@@ -217,9 +217,17 @@ def make_about_modal():
     
     modal = dbc.Modal([
                 dbc.ModalBody(children=[
-                    html.Img(src='/assets/logo.png',height=300),
-                    dcc.Markdown(md_text)
-                    
+                    dbc.Row([
+                        dbc.Col(width=12,className='d-flex justify-content-center',children=[
+                            html.Img(src='/assets/logo.png',height=300),
+                        ]),
+                        dbc.Col(width=12,children=[
+                            dcc.Markdown(md_text),
+                        ]),
+                        dbc.Col(width=12,className='d-flex justify-content-center',children=[
+                            dbc.Button(id='about-modal-close-btn',children="Close", size='lg',color='primary',)
+                        ]),
+                    ]),
                 ]),
             ],
             id=f"about-modal",
