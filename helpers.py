@@ -11,7 +11,7 @@ import dash_bootstrap_components as dbc
 import dash_table
 import dash
 
-from credentials import loglevel
+from credentials import loglevel, datapath
 
 def log(*args,file=None,cb=False):
     """
@@ -121,4 +121,12 @@ def date_2_div(date):
 
         return dbc.Col(html.H3(d1),width=8), 
               
-    
+
+def get_hourly_max():
+    thdf = pd.read_csv(f'{datapath}/data/Mobi_System_Data_taken_hourly.csv',index_col=0)
+    return thdf.sum(1).max()
+
+def get_daily_max():
+    thdf = pd.read_csv(f'{datapath}/data/Mobi_System_Data_taken_hourly.csv',index_col=0, parse_dates=True)
+    tddf = thdf.groupby(pd.Grouper(freq='d')).sum()
+    return tddf.sum(1).max()

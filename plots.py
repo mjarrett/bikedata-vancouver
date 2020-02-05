@@ -318,7 +318,7 @@ def make_trips_map(df,direction='start',suff=""):
     return mapfig    
     
 
-def make_daily_fig(df=None,wdf=None, suff=""):
+def make_daily_fig(df=None,wdf=None, suff="", hmax=None, dmax=None, rmax=None, tmin=None, tmax=None):
     log("make_daily_fig")
     
     if suff == "":
@@ -352,6 +352,8 @@ def make_daily_fig(df=None,wdf=None, suff=""):
                                                                         )
     yaxis_title="Hourly Trips" if not daily else "Daily Trips"
     yaxis_title_weather = 'Precipitation (mm)' if daily else 'Precipitation (mm/h)'
+    yaxis_range = [0,dmax] if daily else [0,hmax]
+    rmax = rmax*5 if daily else rmax
 
     trips_df.columns = ['Time','Trips']
 
@@ -362,7 +364,8 @@ def make_daily_fig(df=None,wdf=None, suff=""):
                    margin=margin,
 
                    yaxis =  {
-                     'fixedrange': True,
+                     'fixedrange': False,
+                     'range':yaxis_range,
                      'domain':[0.3,1],
                      'showline':True,
                      'linewidth':1, 
@@ -438,8 +441,10 @@ def make_daily_fig(df=None,wdf=None, suff=""):
     fig.update_layout(layout)
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400)
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,title_text=yaxis_title,row=1,col=1)
-    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,title_text='Temparture (°C)',row=2,col=1)
-    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,title_text=yaxis_title_weather,row=2,col=1,secondary_y=True)
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,
+                     range=[tmin,tmax],title_text='Temparture (°C)',row=2,col=1)
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=c_gray_400,
+                     range=[0,rmax], title_text=yaxis_title_weather,row=2,col=1,secondary_y=True)
 
     if df is not None and (trips_df.loc[trips_df.index[-1],'Time'] - trips_df.loc[0,'Time']).days < 1:
         date = trips_df.loc[0,'Time']

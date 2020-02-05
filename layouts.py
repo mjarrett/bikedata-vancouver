@@ -731,8 +731,7 @@ main_div = dbc.Row(className="pb-2",children=[
 
 about_modal = make_about_modal()
 
-
-
+ 
 
 startclass = ''
 detail_div = dbc.Row(id='detail-div', className='', children=[
@@ -743,66 +742,73 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
         html.Div(id="modal-div", children=make_data_modal(df,filter_data,suff="")),
         html.Div(id="modal-div2", children=make_data_modal(None,None,suff="2")),
         html.Div(id="about-modal-div",  children=about_modal),
+        html.Div(id="hourly-trip-max-div", className='d-none',children=get_hourly_max()),
+        html.Div(id="daily-trip-max-div", className='d-none',children=get_daily_max()),
+        html.Div(id="temp-max-div", className='d-none',children=wdf['temperature'].max()),
+        html.Div(id="temp-min-div", className='d-none',children=wdf['temperature'].min()),
+        html.Div(id="rain-max-div", className='d-none',children=wdf['precipIntensity'].max()),
         
     
         # result figures
 
-            dbc.Col(xs={'size':12,'order':1},md={'size':12,'order':1}, id="header-div", className=startclass, children=[
+        dbc.Col(xs={'size':12,'order':1},md={'size':12,'order':1}, id="header-div", className=startclass, children=[
 
-                dbc.Row([
-                    dbc.Col(id="date-header", children=make_detail_header(json.loads(filter_data), suff="")),
-                ]),
+            dbc.Row([
+                dbc.Col(id="date-header", children=make_detail_header(json.loads(filter_data), suff="")),
             ]),
+        ]),
 
-            dbc.Col(xs={'size':12,'order':6},md={'size':6,'order':2}, id="header-div2", className=startclass, children=[
+        dbc.Col(xs={'size':12,'order':6},md={'size':6,'order':2}, id="header-div2", className=startclass, children=[
 
-                dbc.Row([
-                    dbc.Col(id="date-header2", children=make_detail_header(json.loads(filter_data), suff="2")),
-                ]),
+            dbc.Row([
+                dbc.Col(id="date-header2", children=make_detail_header(json.loads(filter_data), suff="2")),
             ]),
+        ]),
 
-                            
-            dbc.Col(xs={'size':12,'order':2},md={'size':6,'order':3}, 
-                    id=f'detail-cards-div', className=startclass, children=make_detail_cards(df,suff="")),
-            dbc.Col(xs={'size':12,'order':7},md={'size':6,'order':4}, 
-                    id=f'detail-cards-div2', className=startclass, children=make_detail_cards(suff="2")),
 
-            dbc.Col(xs={'size':12,'order':3},md={'size':6,'order':5}, id='daily-div', className=startclass, children=[
-                dcc.Graph(
-                    id=f'daily-graph',
-                    figure=make_daily_fig(df,wdf,suff="")
-                ), 
-            ]),
-            dbc.Col(xs={'size':12,'order':8},md={'size':6,'order':6}, id='daily-div2', className=startclass, children=[
-                dcc.Graph(
-                    id=f'daily-graph2',
-                    figure=make_daily_fig(suff="2")
-                ), 
-            ]),
-        
-                
-            dbc.Col(xs={'size':12,'order':4},md={'size':6,'order':7},
-                    id=f'map-div', className=startclass, children=make_map_div(df,suff="")), #Col
-            dbc.Col(xs={'size':12,'order':9},md={'size':6,'order':8},
-                    id=f'map-div2',className=startclass,children=make_map_div(suff="2")), #Col
+        dbc.Col(xs={'size':12,'order':2},md={'size':6,'order':3}, 
+                id=f'detail-cards-div', className=startclass, children=make_detail_cards(df,suff="")),
+        dbc.Col(xs={'size':12,'order':7},md={'size':6,'order':4}, 
+                id=f'detail-cards-div2', className=startclass, children=make_detail_cards(suff="2")),
 
-            dbc.Col(xs={'size':12,'order':5},md={'size':6,'order':9}, id='memb-div', className=startclass, children=[
-                dcc.Graph(
-                    id=f'memb-graph',
-                    figure=make_memb_fig(df,suff="")
-                )
-            ]),
-            dbc.Col(xs={'size':12,'order':10},md={'size':6,'order':10}, id='memb-div2', className=startclass, children=[
-                dcc.Graph(
-                    id=f'memb-graph2',
-                    figure=make_memb_fig(df,suff="2")
-                )
-            ]),
-        
+        dbc.Col(xs={'size':12,'order':3},md={'size':6,'order':5}, id='daily-div', className=startclass, children=[
+            dcc.Graph(
+                id=f'daily-graph',
+                figure=make_daily_fig(df,wdf,suff="",hmax=get_hourly_max(), dmax=get_daily_max(),
+                                      tmax=wdf['temperature'].max(), tmin=wdf['temperature'].min(),
+                                      rmax=wdf['precipIntensity'].max())
+            ), 
+        ]),
+        dbc.Col(xs={'size':12,'order':8},md={'size':6,'order':6}, id='daily-div2', className=startclass, children=[
+            dcc.Graph(
+                id=f'daily-graph2',
+                figure=make_daily_fig(suff="2")
+            ), 
+        ]),
 
-            
 
-        ]) 
+        dbc.Col(xs={'size':12,'order':4},md={'size':6,'order':7},
+                id=f'map-div', className=startclass, children=make_map_div(df,suff="")), #Col
+        dbc.Col(xs={'size':12,'order':9},md={'size':6,'order':8},
+                id=f'map-div2',className=startclass,children=make_map_div(suff="2")), #Col
+
+        dbc.Col(xs={'size':12,'order':5},md={'size':6,'order':9}, id='memb-div', className=startclass, children=[
+            dcc.Graph(
+                id=f'memb-graph',
+                figure=make_memb_fig(df,suff="")
+            )
+        ]),
+        dbc.Col(xs={'size':12,'order':10},md={'size':6,'order':10}, id='memb-div2', className=startclass, children=[
+            dcc.Graph(
+                id=f'memb-graph2',
+                figure=make_memb_fig(df,suff="2")
+            )
+        ]),
+
+
+
+
+    ]) 
     
         
 

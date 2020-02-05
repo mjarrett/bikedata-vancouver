@@ -423,8 +423,10 @@ def update_filter_meta_div2(n_clicks,clickData,radio_value, return_nclicks, clos
                Output('detail-cards-div','children'),Output('daily-graph','figure'),
                Output('map-div','children'),Output('memb-graph','figure')],
               [Input("filter-meta-div",'children')],
+              [State("hourly-trip-max-div",'children'), State("daily-trip-max-div",'children'),
+               State("rain-max-div",'children'), State("temp-min-div",'children'),State("temp-max-div",'children')]
              )
-def daily_div_callback(filter_data):
+def daily_div_callback(filter_data, hourly_max, daily_max, rain_max, temp_min, temp_max):
     log("daily_div_callback",cb=True)
 
     filter_data = json.loads(filter_data)
@@ -442,7 +444,7 @@ def daily_div_callback(filter_data):
     detail_header = make_detail_header(filter_data, suff=suff)
     data_modal = make_data_modal(ddf, filter_data, suff=suff)
     detail_cards_div_children=make_detail_cards(ddf,wdf,suff=suff)
-    daily_fig = make_daily_fig(ddf,wdf,suff=suff)
+    daily_fig = make_daily_fig(ddf,wdf,suff=suff, hmax=hourly_max, dmax=daily_max, rmax=rain_max, tmin=temp_min, tmax=temp_max)
     map_div = make_map_div(ddf,trips,direction,suff)
     memb_fig = make_memb_fig(ddf,suff=suff)
 
@@ -455,8 +457,10 @@ def daily_div_callback(filter_data):
                Output('detail-cards-div2','children'),Output('daily-graph2','figure'),
                Output('map-div2','children'),Output('memb-graph2','figure')],
               [Input("filter-meta-div2",'children')],
+              [State("hourly-trip-max-div",'children'), State("daily-trip-max-div",'children'),
+               State("rain-max-div",'children'), State("temp-min-div",'children'),State("temp-max-div",'children')]
              )
-def daily_div_callback2(filter_data):
+def daily_div_callback2(filter_data, hourly_max, daily_max, rain_max, temp_min, temp_max):
     log("daily_div_callback2",cb=True)
 
     filter_data = json.loads(filter_data)
@@ -476,7 +480,7 @@ def daily_div_callback2(filter_data):
     detail_header = make_detail_header(filter_data, suff=suff)
     data_modal = make_data_modal(ddf, filter_data,suff=suff)
     detail_cards_div_children=make_detail_cards(ddf,wdf,suff=suff)
-    daily_fig = make_daily_fig(ddf,wdf,suff=suff)
+    daily_fig = make_daily_fig(ddf,wdf,suff=suff, hmax=hourly_max, dmax=daily_max, rmax=rain_max, tmin=temp_min, tmax=temp_max)
     map_div = make_map_div(ddf,trips,direction,suff)
     memb_fig = make_memb_fig(ddf,suff=suff)
     return [detail_header, data_modal,detail_cards_div_children,daily_fig,map_div,memb_fig]
