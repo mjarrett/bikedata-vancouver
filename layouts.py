@@ -9,9 +9,15 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_table
 
-from helpers import *
-from plots import *
-from credentials import *
+from credentials import  MAPBOX_TOKEN, DARKSKY_KEY, datapath, loglevel
+
+from helpers import (log, filter_ddf, convert_dates, date_2_str, 
+                    date_2_div, get_hourly_max, get_daily_max)
+
+from plots import (make_timeseries_fig, make_station_map, make_trips_map,
+                  make_daily_fig, make_memb_fig, c_gray_600)
+    
+    
 
 
 #######################################################################################
@@ -21,7 +27,6 @@ from credentials import *
 #######################################################################################
 
 #load data
-#df = prep_sys_df('./Mobi_System_Data.csv')
 log("==================")
 log("Loading data")
 df = pd.read_csv(f'{datapath}/data/Mobi_System_Data_Prepped.csv') 
@@ -62,72 +67,12 @@ filter_data2 = json.dumps({'date':None,'cats':None,'stations':None,'direction':'
 #
 #######################################################################################
 
-
-def make_card(title,content,subcontent=None,color='primary'):
-    log("make_card")
-    return dbc.Card(style={'border':'none'},className=f"justify-content-center h-100 py-2", children=[
-            #dbc.CardHeader(title,style={'color':color}),
-            dbc.CardBody([
-                
-                dbc.Row(title, className=f"text-xs font-weight-bold text-{color} text-uppercase mb-1"),
-                dbc.Row(content, className=f"h5 mb-0 font-weight-bold"),
-                dbc.Row(subcontent, className=f"h5 mb-0 font-weight-bold text-muted"),
-                
-            ])
-
-        ])  
-
-    
-    
-def make_summary_cards(df):
-
-    n_days = (df.iloc[-1].loc['Departure'] - df.iloc[0].loc['Departure']).days
-    n_trips = len(df)
-    n_trips_per_day = n_trips / n_days
-    tot_dist = df['Covered distance (m)'].sum()/1000
-    dist_per_trip = tot_dist/n_trips
-
-    tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
-
-    tot_bikes = len(set(df['Bike'].fillna(0)))
-    
-    output = [
-        
-    
-    
-        dbc.Col(width=12, children=[                
-                
-            dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
-                make_card("Total Trips",f"{n_trips:,}",color='primary'),
-                make_card("Trips per day", f"{n_trips_per_day:,}",color='primary'),
-                make_card("Total Distance Travelled",f"{int(tot_dist):,} km",color='info'),
-                make_card("Unique bikes",f"{tot_bikes:,}",color='success'),
-                make_card("Total Trip Time",f"{int(tot_time/(60*60)):,} hours",color='warning')
-
-            ]),
-        ]),
-    
-        dbc.Col(width=12, children=[                
-                
-            dbc.CardDeck(className="justify-content-center", style={'width':'100%'},children=[
-                make_card("Trips/day",f"{int(n_trips/n_days):,}",color='primary'),
-                make_card("Avg trip distance",f"{int(tot_dist/n_trips):,} km",color='info'),
-                make_card("Avg distance per bike",f"{int(tot_dist/tot_bikes):,} km",color='success'),
-                make_card("Avg trip time",f"{int((tot_time/(60))/n_trips):,} minutes",color='warning')
-
-            ]),
-        ]),
-    
-    
-        #dbc.Col(html.Em(f"Data available from {startdate_str} to {enddate_str}",className="text-secondary"),width=12),
-
-    ]
-    
-    return output
-    
-    
+  
     
 def make_detail_cards(df=None,wdf=None,suff=''):
+    """
+    Return column with a table of summary statistics
+    """
     log("make_detail_cards")
     if df is None:
         return None
@@ -156,7 +101,6 @@ def make_detail_cards(df=None,wdf=None,suff=''):
     avg_dist = tot_dist/n_trips
     avg_trips = n_trips/n_days
     
-    print(n_days,avg_trips)
     
     tot_time = df['Duration (sec.)'].sum() - df['Stopover duration (sec.)'].sum()
     tot_bikes = len(set(df['Bike'].fillna(0)))
@@ -186,22 +130,7 @@ def make_detail_cards(df=None,wdf=None,suff=''):
            html.H4("Summary"),
            table 
 
-#         dbc.CardColumns([
-#             make_card("Total trips", f"{n_trips:,}",color=color),
-#             #make_card("Total trip distance",f"{int(tot_dist):,} km",color=color),
-#             make_card("Average trip distance",f"{int(avg_dist):,} km",color=color),
-#             make_card("Average trip time",f"{int(tot_time/(60*n_trips)):,} minutes",color=color),
-#             make_card("Unique bikes used", f"{int(tot_bikes):,}", color=color),
-            
-            
-# #             make_card("Daily high temp",avg_daily_high,color=color),
-# #             make_card("Daily precipitation",avg_daily_pricip,color=color),
-            
-            
-#             make_card("Busiest departure station",f"{busiest_dep}",color=color),
-#             make_card("Busiest return station",f"{busiest_ret}",color=color)
 
-#         ])
     ])
     log("make_detail_cards finished")
     return output
@@ -209,6 +138,9 @@ def make_detail_cards(df=None,wdf=None,suff=''):
 
 
 def make_about_modal():
+    """
+    Return a modal with text pulled from README file
+    """
     log("make_about_modal")    
 
     with open(f'{datapath}/README.md') as f:
@@ -237,6 +169,12 @@ def make_about_modal():
     return modal
 
 def make_data_modal(df=None, filter_data=None, suff=""):
+    
+    
+    """
+    Return modal with dash.datatable of current selection
+    """
+    
     log("Make_data_modal")
     max_records = 100000 # Only allow downloads up to limit
     max_rows    = 10000   # Only show first N rows in data_table
@@ -335,11 +273,12 @@ def make_data_modal(df=None, filter_data=None, suff=""):
 
 
 def make_map_div(df=None,trips=False,direction='start',suff=""):
+    """
+    Return div containing the plotly mapbox graph
+    """
     log("make_map_div")
         
     output = html.Div([
-                html.Div(id=f'map-state{suff}', children="trips" if trips else "stations", style={'display':'none'}),
-
                 dcc.Graph(
                     id=f'map-graph{suff}',
                     figure=make_trips_map(df,direction=direction,suff=suff) if trips else make_station_map(df,direction=direction,suff=suff)
@@ -351,6 +290,11 @@ def make_map_div(df=None,trips=False,direction='start',suff=""):
 
 
 def make_detail_header(filter_data, suff=""):
+    
+    """
+    Return a card with the date selection and buttons in the header, and a table in the body with filter selections
+    """
+    
     log("make_detail_header")
     if suff == "":
         color='primary'
@@ -397,12 +341,6 @@ def make_detail_header(filter_data, suff=""):
         html.Span(className="fa fa-table text-white" )
     ])               
     data_button_tt = dbc.Tooltip(target=f'data-button{suff}', children="View raw data")
-        
-#     button_col = dbc.Col(className="d-flex justify-content-end",children=[date_button,date_button_tt,
-#                                             data_button,data_button_tt,
-#                                             date_button2,date_button2_tt,
-#                                             close_button,close_button_tt])
-        
         
     if len(date) == 2:
         try:
@@ -531,17 +469,6 @@ def make_date_modal(suff=""):
                             ),
                         ]),
                         
-#                         dbc.Col(width=4, children=[
-#                             dbc.Checklist(id=f'checklist-other-header{suff}',
-#                                 options=[{'label':'Other','value':'Other'}],
-#                                 value=['Other']
-#                             ),
-#                             dbc.Checklist(id=f'checklist-other{suff}', className="checklist-faded-custom",
-#                                 options=[{'label':memtype,'value':memtype} for memtype in memtypes_other],
-#                                 value=memtypes_other,
-#                                 labelStyle={'color':c_gray_600},
-#                             ),
-#                         ]),
                         
                         
                     ]),
@@ -554,10 +481,12 @@ def make_date_modal(suff=""):
 
 #######################################################################################
 #
-#  LAYOUT  
+#  LAYOUT 
+#  Construct layout elements from helper functions
 #
 #######################################################################################
 
+# Header Navbar
 header = dbc.NavbarSimple(
     children=[
         dbc.NavItem(html.Img(src='/assets/logo.png', height="50px")),
@@ -570,38 +499,15 @@ header = dbc.NavbarSimple(
                  'font-size':'4vw',
                 'color':'#3286AD'},
     brand_href="#",
-#     sticky="top",
-    #color='#1e5359',
     dark=False,
     fluid=True,
-    #style={'font-family': 'Bitstream'}
     )
 
-# header = dbc.Navbar(
-#     [
-#         html.A(
-#             # Use row and col to control vertical alignment of logo / brand
-#             dbc.Row(
-#                 [
-#                     dbc.Col(html.Img(src='/assets/logo.png', height="30px")),
-#                     dbc.Col(dbc.NavbarBrand("BikeData Vancouver", className="ml-2")),
-#                 ],
-#                 align="center",
-#                 no_gutters=True,
-#             ),
-#             href="#",
-#         ),
-#         dbc.NavItem(dbc.NavLink(id='about-navlink',children="About", href="#")),
-#         dbc.NavItem(dbc.NavLink(id='blog-navlink',children="Blog", href="http://notes.mikejarrett.ca")),
-#         dbc.NavItem(dbc.NavLink(id='bot-navlink',children="@VanBikeShareBot", href="http://twitter.com/vanbikesharebot")),
-
-#     ],
-# )
 
 
+# Top cards with usage information
 lead = dbc.Card([
             dbc.CardBody([
-#lead = html.Div([    
                 
                     html.P("Explore trip data from Mobi, Vancouver's bike share provider.",
                         className="lead text-center",
@@ -678,23 +584,15 @@ lead = dbc.Card([
                 ]),
 
         ], 
-#     color="primary", 
-#     outline=True,
+
     className='my-2 mx-5 border-0'
     )
 
 
-# lead = dbc.Col(width=12, children=html.P(
-#                                 "~Explore trip data from Mobi, Vancouver's bike share company~",
-#                                 className="lead text-center",
-                            
-
-#                                 )
-#               )
 
 
 
-
+# Main div with timeseries figure
 main_div = dbc.Row(className="pb-2",children=[
     dbc.Col(width=12, className='d-none',children=[
         dbc.Row(justify='center', children=[
@@ -726,13 +624,8 @@ main_div = dbc.Row(className="pb-2",children=[
 ])
 
 
-
-
-
-about_modal = make_about_modal()
-
  
-
+# Make detail div for selection 1 and selection 2
 startclass = ''
 detail_div = dbc.Row(id='detail-div', className='', children=[
         
@@ -741,7 +634,7 @@ detail_div = dbc.Row(id='detail-div', className='', children=[
         html.Div(id='detail-div-status2', className='d-none', children=startclass),
         html.Div(id="modal-div", children=make_data_modal(df,filter_data,suff="")),
         html.Div(id="modal-div2", children=make_data_modal(None,None,suff="2")),
-        html.Div(id="about-modal-div",  children=about_modal),
+        html.Div(id="about-modal-div",  children=make_about_modal()),
         html.Div(id="hourly-trip-max-div", className='d-none',children=get_hourly_max()),
         html.Div(id="daily-trip-max-div", className='d-none',children=get_daily_max()),
         html.Div(id="temp-max-div", className='d-none',children=wdf['temperature'].max()),

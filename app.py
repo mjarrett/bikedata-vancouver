@@ -12,14 +12,22 @@ import pandas as pd
 import urllib
 import json
 
-from credentials import *
-from plots import *
-from helpers import *
-from layouts import *
+
+from credentials import  MAPBOX_TOKEN, DARKSKY_KEY, datapath, loglevel
+
+from helpers import (log, filter_ddf, convert_dates, date_2_str, 
+                    date_2_div, get_hourly_max, get_daily_max)
+
+from plots import (make_timeseries_fig, make_station_map, make_trips_map,
+                  make_daily_fig, make_memb_fig)
+    
+from layouts import (df, wdf,
+                    make_detail_cards, make_data_modal, make_map_div, make_detail_header,
+                    make_date_modal, memtypes_member, memtypes_casual, memtypes_other,
+                    header, lead, main_div, detail_div)
 
 
 
-print(dash.__version__)
 
 external_stylesheets=['/assets/css/bootstrap_custom.min.css','/assets/css/style.css',"https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"]
 
@@ -35,22 +43,13 @@ meta_tags = [{'name':"twitter:card", 'content':"summary_large_image"},
              {'property':"og:description", 'content':"A tool to explore bikeshare usage in Vancouver"},
              {'property':"og:image" , 'content':"https://bikedata.mikejarrett.ca/assets/logo.png"},
              {'property':"og:type" , 'content':"website"},
-             {'name':"viewport", 'content':"width=device-width, initial-scale=1"},
-
-             #             html.Meta(property="og:url", content="https://bikedata.mikejarrett.ca"),
-             #             html.Meta(property="og:title", content="A Twitter for My Sister"),
-             #             html.Meta(property="og:description", content="In the early days, Twitt"),
-             #             html.Meta(property="og:image", content="http://graphics8.nytimes.com/images/2011/12/08/technology/bits-newtwitter/bits-newtwitter-tmagArticle.jpg")
-                        ]
+             {'name':"viewport", 'content':"width=device-width, initial-scale=1"}, #This is bootstrap magic for mobile
+            ]
 
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets, meta_tags=meta_tags)
 server = app.server  #this is needed for wsgi server
 app.title = 'BikeData Vancouver'
-
-
-
-#app.config['suppress_callback_exceptions'] = True
 
 
 
@@ -77,17 +76,6 @@ app.layout = html.Div([header,body])
 #  CALLBACKS
 #
 #######################################################################################
-
-# @app.callback(Output('info-collapse','is_open'),
-#               [Input('open-info-collapse-btn','n_clicks')],
-#               [State('info-collapse','is_open')]
-#              )
-# def toggle_info_collapse(n_clicks,is_open):
-#     if n_clicks:
-#         return not is_open
-#     else:
-#         return is_open
-
 
 
 @app.callback(Output('go-button','disabled'),
@@ -152,16 +140,7 @@ def update_detail_status2(go_n_clicks,close_n_clicks):
         return "d-none"
 
 
-# @app.callback([Output('header-div','width'),Output('header-div2','width')],
-#               [Input('detail-div-status','children'), Input('detail-div-status2','children')]
-#              )
-# def toggle_detail_header_width(status,status2):
-#     log("toggle_detail_header_width",cb=True)
 
-#     if status == '' and status2 == '':
-#         return [6, 6]
-#     else:
-#         return [12,12]
 
 
 @app.callback([Output('header-div','className'), Output('detail-cards-div','className'),
@@ -263,33 +242,6 @@ def update_initial_date2(date):
         return date
     else:
         return startdate_iso
-
-
-# @app.callback([Output('datepicker2','start_date'), Output('datepicker2','end_date')],
-#               [Input('timeseries-graph','clickData'), Input('timeseries-graph','selectedData')],
-#               [State("filter-meta-div2",'children')]
-#              )
-# def update_datepicker_from_graph2(clickData, selectedData, filter_data):
-#     log("update_datepicker_from_graph2",cb=True)
-
-#     if clickData is None and selectedData is None:
-#         raise PreventUpdate
-
-#     filter_data = json.loads(filter_data)
-
-#     if filter_data['date'] is not None:
-#         raise PreventUpdate
-
-
-#     if dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.clickData':
-#         date = clickData['points'][0]['x']
-#         return (date, date)
-#     elif dash.callback_context.triggered[0]['prop_id'] == 'timeseries-graph.selectedData':
-#         dates = [x['x'] for x in selectedData['points'] ]
-#         return (dates[0], dates[-1])
-
-#     else:
-#         raise PreventUpdate
 
 
 

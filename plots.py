@@ -6,8 +6,9 @@ import datetime as dt
 import geopandas
 import mobisys as mobi
 
-from credentials import *
-from helpers import *
+from credentials import  MAPBOX_TOKEN, DARKSKY_KEY, datapath
+from helpers import (log, filter_ddf, convert_dates, date_2_str, 
+                    date_2_div, get_hourly_max, get_daily_max)
 
 margin=go.layout.Margin(
     l=5,
@@ -394,7 +395,6 @@ def make_daily_fig(df=None,wdf=None, suff="", hmax=None, dmax=None, rmax=None, t
                        specs=[[{"secondary_y": False}], [{"secondary_y": True}]])
     
     if not daily:
-        print("short")
         fig.add_trace(go.Bar(
             x=trips_df['Time'],
             y=trips_df['Trips'],
@@ -404,7 +404,6 @@ def make_daily_fig(df=None,wdf=None, suff="", hmax=None, dmax=None, rmax=None, t
             row=1,col=1
                 )
     else:
-        print("long")
         fig.add_trace(go.Bar(
             x=trips_df['Time'],
             y=trips_df['Trips'],
