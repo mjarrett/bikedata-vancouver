@@ -509,7 +509,7 @@ def make_date_modal(suff=""):
                         dbc.Col(width=10, className='m-2 px-2 pt-2 border-top', children=html.H3("Filter by membership type")),
                         dbc.Col(width=6, children=[
                             dbc.Checklist(id=f'checklist-member-header{suff}', 
-                                options=[{'label':'Regular','value':'Member'}],
+                                options=[{'label':'Member','value':'Member'}],
                                 value=['Member']
                             ),
                                           
