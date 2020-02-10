@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import geopandas
 import json
+import datetime as dt
 
 import dash_core_components as dcc
 import dash_html_components as html
@@ -343,20 +344,14 @@ def make_detail_header(filter_data, suff=""):
     data_button_tt = dbc.Tooltip(target=f'data-button{suff}', children="View raw data")
         
     if len(date) == 2:
-        try:
-            d1 = datetime.strptime(date[0],'%Y-%m-%d').strftime('%A, %B %-d %Y')
-            d2 = datetime.strptime(date[1],'%Y-%m-%d').strftime('%A, %B %-d %Y')
-        except:
-            d1 = " "
-            d2 = " "
+        d1 = dt.datetime.strptime(date[0],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+        d2 = dt.datetime.strptime(date[1],'%Y-%m-%d').strftime('%A, %B %-d %Y')
+
         header_txt = dbc.Col([d1," ",html.Span(className="fa fa-arrow-right")," ", d2])
     else:
-        try:
-            d1 = datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
-        except:
-            d1 = " "
+        d1 = dt.datetime.strptime(date,'%Y-%m-%d').strftime('%A, %B %-d %Y')
+
         header_txt = dbc.Col(children=[d1])
-        
     header = dbc.Row(className='',children=[header_txt,date_button,date_button_tt,
                                             data_button,data_button_tt,
                                             date_button2,date_button2_tt,
