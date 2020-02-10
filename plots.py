@@ -4,11 +4,11 @@ from plotly.subplots import make_subplots
 import pandas as pd
 import datetime as dt
 import geopandas
-import mobisys as mobi
 
 from credentials import  MAPBOX_TOKEN, DARKSKY_KEY, datapath
 from helpers import (log, filter_ddf, convert_dates, date_2_str, 
-                    date_2_div, get_hourly_max, get_daily_max)
+                     date_2_div, get_hourly_max, get_daily_max, 
+                     make_thdf, make_rhdf, make_ahdf, make_con_df)
 
 margin=go.layout.Margin(
     l=5,
@@ -180,12 +180,12 @@ def make_station_map(df=None, direction='start', suff=""):
     else:
         
         if direction == 'start':
-            hdf = mobi.make_thdf(df)
+            hdf = make_thdf(df)
         elif direction == 'stop':
             log("make_rhdf")
-            hdf = mobi.make_rhdf(df)
+            hdf = make_rhdf(df)
         elif direction == 'both':
-            hdf = mobi.make_ahdf(df)
+            hdf = make_ahdf(df)
         else:
             raise ValueError("argument 'direction' must be on of start/stop/both")
 
@@ -228,7 +228,7 @@ def make_trips_map(df,direction='start',suff=""):
         color = c_green
     
     
-    cdf = mobi.make_con_df(df)
+    cdf = make_con_df(df)
     cdf = cdf[cdf['Departure lat'] > 1]
     cdf = cdf[cdf['Return lat'] > 1]
     
@@ -294,7 +294,7 @@ def make_trips_map(df,direction='start',suff=""):
         
     elif direction == 'both':
         
-        adf = mobi.make_ahdf(df).sum().astype(int)
+        adf = make_ahdf(df).sum().astype(int)
         adf = adf.reset_index()
         adf.columns = ['station','trips']
         adf = pd.merge(adf,sdf,left_on='station',right_on='name')
@@ -335,7 +335,7 @@ def make_daily_fig(df=None,wdf=None, suff="", hmax=None, dmax=None, rmax=None, t
   
     else:
         
-        thdf = mobi.make_thdf(df) 
+        thdf = make_thdf(df) 
         
         t1 = df.iloc[0].loc['Departure']
         t2 = df.iloc[-1].loc['Departure']

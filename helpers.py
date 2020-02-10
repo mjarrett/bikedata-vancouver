@@ -1,4 +1,3 @@
-import mobisys as mobi
 import numpy as np
 import pandas as pd
 import geopandas
@@ -130,3 +129,61 @@ def get_daily_max():
     thdf = pd.read_csv(f'{datapath}/data/Mobi_System_Data_taken_hourly.csv',index_col=0, parse_dates=True)
     tddf = thdf.groupby(pd.Grouper(freq='d')).sum()
     return tddf.sum(1).max()
+
+
+def make_thdf(df):
+
+    
+    thdf = df.pivot_table(index='Departure', 
+                     columns='Departure station', 
+                     values='Bike',
+                     fill_value=0, 
+                     aggfunc='count')
+    
+    thdf = thdf.groupby(pd.Grouper(freq='H')).sum() # Need this in case times aren't already rounded to hour
+    
+    indx = pd.date_range(thdf.index[0],thdf.index[-1], freq='H')
+    thdf = thdf.reindex(indx).fillna(0)
+    thdf = thdf.astype(int)
+    
+    return thdf
+
+def make_rhdf(df):
+    
+    rhdf = df.pivot_table(index='Return', 
+                     columns='Return station', 
+                     values='Bike',
+                     fill_value=0, 
+                     aggfunc='count')
+    
+    rhdf = rhdf.groupby(pd.Grouper(freq='H')).sum()
+    
+    indx = pd.date_range(rhdf.index[0],rhdf.index[-1], freq='H')
+    rhdf = rhdf.reindex(indx).fillna(0)
+    rhdf = rhdf.astype(int)
+    
+    return rhdf
+
+
+
+def make_ahdf(df):
+
+        
+    ahdf =  make_thdf(df).add(make_rhdf(df),fill_value=0)
+    
+    ahdf = ahdf.groupby(pd.Grouper(freq='H')).sum()
+    
+    indx = pd.date_range(ahdf.index[0],ahdf.index[-1], freq='H')
+    ahdf = ahdf.reindex(indx).fillna(0)
+    ahdf = ahdf.astype(int)
+    return ahdf
+
+
+def make_con_df(df):
+    
+    
+    condf = df.groupby(['Departure station','Return station','Departure lat','Return lat','Departure long','Return long']).size()
+    condf = condf.reset_index()
+    condf.columns = ['Departure station','Return station','Departure lat','Return lat','Departure long','Return long','trips']
+    
+    return condf
