@@ -15,7 +15,7 @@ Flask-Compress==1.4.0
 future==0.17.1
 geopandas==0.5.1
 itsdangerous==1.1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 kiwisolver==1.1.0
 lxml==4.4.1
 MarkupSafe==1.1.1
