@@ -17,7 +17,7 @@ geopandas==0.5.1
 itsdangerous==1.1.0
 Jinja2==2.10.1
 kiwisolver==1.1.0
-lxml==4.4.1
+lxml==4.6.5
 MarkupSafe==1.1.1
 matplotlib==3.1.1
 -e git+git@github.com:mjarrett/mobisys.git@d331aadd09e6a129c7557420606a62bdf97f487c#egg=mobisys
