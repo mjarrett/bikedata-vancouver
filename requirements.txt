@@ -22,7 +22,7 @@ MarkupSafe==1.1.1
 matplotlib==3.1.1
 -e git+git@github.com:mjarrett/mobisys.git@d331aadd09e6a129c7557420606a62bdf97f487c#egg=mobisys
 munch==2.3.2
-numpy==1.17.2
+numpy==1.22.0
 pandas==0.25.1
 plotly==4.1.1
 pyparsing==2.4.2
